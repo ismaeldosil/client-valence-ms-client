@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     teams_webhook_reports: Optional[str] = None
     teams_webhook_general: Optional[str] = None
     notifier_api_key: str = "dev-api-key"
-    notifier_port: int = 8000
+    notifier_port: int = 8001
 
     # Phase 2: Queries
     teams_webhook_secret: Optional[str] = None
