@@ -2,271 +2,1122 @@
   "info": {
     "_postman_id": "teams-agent-integration",
     "name": "Teams Agent Integration",
-    "description": "Collection for testing Teams Agent Integration",
+    "description": "Collection for testing Teams Agent Integration - All Phases",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Health Checks",
+      "name": "Phase 0 - Testing & Mocks",
       "item": [
         {
-          "name": "Mock Agent Health",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{mock_agent_url}}/health",
-              "host": ["{{mock_agent_url}}"],
-              "path": ["health"]
+          "name": "Health Checks",
+          "item": [
+            {
+              "name": "Mock Agent Health",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{mock_agent_url}}/health",
+                  "host": ["{{mock_agent_url}}"],
+                  "path": ["health"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Mock Webhook Health",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{mock_webhook_url}}/health",
+                  "host": ["{{mock_webhook_url}}"],
+                  "path": ["health"]
+                }
+              },
+              "response": []
             }
-          },
-          "response": []
+          ]
         },
         {
-          "name": "Mock Webhook Health",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{mock_webhook_url}}/health",
-              "host": ["{{mock_webhook_url}}"],
-              "path": ["health"]
+          "name": "Mock Agent",
+          "item": [
+            {
+              "name": "Query - Simple",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"Hola, como estas?\",\n  \"context\": {\n    \"platform\": \"postman\",\n    \"user_id\": \"postman-user\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{mock_agent_url}}/query",
+                  "host": ["{{mock_agent_url}}"],
+                  "path": ["query"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Query - Vacaciones",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"Cual es la politica de vacaciones?\",\n  \"context\": {\n    \"platform\": \"postman\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{mock_agent_url}}/query",
+                  "host": ["{{mock_agent_url}}"],
+                  "path": ["query"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Query - Horario",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"Cual es el horario de trabajo?\",\n  \"context\": {\n    \"platform\": \"postman\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{mock_agent_url}}/query",
+                  "host": ["{{mock_agent_url}}"],
+                  "path": ["query"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Query - With History",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"Y si no los uso todos?\",\n  \"context\": {\n    \"platform\": \"postman\"\n  },\n  \"conversation_history\": [\n    {\"role\": \"user\", \"content\": \"Cual es la politica de vacaciones?\"},\n    {\"role\": \"assistant\", \"content\": \"La politica de vacaciones permite 15 dias...\"}\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{mock_agent_url}}/query",
+                  "host": ["{{mock_agent_url}}"],
+                  "path": ["query"]
+                }
+              },
+              "response": []
             }
-          },
-          "response": []
+          ]
+        },
+        {
+          "name": "Mock Webhook",
+          "item": [
+            {
+              "name": "Simple Message",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"message\",\n  \"id\": \"postman-msg-001\",\n  \"text\": \"<at>Bot</at> Hola, como estas?\",\n  \"from\": {\n    \"id\": \"postman-user-001\",\n    \"name\": \"Postman User\"\n  },\n  \"conversation\": {\n    \"id\": \"postman-conv-001\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{mock_webhook_url}}/webhook",
+                  "host": ["{{mock_webhook_url}}"],
+                  "path": ["webhook"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Command - Clear",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"message\",\n  \"id\": \"postman-msg-002\",\n  \"text\": \"<at>Bot</at> /clear\",\n  \"from\": {\n    \"id\": \"postman-user-001\",\n    \"name\": \"Postman User\"\n  },\n  \"conversation\": {\n    \"id\": \"postman-conv-001\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{mock_webhook_url}}/webhook",
+                  "host": ["{{mock_webhook_url}}"],
+                  "path": ["webhook"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Command - History",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"message\",\n  \"id\": \"postman-msg-003\",\n  \"text\": \"<at>Bot</at> /history\",\n  \"from\": {\n    \"id\": \"postman-user-001\",\n    \"name\": \"Postman User\"\n  },\n  \"conversation\": {\n    \"id\": \"postman-conv-001\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{mock_webhook_url}}/webhook",
+                  "host": ["{{mock_webhook_url}}"],
+                  "path": ["webhook"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Command - Help",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"message\",\n  \"id\": \"postman-msg-004\",\n  \"text\": \"<at>Bot</at> /help\",\n  \"from\": {\n    \"id\": \"postman-user-001\",\n    \"name\": \"Postman User\"\n  },\n  \"conversation\": {\n    \"id\": \"postman-conv-001\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{mock_webhook_url}}/webhook",
+                  "host": ["{{mock_webhook_url}}"],
+                  "path": ["webhook"]
+                }
+              },
+              "response": []
+            }
+          ]
         }
       ]
     },
     {
-      "name": "Mock Agent",
+      "name": "Phase 1 - Notifications",
       "item": [
         {
-          "name": "Query - Simple",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"message\": \"Hola, como estas?\",\n  \"context\": {\n    \"platform\": \"postman\",\n    \"user_id\": \"postman-user\"\n  }\n}"
+          "name": "Notifier API",
+          "item": [
+            {
+              "name": "Health Check",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{notifier_api_url}}/health",
+                  "host": ["{{notifier_api_url}}"],
+                  "path": ["health"]
+                }
+              },
+              "response": []
             },
-            "url": {
-              "raw": "{{mock_agent_url}}/query",
-              "host": ["{{mock_agent_url}}"],
-              "path": ["query"]
+            {
+              "name": "List Channels",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{notifier_api_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{notifier_api_url}}/api/v1/channels",
+                  "host": ["{{notifier_api_url}}"],
+                  "path": ["api", "v1", "channels"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Send Notification - Text",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{notifier_api_key}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"channel\": \"alerts\",\n  \"message\": \"This is a test notification from Postman\",\n  \"priority\": \"medium\"\n}"
+                },
+                "url": {
+                  "raw": "{{notifier_api_url}}/api/v1/notify",
+                  "host": ["{{notifier_api_url}}"],
+                  "path": ["api", "v1", "notify"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Send Notification - With Title",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{notifier_api_key}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"channel\": \"alerts\",\n  \"message\": \"CPU usage exceeded 90% on production server\",\n  \"title\": \"High CPU Alert\",\n  \"priority\": \"high\"\n}"
+                },
+                "url": {
+                  "raw": "{{notifier_api_url}}/api/v1/notify",
+                  "host": ["{{notifier_api_url}}"],
+                  "path": ["api", "v1", "notify"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Send Notification - Alert Card",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{notifier_api_key}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"channel\": \"alerts\",\n  \"message\": \"Database connection pool exhausted. Immediate action required.\",\n  \"title\": \"Critical Database Alert\",\n  \"card_type\": \"alert\",\n  \"priority\": \"critical\"\n}"
+                },
+                "url": {
+                  "raw": "{{notifier_api_url}}/api/v1/notify",
+                  "host": ["{{notifier_api_url}}"],
+                  "path": ["api", "v1", "notify"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Send Notification - Info Card",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{notifier_api_key}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"channel\": \"general\",\n  \"message\": \"New version 2.1.0 has been deployed to production.\",\n  \"title\": \"Deployment Complete\",\n  \"card_type\": \"info\",\n  \"priority\": \"low\"\n}"
+                },
+                "url": {
+                  "raw": "{{notifier_api_url}}/api/v1/notify",
+                  "host": ["{{notifier_api_url}}"],
+                  "path": ["api", "v1", "notify"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Send Notification - Report Card",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{notifier_api_key}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"channel\": \"reports\",\n  \"message\": \"Daily sales: $45,230\\nOrders processed: 1,247\\nAverage order value: $36.27\",\n  \"title\": \"Daily Sales Report\",\n  \"card_type\": \"report\",\n  \"priority\": \"medium\",\n  \"metadata\": {\n    \"report_date\": \"2025-12-26\",\n    \"generated_by\": \"analytics-service\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{notifier_api_url}}/api/v1/notify",
+                  "host": ["{{notifier_api_url}}"],
+                  "path": ["api", "v1", "notify"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Send Notification - Invalid Channel",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{notifier_api_key}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"channel\": \"nonexistent\",\n  \"message\": \"This should fail\",\n  \"priority\": \"medium\"\n}"
+                },
+                "url": {
+                  "raw": "{{notifier_api_url}}/api/v1/notify",
+                  "host": ["{{notifier_api_url}}"],
+                  "path": ["api", "v1", "notify"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Send Notification - No Auth (401)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"channel\": \"alerts\",\n  \"message\": \"This should fail without API key\",\n  \"priority\": \"medium\"\n}"
+                },
+                "url": {
+                  "raw": "{{notifier_api_url}}/api/v1/notify",
+                  "host": ["{{notifier_api_url}}"],
+                  "path": ["api", "v1", "notify"]
+                }
+              },
+              "response": []
             }
-          },
-          "response": []
+          ]
         },
         {
-          "name": "Query - Vacaciones",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"message\": \"Cual es la politica de vacaciones?\",\n  \"context\": {\n    \"platform\": \"postman\"\n  }\n}"
+          "name": "Teams Direct (Incoming Webhook)",
+          "item": [
+            {
+              "name": "Send Text Message",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"text\": \"Hello from Postman! This is a direct message to Teams.\"\n}"
+                },
+                "url": {
+                  "raw": "{{teams_incoming_webhook_url}}",
+                  "host": ["{{teams_incoming_webhook_url}}"]
+                }
+              },
+              "response": []
             },
-            "url": {
-              "raw": "{{mock_agent_url}}/query",
-              "host": ["{{mock_agent_url}}"],
-              "path": ["query"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Query - Horario",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"message\": \"Cual es el horario de trabajo?\",\n  \"context\": {\n    \"platform\": \"postman\"\n  }\n}"
+            {
+              "name": "Send Bold/Markdown Message",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"text\": \"**Important Notice**\\n\\nThis message contains:\\n- Bold text\\n- A bullet list\\n- [A link](https://example.com)\"\n}"
+                },
+                "url": {
+                  "raw": "{{teams_incoming_webhook_url}}",
+                  "host": ["{{teams_incoming_webhook_url}}"]
+                }
+              },
+              "response": []
             },
-            "url": {
-              "raw": "{{mock_agent_url}}/query",
-              "host": ["{{mock_agent_url}}"],
-              "path": ["query"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Query - With History",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"message\": \"Y si no los uso todos?\",\n  \"context\": {\n    \"platform\": \"postman\"\n  },\n  \"conversation_history\": [\n    {\"role\": \"user\", \"content\": \"Cual es la politica de vacaciones?\"},\n    {\"role\": \"assistant\", \"content\": \"La politica de vacaciones permite 15 dias...\"}\n  ]\n}"
+            {
+              "name": "Send Adaptive Card - Simple",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"message\",\n  \"attachments\": [\n    {\n      \"contentType\": \"application/vnd.microsoft.card.adaptive\",\n      \"content\": {\n        \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n        \"type\": \"AdaptiveCard\",\n        \"version\": \"1.4\",\n        \"body\": [\n          {\n            \"type\": \"TextBlock\",\n            \"text\": \"Test Card\",\n            \"weight\": \"Bolder\",\n            \"size\": \"Medium\"\n          },\n          {\n            \"type\": \"TextBlock\",\n            \"text\": \"This is a test card sent directly from Postman.\",\n            \"wrap\": true\n          }\n        ]\n      }\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{teams_incoming_webhook_url}}",
+                  "host": ["{{teams_incoming_webhook_url}}"]
+                }
+              },
+              "response": []
             },
-            "url": {
-              "raw": "{{mock_agent_url}}/query",
-              "host": ["{{mock_agent_url}}"],
-              "path": ["query"]
+            {
+              "name": "Send Adaptive Card - Alert",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"message\",\n  \"attachments\": [\n    {\n      \"contentType\": \"application/vnd.microsoft.card.adaptive\",\n      \"content\": {\n        \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n        \"type\": \"AdaptiveCard\",\n        \"version\": \"1.4\",\n        \"body\": [\n          {\n            \"type\": \"Container\",\n            \"style\": \"attention\",\n            \"items\": [\n              {\n                \"type\": \"TextBlock\",\n                \"text\": \"\\ud83d\\udea8 CRITICAL ALERT\",\n                \"weight\": \"Bolder\",\n                \"size\": \"Large\",\n                \"color\": \"Attention\"\n              }\n            ]\n          },\n          {\n            \"type\": \"TextBlock\",\n            \"text\": \"Production server is down!\",\n            \"wrap\": true,\n            \"size\": \"Medium\"\n          },\n          {\n            \"type\": \"FactSet\",\n            \"facts\": [\n              {\"title\": \"Priority\", \"value\": \"Critical\"},\n              {\"title\": \"Server\", \"value\": \"prod-web-01\"},\n              {\"title\": \"Time\", \"value\": \"2025-12-26 10:30:00 UTC\"}\n            ]\n          }\n        ],\n        \"actions\": [\n          {\n            \"type\": \"Action.OpenUrl\",\n            \"title\": \"View Dashboard\",\n            \"url\": \"https://dashboard.example.com\"\n          }\n        ]\n      }\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{teams_incoming_webhook_url}}",
+                  "host": ["{{teams_incoming_webhook_url}}"]
+                }
+              },
+              "response": []
             }
-          },
-          "response": []
+          ]
         }
       ]
     },
     {
-      "name": "Mock Webhook",
+      "name": "Phase 2 - Queries Stateless",
       "item": [
         {
-          "name": "Simple Message",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"type\": \"message\",\n  \"id\": \"postman-msg-001\",\n  \"text\": \"<at>Bot</at> Hola, como estas?\",\n  \"from\": {\n    \"id\": \"postman-user-001\",\n    \"name\": \"Postman User\"\n  },\n  \"conversation\": {\n    \"id\": \"postman-conv-001\"\n  }\n}"
+          "name": "Webhook Receiver",
+          "item": [
+            {
+              "name": "Health Check",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{receiver_url}}/health",
+                  "host": ["{{receiver_url}}"],
+                  "path": ["health"]
+                }
+              },
+              "response": []
             },
-            "url": {
-              "raw": "{{mock_webhook_url}}/webhook",
-              "host": ["{{mock_webhook_url}}"],
-              "path": ["webhook"]
+            {
+              "name": "Simulate Teams Message - Simple",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "// Generate HMAC signature for Teams webhook",
+                      "const body = pm.request.body.raw;",
+                      "const secret = pm.environment.get('teams_hmac_secret');",
+                      "",
+                      "if (secret) {",
+                      "    const secretBytes = CryptoJS.enc.Base64.parse(secret);",
+                      "    const signature = CryptoJS.HmacSHA256(body, secretBytes);",
+                      "    const signatureBase64 = CryptoJS.enc.Base64.stringify(signature);",
+                      "    pm.request.headers.add({",
+                      "        key: 'Authorization',",
+                      "        value: 'HMAC ' + signatureBase64",
+                      "    });",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"message\",\n  \"id\": \"{{$guid}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"serviceUrl\": \"https://smba.trafficmanager.net/amer/\",\n  \"channelId\": \"msteams\",\n  \"from\": {\n    \"id\": \"29:user-aad-id\",\n    \"name\": \"Test User\",\n    \"aadObjectId\": \"user-aad-object-id\"\n  },\n  \"conversation\": {\n    \"id\": \"19:channel-id@thread.tacv2\",\n    \"conversationType\": \"channel\",\n    \"tenantId\": \"tenant-id\",\n    \"name\": \"General\"\n  },\n  \"recipient\": {\n    \"id\": \"28:bot-id\",\n    \"name\": \"Agent Bot\"\n  },\n  \"text\": \"<at>Agent Bot</at> What is the vacation policy?\",\n  \"entities\": [\n    {\n      \"type\": \"mention\",\n      \"mentioned\": {\n        \"id\": \"28:bot-id\",\n        \"name\": \"Agent Bot\"\n      },\n      \"text\": \"<at>Agent Bot</at>\"\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{receiver_url}}/webhook",
+                  "host": ["{{receiver_url}}"],
+                  "path": ["webhook"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Simulate Teams Message - Work Hours",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "// Generate HMAC signature for Teams webhook",
+                      "const body = pm.request.body.raw;",
+                      "const secret = pm.environment.get('teams_hmac_secret');",
+                      "",
+                      "if (secret) {",
+                      "    const secretBytes = CryptoJS.enc.Base64.parse(secret);",
+                      "    const signature = CryptoJS.HmacSHA256(body, secretBytes);",
+                      "    const signatureBase64 = CryptoJS.enc.Base64.stringify(signature);",
+                      "    pm.request.headers.add({",
+                      "        key: 'Authorization',",
+                      "        value: 'HMAC ' + signatureBase64",
+                      "    });",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"message\",\n  \"id\": \"{{$guid}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"serviceUrl\": \"https://smba.trafficmanager.net/amer/\",\n  \"channelId\": \"msteams\",\n  \"from\": {\n    \"id\": \"29:user-aad-id\",\n    \"name\": \"Test User\",\n    \"aadObjectId\": \"user-aad-object-id\"\n  },\n  \"conversation\": {\n    \"id\": \"19:channel-id@thread.tacv2\",\n    \"conversationType\": \"channel\",\n    \"tenantId\": \"tenant-id\"\n  },\n  \"recipient\": {\n    \"id\": \"28:bot-id\",\n    \"name\": \"Agent Bot\"\n  },\n  \"text\": \"<at>Agent Bot</at> What are the work hours?\",\n  \"entities\": [\n    {\n      \"type\": \"mention\",\n      \"mentioned\": {\n        \"id\": \"28:bot-id\",\n        \"name\": \"Agent Bot\"\n      },\n      \"text\": \"<at>Agent Bot</at>\"\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{receiver_url}}/webhook",
+                  "host": ["{{receiver_url}}"],
+                  "path": ["webhook"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Simulate Teams Message - Help Command",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "// Generate HMAC signature for Teams webhook",
+                      "const body = pm.request.body.raw;",
+                      "const secret = pm.environment.get('teams_hmac_secret');",
+                      "",
+                      "if (secret) {",
+                      "    const secretBytes = CryptoJS.enc.Base64.parse(secret);",
+                      "    const signature = CryptoJS.HmacSHA256(body, secretBytes);",
+                      "    const signatureBase64 = CryptoJS.enc.Base64.stringify(signature);",
+                      "    pm.request.headers.add({",
+                      "        key: 'Authorization',",
+                      "        value: 'HMAC ' + signatureBase64",
+                      "    });",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"message\",\n  \"id\": \"{{$guid}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"serviceUrl\": \"https://smba.trafficmanager.net/amer/\",\n  \"channelId\": \"msteams\",\n  \"from\": {\n    \"id\": \"29:user-aad-id\",\n    \"name\": \"Test User\"\n  },\n  \"conversation\": {\n    \"id\": \"19:channel-id@thread.tacv2\",\n    \"conversationType\": \"channel\",\n    \"tenantId\": \"tenant-id\"\n  },\n  \"recipient\": {\n    \"id\": \"28:bot-id\",\n    \"name\": \"Agent Bot\"\n  },\n  \"text\": \"<at>Agent Bot</at> /help\",\n  \"entities\": [\n    {\n      \"type\": \"mention\",\n      \"mentioned\": {\n        \"id\": \"28:bot-id\",\n        \"name\": \"Agent Bot\"\n      },\n      \"text\": \"<at>Agent Bot</at>\"\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{receiver_url}}/webhook",
+                  "host": ["{{receiver_url}}"],
+                  "path": ["webhook"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Simulate Teams Message - No HMAC (401)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"message\",\n  \"id\": \"test-msg-id\",\n  \"text\": \"<at>Agent Bot</at> Hello\",\n  \"from\": {\n    \"id\": \"user-id\",\n    \"name\": \"User\"\n  },\n  \"conversation\": {\n    \"id\": \"conv-id\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{receiver_url}}/webhook",
+                  "host": ["{{receiver_url}}"],
+                  "path": ["webhook"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Simulate Teams Message - Invalid HMAC (401)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "HMAC invalidbase64signature=="
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"message\",\n  \"id\": \"test-msg-id\",\n  \"text\": \"<at>Agent Bot</at> Hello\",\n  \"from\": {\n    \"id\": \"user-id\",\n    \"name\": \"User\"\n  },\n  \"conversation\": {\n    \"id\": \"conv-id\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{receiver_url}}/webhook",
+                  "host": ["{{receiver_url}}"],
+                  "path": ["webhook"]
+                }
+              },
+              "response": []
             }
-          },
-          "response": []
+          ]
         },
         {
-          "name": "Command - Clear",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"type\": \"message\",\n  \"id\": \"postman-msg-002\",\n  \"text\": \"<at>Bot</at> /clear\",\n  \"from\": {\n    \"id\": \"postman-user-001\",\n    \"name\": \"Postman User\"\n  },\n  \"conversation\": {\n    \"id\": \"postman-conv-001\"\n  }\n}"
+          "name": "Agent Client",
+          "item": [
+            {
+              "name": "Agent Health Check",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{agent_api_key}}",
+                    "disabled": true
+                  }
+                ],
+                "url": {
+                  "raw": "{{agent_base_url}}/health",
+                  "host": ["{{agent_base_url}}"],
+                  "path": ["health"]
+                }
+              },
+              "response": []
             },
-            "url": {
-              "raw": "{{mock_webhook_url}}/webhook",
-              "host": ["{{mock_webhook_url}}"],
-              "path": ["webhook"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Command - History",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"type\": \"message\",\n  \"id\": \"postman-msg-003\",\n  \"text\": \"<at>Bot</at> /history\",\n  \"from\": {\n    \"id\": \"postman-user-001\",\n    \"name\": \"Postman User\"\n  },\n  \"conversation\": {\n    \"id\": \"postman-conv-001\"\n  }\n}"
+            {
+              "name": "Agent Query - Simple",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{agent_api_key}}",
+                    "disabled": true
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"What is the vacation policy?\",\n  \"context\": {\n    \"platform\": \"teams\",\n    \"user_id\": \"user-123\",\n    \"user_name\": \"Test User\",\n    \"conversation_id\": \"conv-456\",\n    \"tenant_id\": \"tenant-789\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{agent_base_url}}/query",
+                  "host": ["{{agent_base_url}}"],
+                  "path": ["query"]
+                }
+              },
+              "response": []
             },
-            "url": {
-              "raw": "{{mock_webhook_url}}/webhook",
-              "host": ["{{mock_webhook_url}}"],
-              "path": ["webhook"]
+            {
+              "name": "Agent Query - With Timeout",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{agent_api_key}}",
+                    "disabled": true
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"Explain the entire company structure in detail\",\n  \"context\": {\n    \"platform\": \"teams\",\n    \"user_id\": \"user-123\"\n  },\n  \"timeout\": 4.0\n}"
+                },
+                "url": {
+                  "raw": "{{agent_base_url}}/query",
+                  "host": ["{{agent_base_url}}"],
+                  "path": ["query"]
+                }
+              },
+              "response": []
             }
-          },
-          "response": []
-        },
-        {
-          "name": "Command - Help",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"type\": \"message\",\n  \"id\": \"postman-msg-004\",\n  \"text\": \"<at>Bot</at> /help\",\n  \"from\": {\n    \"id\": \"postman-user-001\",\n    \"name\": \"Postman User\"\n  },\n  \"conversation\": {\n    \"id\": \"postman-conv-001\"\n  }\n}"
-            },
-            "url": {
-              "raw": "{{mock_webhook_url}}/webhook",
-              "host": ["{{mock_webhook_url}}"],
-              "path": ["webhook"]
-            }
-          },
-          "response": []
+          ]
         }
       ]
     },
     {
-      "name": "Teams Real (Optional)",
+      "name": "Phase 3 - Queries with Memory",
       "item": [
         {
-          "name": "Send Text Message",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"text\": \"Hello from Postman!\"\n}"
+          "name": "Session Management",
+          "item": [
+            {
+              "name": "Create Session",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "HMAC {{generated_hmac}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user_id\": \"user-123\",\n  \"conversation_id\": \"conv-456\",\n  \"tenant_id\": \"tenant-789\",\n  \"ttl_minutes\": 30\n}"
+                },
+                "url": {
+                  "raw": "{{receiver_url}}/api/v1/sessions",
+                  "host": ["{{receiver_url}}"],
+                  "path": ["api", "v1", "sessions"]
+                },
+                "description": "Create a new conversation session for multi-turn interactions"
+              },
+              "response": []
             },
-            "url": {
-              "raw": "{{teams_webhook_url}}",
-              "host": ["{{teams_webhook_url}}"]
+            {
+              "name": "Get Session",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "HMAC {{generated_hmac}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{receiver_url}}/api/v1/sessions/:session_id",
+                  "host": ["{{receiver_url}}"],
+                  "path": ["api", "v1", "sessions", ":session_id"],
+                  "variable": [
+                    {
+                      "key": "session_id",
+                      "value": "session-123"
+                    }
+                  ]
+                },
+                "description": "Get session details including conversation history"
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Session",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "HMAC {{generated_hmac}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{receiver_url}}/api/v1/sessions/:session_id",
+                  "host": ["{{receiver_url}}"],
+                  "path": ["api", "v1", "sessions", ":session_id"],
+                  "variable": [
+                    {
+                      "key": "session_id",
+                      "value": "session-123"
+                    }
+                  ]
+                },
+                "description": "Delete/clear a session and its history"
+              },
+              "response": []
+            },
+            {
+              "name": "List User Sessions",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "HMAC {{generated_hmac}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{receiver_url}}/api/v1/sessions?user_id=user-123",
+                  "host": ["{{receiver_url}}"],
+                  "path": ["api", "v1", "sessions"],
+                  "query": [
+                    {
+                      "key": "user_id",
+                      "value": "user-123"
+                    }
+                  ]
+                },
+                "description": "List all sessions for a user"
+              },
+              "response": []
             }
-          },
-          "response": []
+          ]
         },
         {
-          "name": "Send Adaptive Card",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"type\": \"message\",\n  \"attachments\": [\n    {\n      \"contentType\": \"application/vnd.microsoft.card.adaptive\",\n      \"content\": {\n        \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n        \"type\": \"AdaptiveCard\",\n        \"version\": \"1.4\",\n        \"body\": [\n          {\n            \"type\": \"TextBlock\",\n            \"text\": \"Test Card\",\n            \"weight\": \"Bolder\",\n            \"size\": \"Medium\"\n          },\n          {\n            \"type\": \"TextBlock\",\n            \"text\": \"This is a test card from Postman\",\n            \"wrap\": true\n          }\n        ]\n      }\n    }\n  ]\n}"
+          "name": "Stateful Queries",
+          "item": [
+            {
+              "name": "Webhook - First Message (Creates Session)",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "// Generate HMAC signature for Teams webhook",
+                      "const body = pm.request.body.raw;",
+                      "const secret = pm.environment.get('teams_hmac_secret');",
+                      "",
+                      "if (secret) {",
+                      "    const secretBytes = CryptoJS.enc.Base64.parse(secret);",
+                      "    const signature = CryptoJS.HmacSHA256(body, secretBytes);",
+                      "    const signatureBase64 = CryptoJS.enc.Base64.stringify(signature);",
+                      "    pm.request.headers.add({",
+                      "        key: 'Authorization',",
+                      "        value: 'HMAC ' + signatureBase64",
+                      "    });",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"message\",\n  \"id\": \"{{$guid}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"channelId\": \"msteams\",\n  \"from\": {\n    \"id\": \"29:session-test-user\",\n    \"name\": \"Session Test User\"\n  },\n  \"conversation\": {\n    \"id\": \"19:session-test-channel@thread.tacv2\",\n    \"conversationType\": \"channel\",\n    \"tenantId\": \"session-test-tenant\"\n  },\n  \"recipient\": {\n    \"id\": \"28:bot-id\",\n    \"name\": \"Agent Bot\"\n  },\n  \"text\": \"<at>Agent Bot</at> What is the vacation policy?\",\n  \"entities\": [\n    {\n      \"type\": \"mention\",\n      \"mentioned\": {\n        \"id\": \"28:bot-id\",\n        \"name\": \"Agent Bot\"\n      },\n      \"text\": \"<at>Agent Bot</at>\"\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{receiver_url}}/webhook",
+                  "host": ["{{receiver_url}}"],
+                  "path": ["webhook"]
+                },
+                "description": "First message creates a new session automatically"
+              },
+              "response": []
             },
-            "url": {
-              "raw": "{{teams_webhook_url}}",
-              "host": ["{{teams_webhook_url}}"]
+            {
+              "name": "Webhook - Follow-up (Uses History)",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "// Generate HMAC signature for Teams webhook",
+                      "const body = pm.request.body.raw;",
+                      "const secret = pm.environment.get('teams_hmac_secret');",
+                      "",
+                      "if (secret) {",
+                      "    const secretBytes = CryptoJS.enc.Base64.parse(secret);",
+                      "    const signature = CryptoJS.HmacSHA256(body, secretBytes);",
+                      "    const signatureBase64 = CryptoJS.enc.Base64.stringify(signature);",
+                      "    pm.request.headers.add({",
+                      "        key: 'Authorization',",
+                      "        value: 'HMAC ' + signatureBase64",
+                      "    });",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"message\",\n  \"id\": \"{{$guid}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"channelId\": \"msteams\",\n  \"from\": {\n    \"id\": \"29:session-test-user\",\n    \"name\": \"Session Test User\"\n  },\n  \"conversation\": {\n    \"id\": \"19:session-test-channel@thread.tacv2\",\n    \"conversationType\": \"channel\",\n    \"tenantId\": \"session-test-tenant\"\n  },\n  \"recipient\": {\n    \"id\": \"28:bot-id\",\n    \"name\": \"Agent Bot\"\n  },\n  \"text\": \"<at>Agent Bot</at> And what if I don't use them all?\",\n  \"entities\": [\n    {\n      \"type\": \"mention\",\n      \"mentioned\": {\n        \"id\": \"28:bot-id\",\n        \"name\": \"Agent Bot\"\n      },\n      \"text\": \"<at>Agent Bot</at>\"\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{receiver_url}}/webhook",
+                  "host": ["{{receiver_url}}"],
+                  "path": ["webhook"]
+                },
+                "description": "Follow-up message - should use conversation history from session"
+              },
+              "response": []
+            },
+            {
+              "name": "Webhook - Clear Command",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "// Generate HMAC signature for Teams webhook",
+                      "const body = pm.request.body.raw;",
+                      "const secret = pm.environment.get('teams_hmac_secret');",
+                      "",
+                      "if (secret) {",
+                      "    const secretBytes = CryptoJS.enc.Base64.parse(secret);",
+                      "    const signature = CryptoJS.HmacSHA256(body, secretBytes);",
+                      "    const signatureBase64 = CryptoJS.enc.Base64.stringify(signature);",
+                      "    pm.request.headers.add({",
+                      "        key: 'Authorization',",
+                      "        value: 'HMAC ' + signatureBase64",
+                      "    });",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"message\",\n  \"id\": \"{{$guid}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"channelId\": \"msteams\",\n  \"from\": {\n    \"id\": \"29:session-test-user\",\n    \"name\": \"Session Test User\"\n  },\n  \"conversation\": {\n    \"id\": \"19:session-test-channel@thread.tacv2\",\n    \"conversationType\": \"channel\",\n    \"tenantId\": \"session-test-tenant\"\n  },\n  \"recipient\": {\n    \"id\": \"28:bot-id\",\n    \"name\": \"Agent Bot\"\n  },\n  \"text\": \"<at>Agent Bot</at> /clear\",\n  \"entities\": [\n    {\n      \"type\": \"mention\",\n      \"mentioned\": {\n        \"id\": \"28:bot-id\",\n        \"name\": \"Agent Bot\"\n      },\n      \"text\": \"<at>Agent Bot</at>\"\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{receiver_url}}/webhook",
+                  "host": ["{{receiver_url}}"],
+                  "path": ["webhook"]
+                },
+                "description": "Clear session history command"
+              },
+              "response": []
+            },
+            {
+              "name": "Webhook - History Command",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "// Generate HMAC signature for Teams webhook",
+                      "const body = pm.request.body.raw;",
+                      "const secret = pm.environment.get('teams_hmac_secret');",
+                      "",
+                      "if (secret) {",
+                      "    const secretBytes = CryptoJS.enc.Base64.parse(secret);",
+                      "    const signature = CryptoJS.HmacSHA256(body, secretBytes);",
+                      "    const signatureBase64 = CryptoJS.enc.Base64.stringify(signature);",
+                      "    pm.request.headers.add({",
+                      "        key: 'Authorization',",
+                      "        value: 'HMAC ' + signatureBase64",
+                      "    });",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"message\",\n  \"id\": \"{{$guid}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"channelId\": \"msteams\",\n  \"from\": {\n    \"id\": \"29:session-test-user\",\n    \"name\": \"Session Test User\"\n  },\n  \"conversation\": {\n    \"id\": \"19:session-test-channel@thread.tacv2\",\n    \"conversationType\": \"channel\",\n    \"tenantId\": \"session-test-tenant\"\n  },\n  \"recipient\": {\n    \"id\": \"28:bot-id\",\n    \"name\": \"Agent Bot\"\n  },\n  \"text\": \"<at>Agent Bot</at> /history\",\n  \"entities\": [\n    {\n      \"type\": \"mention\",\n      \"mentioned\": {\n        \"id\": \"28:bot-id\",\n        \"name\": \"Agent Bot\"\n      },\n      \"text\": \"<at>Agent Bot</at>\"\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{receiver_url}}/webhook",
+                  "host": ["{{receiver_url}}"],
+                  "path": ["webhook"]
+                },
+                "description": "Show conversation history command"
+              },
+              "response": []
             }
-          },
-          "response": []
+          ]
         }
       ]
     }
