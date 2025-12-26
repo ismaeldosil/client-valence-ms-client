@@ -34,10 +34,10 @@ class Settings(BaseSettings):
     # Phase 2: Queries (Outgoing Webhooks)
     teams_hmac_secret: Optional[str] = None
     receiver_port: int = 3000
-    agent_protocol: str = "rest"
-    agent_base_url: Optional[str] = None
+    agent_base_url: str = "http://localhost:8000"
     agent_api_key: Optional[str] = None
-    agent_timeout: float = 30.0
+    agent_timeout: float = 4.5  # Must be < 5s for Teams Outgoing Webhooks
+    agent_max_retries: int = 1  # Limited retries due to Teams timeout
 
     # Phase 3: Memory
     session_store: str = "memory"

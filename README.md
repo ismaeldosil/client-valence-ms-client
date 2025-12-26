@@ -16,23 +16,33 @@ Microsoft Teams integration client for AI Agent communication.
 - Notification Service with channel registry
 - Notifier API with authentication
 
+### Phase 2 - Queries Stateless (Teams → Agent)
+- Webhook Receiver for Teams Outgoing Webhooks (port 3001)
+- HMAC-SHA256 signature verification
+- Agent Client for forwarding queries
+- Commands: `/help`, `/status`, `/clear`
+
 ## Project Structure
 
 ```
 client-valence-ms-client/
 ├── src/
-│   ├── core/                   # Core modules
-│   ├── teams/sender/           # Phase 1: Teams sender
+│   ├── core/                   # Core modules (config, logging, exceptions)
+│   ├── teams/
+│   │   ├── sender/             # Phase 1: Teams sender (Adaptive Cards)
+│   │   └── receiver/           # Phase 2: Webhook receiver (HMAC, handler)
+│   ├── agent/                  # Phase 2: Agent client
 │   ├── notifier/               # Phase 1: Notification service
-│   └── api/                    # Phase 1: Notifier API
+│   └── api/                    # APIs (notifier, receiver)
 ├── tests/
 │   ├── mocks/                  # Mock servers
 │   ├── phase0/                 # Phase 0 tests
 │   └── phase1/                 # Phase 1 tests
 ├── scripts/
 │   ├── phase0/                 # Mock server scripts
-│   └── phase1/                 # Notification scripts
-├── postman/                    # Postman collection
+│   ├── phase1/                 # Notification scripts
+│   └── phase2/                 # Receiver scripts
+├── postman/                    # Postman collection & environments
 ├── requirements/               # Dependencies
 └── docs/                       # Documentation
 ```
@@ -73,6 +83,12 @@ python scripts/phase0/start_mock_webhook.py &  # port 3000
 
 # Phase 1: Start Notifier API
 python scripts/phase1/start_notifier_api.py &  # port 8001
+
+# Phase 2: Start Webhook Receiver (requires HTTPS tunnel for Teams)
+python scripts/phase2/start_receiver.py &      # port 3001
+
+# For local testing with Teams, expose via tunnel:
+cloudflared tunnel --url http://localhost:3001
 ```
 
 ### Testing
@@ -122,6 +138,7 @@ NOTIFIER_PORT=8001
 | Mock Agent | 8080 | 0 | Simulates AI Agent |
 | Mock Webhook | 3000 | 0 | Simulates Teams webhook receiver |
 | Notifier API | 8001 | 1 | Sends notifications to Teams |
+| Webhook Receiver | 3001 | 2 | Receives messages from Teams |
 
 ## Documentation
 
@@ -138,8 +155,14 @@ NOTIFIER_PORT=8001
 |-------|-------------|--------|
 | 0 | Testing & Mocks | Complete |
 | 1 | Notifications (Agent → Teams) | Complete |
-| 2 | Queries Stateless (Teams → Agent) | Pending |
+| 2 | Queries Stateless (Teams → Agent) | Complete |
 | 3 | Queries with Memory | Pending |
+
+## Known Limitations
+
+- **5-second timeout**: Teams Outgoing Webhooks require responses within 5 seconds
+- **Shared Channels**: Outgoing Webhooks don't work in Shared Channels (Microsoft limitation)
+- **Standard Channels only**: Bot can only be @mentioned in standard Team channels
 
 ## Tech Stack
 

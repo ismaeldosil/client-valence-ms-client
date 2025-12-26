@@ -41,76 +41,87 @@
           ]
         },
         {
-          "name": "Mock Agent",
+          "name": "Mock Agent (v2 API)",
           "item": [
             {
-              "name": "Query - Simple",
+              "name": "Chat - Simple",
               "request": {
                 "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
+                "header": [{"key": "Content-Type", "value": "application/json"}],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"message\": \"Hola, como estas?\",\n  \"context\": {\n    \"platform\": \"postman\",\n    \"user_id\": \"postman-user\"\n  }\n}"
+                  "raw": "{\n  \"message\": \"Hello, how are you?\",\n  \"user_id\": \"postman-user\"\n}"
                 },
                 "url": {
-                  "raw": "{{mock_agent_url}}/query",
+                  "raw": "{{mock_agent_url}}/api/v1/chat",
                   "host": ["{{mock_agent_url}}"],
-                  "path": ["query"]
+                  "path": ["api", "v1", "chat"]
                 }
               },
               "response": []
             },
             {
-              "name": "Query - Vacaciones",
+              "name": "Chat - Supplier Search",
               "request": {
                 "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
+                "header": [{"key": "Content-Type", "value": "application/json"}],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"message\": \"Cual es la politica de vacaciones?\",\n  \"context\": {\n    \"platform\": \"postman\"\n  }\n}"
+                  "raw": "{\n  \"message\": \"Find suppliers for heat treatment with Nadcap certification\",\n  \"user_id\": \"postman-user\"\n}"
                 },
                 "url": {
-                  "raw": "{{mock_agent_url}}/query",
+                  "raw": "{{mock_agent_url}}/api/v1/chat",
                   "host": ["{{mock_agent_url}}"],
-                  "path": ["query"]
+                  "path": ["api", "v1", "chat"]
                 }
               },
               "response": []
             },
             {
-              "name": "Query - Horario",
+              "name": "Chat - With Session",
               "request": {
                 "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
+                "header": [{"key": "Content-Type", "value": "application/json"}],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"message\": \"Cual es el horario de trabajo?\",\n  \"context\": {\n    \"platform\": \"postman\"\n  }\n}"
+                  "raw": "{\n  \"message\": \"What about their quality scores?\",\n  \"session_id\": \"test-session-123\",\n  \"user_id\": \"postman-user\"\n}"
                 },
                 "url": {
-                  "raw": "{{mock_agent_url}}/query",
+                  "raw": "{{mock_agent_url}}/api/v1/chat",
                   "host": ["{{mock_agent_url}}"],
-                  "path": ["query"]
+                  "path": ["api", "v1", "chat"]
                 }
               },
               "response": []
             },
             {
-              "name": "Query - With History",
+              "name": "Get Session",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{mock_agent_url}}/api/v1/sessions/test-session-123",
+                  "host": ["{{mock_agent_url}}"],
+                  "path": ["api", "v1", "sessions", "test-session-123"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Session",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{mock_agent_url}}/api/v1/sessions/test-session-123",
+                  "host": ["{{mock_agent_url}}"],
+                  "path": ["api", "v1", "sessions", "test-session-123"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Legacy Query (deprecated)",
               "request": {
                 "method": "POST",
                 "header": [
@@ -121,7 +132,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"message\": \"Y si no los uso todos?\",\n  \"context\": {\n    \"platform\": \"postman\"\n  },\n  \"conversation_history\": [\n    {\"role\": \"user\", \"content\": \"Cual es la politica de vacaciones?\"},\n    {\"role\": \"assistant\", \"content\": \"La politica de vacaciones permite 15 dias...\"}\n  ]\n}"
+                  "raw": "{\n  \"message\": \"What is the work schedule?\",\n  \"context\": {\n    \"platform\": \"postman\"\n  }\n}"
                 },
                 "url": {
                   "raw": "{{mock_agent_url}}/query",
@@ -449,88 +460,115 @@
           "name": "Teams Direct (Power Automate Workflow)",
           "item": [
             {
-              "name": "Send Text Message",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"text\": \"Hello from Postman! This is a direct message to Teams.\"\n}"
+              "name": "Alerts Channel",
+              "item": [
+                {
+                  "name": "Send Alert Card",
+                  "request": {
+                    "method": "POST",
+                    "header": [{"key": "Content-Type", "value": "application/json"}],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"type\": \"message\",\n  \"attachments\": [{\n    \"contentType\": \"application/vnd.microsoft.card.adaptive\",\n    \"content\": {\n      \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n      \"type\": \"AdaptiveCard\",\n      \"version\": \"1.4\",\n      \"body\": [\n        {\n          \"type\": \"Container\",\n          \"style\": \"attention\",\n          \"items\": [{\n            \"type\": \"TextBlock\",\n            \"text\": \"🚨 CRITICAL ALERT\",\n            \"weight\": \"Bolder\",\n            \"size\": \"Large\",\n            \"color\": \"Attention\"\n          }]\n        },\n        {\n          \"type\": \"TextBlock\",\n          \"text\": \"Production server is down!\",\n          \"wrap\": true,\n          \"size\": \"Medium\"\n        },\n        {\n          \"type\": \"FactSet\",\n          \"facts\": [\n            {\"title\": \"Priority\", \"value\": \"Critical\"},\n            {\"title\": \"Server\", \"value\": \"prod-web-01\"},\n            {\"title\": \"Time\", \"value\": \"2025-12-26 10:30:00 UTC\"}\n          ]\n        }\n      ],\n      \"actions\": [{\n        \"type\": \"Action.OpenUrl\",\n        \"title\": \"View Dashboard\",\n        \"url\": \"https://dashboard.example.com\"\n      }]\n    }\n  }]\n}"
+                    },
+                    "url": {
+                      "raw": "{{teams_workflow_alerts}}",
+                      "host": ["{{teams_workflow_alerts}}"]
+                    }
+                  },
+                  "response": []
                 },
-                "url": {
-                  "raw": "{{teams_workflow_url}}",
-                  "host": ["{{teams_workflow_url}}"]
+                {
+                  "name": "Send Simple Message",
+                  "request": {
+                    "method": "POST",
+                    "header": [{"key": "Content-Type", "value": "application/json"}],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"type\": \"message\",\n  \"attachments\": [{\n    \"contentType\": \"application/vnd.microsoft.card.adaptive\",\n    \"content\": {\n      \"type\": \"AdaptiveCard\",\n      \"version\": \"1.4\",\n      \"body\": [{\n        \"type\": \"TextBlock\",\n        \"text\": \"⚠️ **Alert:** This is a test alert message from Postman.\",\n        \"wrap\": true\n      }]\n    }\n  }]\n}"
+                    },
+                    "url": {
+                      "raw": "{{teams_workflow_alerts}}",
+                      "host": ["{{teams_workflow_alerts}}"]
+                    }
+                  },
+                  "response": []
                 }
-              },
-              "response": []
+              ]
             },
             {
-              "name": "Send Bold/Markdown Message",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"text\": \"**Important Notice**\\n\\nThis message contains:\\n- Bold text\\n- A bullet list\\n- [A link](https://example.com)\"\n}"
+              "name": "Reports Channel",
+              "item": [
+                {
+                  "name": "Send Report Card",
+                  "request": {
+                    "method": "POST",
+                    "header": [{"key": "Content-Type", "value": "application/json"}],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"type\": \"message\",\n  \"attachments\": [{\n    \"contentType\": \"application/vnd.microsoft.card.adaptive\",\n    \"content\": {\n      \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n      \"type\": \"AdaptiveCard\",\n      \"version\": \"1.4\",\n      \"body\": [\n        {\n          \"type\": \"TextBlock\",\n          \"text\": \"📊 Daily Report\",\n          \"weight\": \"Bolder\",\n          \"size\": \"Large\"\n        },\n        {\n          \"type\": \"TextBlock\",\n          \"text\": \"Summary for December 26, 2025\",\n          \"isSubtle\": true\n        },\n        {\n          \"type\": \"FactSet\",\n          \"facts\": [\n            {\"title\": \"Total Users\", \"value\": \"1,234\"},\n            {\"title\": \"Active Sessions\", \"value\": \"567\"},\n            {\"title\": \"Requests Processed\", \"value\": \"45,678\"},\n            {\"title\": \"Avg Response Time\", \"value\": \"120ms\"}\n          ]\n        }\n      ],\n      \"actions\": [{\n        \"type\": \"Action.OpenUrl\",\n        \"title\": \"View Full Report\",\n        \"url\": \"https://reports.example.com\"\n      }]\n    }\n  }]\n}"
+                    },
+                    "url": {
+                      "raw": "{{teams_workflow_reports}}",
+                      "host": ["{{teams_workflow_reports}}"]
+                    }
+                  },
+                  "response": []
                 },
-                "url": {
-                  "raw": "{{teams_workflow_url}}",
-                  "host": ["{{teams_workflow_url}}"]
+                {
+                  "name": "Send Simple Message",
+                  "request": {
+                    "method": "POST",
+                    "header": [{"key": "Content-Type", "value": "application/json"}],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"type\": \"message\",\n  \"attachments\": [{\n    \"contentType\": \"application/vnd.microsoft.card.adaptive\",\n    \"content\": {\n      \"type\": \"AdaptiveCard\",\n      \"version\": \"1.4\",\n      \"body\": [{\n        \"type\": \"TextBlock\",\n        \"text\": \"📈 **Daily Report Ready:** All systems operational. Check the dashboard for details.\",\n        \"wrap\": true\n      }]\n    }\n  }]\n}"
+                    },
+                    "url": {
+                      "raw": "{{teams_workflow_reports}}",
+                      "host": ["{{teams_workflow_reports}}"]
+                    }
+                  },
+                  "response": []
                 }
-              },
-              "response": []
+              ]
             },
             {
-              "name": "Send Adaptive Card - Simple",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"type\": \"message\",\n  \"attachments\": [\n    {\n      \"contentType\": \"application/vnd.microsoft.card.adaptive\",\n      \"content\": {\n        \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n        \"type\": \"AdaptiveCard\",\n        \"version\": \"1.4\",\n        \"body\": [\n          {\n            \"type\": \"TextBlock\",\n            \"text\": \"Test Card\",\n            \"weight\": \"Bolder\",\n            \"size\": \"Medium\"\n          },\n          {\n            \"type\": \"TextBlock\",\n            \"text\": \"This is a test card sent directly from Postman.\",\n            \"wrap\": true\n          }\n        ]\n      }\n    }\n  ]\n}"
+              "name": "General Channel",
+              "item": [
+                {
+                  "name": "Send Info Card",
+                  "request": {
+                    "method": "POST",
+                    "header": [{"key": "Content-Type", "value": "application/json"}],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"type\": \"message\",\n  \"attachments\": [{\n    \"contentType\": \"application/vnd.microsoft.card.adaptive\",\n    \"content\": {\n      \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n      \"type\": \"AdaptiveCard\",\n      \"version\": \"1.4\",\n      \"body\": [\n        {\n          \"type\": \"TextBlock\",\n          \"text\": \"ℹ️ System Notification\",\n          \"weight\": \"Bolder\",\n          \"size\": \"Medium\"\n        },\n        {\n          \"type\": \"TextBlock\",\n          \"text\": \"This is a general notification from the AI Agent integration system.\",\n          \"wrap\": true\n        },\n        {\n          \"type\": \"TextBlock\",\n          \"text\": \"Sent via Power Automate Workflow\",\n          \"isSubtle\": true,\n          \"size\": \"Small\"\n        }\n      ]\n    }\n  }]\n}"
+                    },
+                    "url": {
+                      "raw": "{{teams_workflow_general}}",
+                      "host": ["{{teams_workflow_general}}"]
+                    }
+                  },
+                  "response": []
                 },
-                "url": {
-                  "raw": "{{teams_workflow_url}}",
-                  "host": ["{{teams_workflow_url}}"]
+                {
+                  "name": "Send Simple Message",
+                  "request": {
+                    "method": "POST",
+                    "header": [{"key": "Content-Type", "value": "application/json"}],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"type\": \"message\",\n  \"attachments\": [{\n    \"contentType\": \"application/vnd.microsoft.card.adaptive\",\n    \"content\": {\n      \"type\": \"AdaptiveCard\",\n      \"version\": \"1.4\",\n      \"body\": [{\n        \"type\": \"TextBlock\",\n        \"text\": \"👋 **Hello from AI Agent!** This is a test message to the General channel.\",\n        \"wrap\": true\n      }]\n    }\n  }]\n}"
+                    },
+                    "url": {
+                      "raw": "{{teams_workflow_general}}",
+                      "host": ["{{teams_workflow_general}}"]
+                    }
+                  },
+                  "response": []
                 }
-              },
-              "response": []
-            },
-            {
-              "name": "Send Adaptive Card - Alert",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"type\": \"message\",\n  \"attachments\": [\n    {\n      \"contentType\": \"application/vnd.microsoft.card.adaptive\",\n      \"content\": {\n        \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n        \"type\": \"AdaptiveCard\",\n        \"version\": \"1.4\",\n        \"body\": [\n          {\n            \"type\": \"Container\",\n            \"style\": \"attention\",\n            \"items\": [\n              {\n                \"type\": \"TextBlock\",\n                \"text\": \"\\ud83d\\udea8 CRITICAL ALERT\",\n                \"weight\": \"Bolder\",\n                \"size\": \"Large\",\n                \"color\": \"Attention\"\n              }\n            ]\n          },\n          {\n            \"type\": \"TextBlock\",\n            \"text\": \"Production server is down!\",\n            \"wrap\": true,\n            \"size\": \"Medium\"\n          },\n          {\n            \"type\": \"FactSet\",\n            \"facts\": [\n              {\"title\": \"Priority\", \"value\": \"Critical\"},\n              {\"title\": \"Server\", \"value\": \"prod-web-01\"},\n              {\"title\": \"Time\", \"value\": \"2025-12-26 10:30:00 UTC\"}\n            ]\n          }\n        ],\n        \"actions\": [\n          {\n            \"type\": \"Action.OpenUrl\",\n            \"title\": \"View Dashboard\",\n            \"url\": \"https://dashboard.example.com\"\n          }\n        ]\n      }\n    }\n  ]\n}"
-                },
-                "url": {
-                  "raw": "{{teams_workflow_url}}",
-                  "host": ["{{teams_workflow_url}}"]
-                }
-              },
-              "response": []
+              ]
             }
           ]
         }

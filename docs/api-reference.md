@@ -280,6 +280,141 @@ Used for reports and summaries.
 
 ---
 
+---
+
+## Webhook Receiver (`:3001`) - Phase 2
+
+Base URL: `http://localhost:3001`
+
+### Endpoints
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/health` | No | Health check with agent status |
+| POST | `/webhook` | HMAC | Receive Teams messages |
+| POST | `/api/v1/test-message` | No | Test endpoint (dev only) |
+
+---
+
+### GET /health
+
+Health check with agent connection status.
+
+**Response:**
+```json
+{
+  "status": "healthy",
+  "version": "2.0.0",
+  "phase": "2-stateless",
+  "hmac_enabled": true,
+  "agent": {
+    "url": "http://localhost:8000",
+    "status": "healthy",
+    "version": "2.2.0"
+  }
+}
+```
+
+---
+
+### POST /webhook
+
+Receive messages from Teams Outgoing Webhook.
+
+**Headers:**
+| Header | Required | Description |
+|--------|----------|-------------|
+| `Authorization` | Yes | `HMAC <base64-signature>` |
+| `Content-Type` | Yes | `application/json` |
+
+**Request (Teams format):**
+```json
+{
+  "type": "message",
+  "id": "msg-001",
+  "timestamp": "2025-12-26T18:41:34.000Z",
+  "serviceUrl": "https://smba.trafficmanager.net/amer/",
+  "channelId": "msteams",
+  "from": {
+    "id": "29:user-aad-id",
+    "name": "John Doe",
+    "aadObjectId": "user-aad-object-id"
+  },
+  "conversation": {
+    "id": "19:channel-id@thread.tacv2",
+    "conversationType": "channel",
+    "tenantId": "tenant-id"
+  },
+  "recipient": {
+    "id": "28:bot-id",
+    "name": "Valerie"
+  },
+  "text": "<at>Valerie</at> What suppliers have Nadcap certification?",
+  "entities": [
+    {
+      "type": "mention",
+      "mentioned": {
+        "id": "28:bot-id",
+        "name": "Valerie"
+      },
+      "text": "<at>Valerie</at>"
+    }
+  ]
+}
+```
+
+**Response (Teams format):**
+```json
+{
+  "type": "message",
+  "text": "Based on our database, the following suppliers have Nadcap certification..."
+}
+```
+
+**Error Response (401 - Invalid HMAC):**
+```json
+{
+  "detail": "Invalid HMAC signature"
+}
+```
+
+---
+
+### POST /api/v1/test-message
+
+Test endpoint for development (no HMAC required).
+
+> **Note:** Only available when `ENVIRONMENT=development`
+
+**Request:**
+```json
+{
+  "message": "Hello, how are you?",
+  "user_id": "test-user",
+  "user_name": "Test User"
+}
+```
+
+**Response:**
+```json
+{
+  "type": "message",
+  "text": "Agent response here..."
+}
+```
+
+---
+
+## Webhook Receiver Commands
+
+| Command | Description |
+|---------|-------------|
+| `/help` | Show available commands |
+| `/status` | Check agent connection status |
+| `/clear` | Clear conversation history (Phase 3) |
+
+---
+
 ## Interactive Documentation
 
 When servers are running:
@@ -287,3 +422,4 @@ When servers are running:
 - **Agent Swagger UI**: http://localhost:8080/docs
 - **Webhook Swagger UI**: http://localhost:3000/docs
 - **Notifier Swagger UI**: http://localhost:8001/docs
+- **Receiver Swagger UI**: http://localhost:3001/docs
