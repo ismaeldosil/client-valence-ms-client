@@ -72,7 +72,7 @@ echo
 echo "  3. Run tests:"
 echo "     pytest tests/phase0/"
 echo
-echo "  4. Try the test client:"
-echo "     python scripts/phase0/test_client.py"
+echo "  4. Try the MS Teams client:"
+echo "     python scripts/phase0/msteams_client.py"
 echo
 echo "=========================================="

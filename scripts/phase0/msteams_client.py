@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Test client for Teams Agent Integration.
+MS Teams Client for Teams Agent Integration.
 
 Allows testing:
 - Health checks of all services
@@ -8,7 +8,7 @@ Allows testing:
 - Simulate Teams messages
 
 Usage:
-    python scripts/phase0/test_client.py
+    python scripts/phase0/msteams_client.py
 """
 
 import asyncio
@@ -24,8 +24,8 @@ import httpx
 
 
 @dataclass
-class TestClient:
-    """Test client for mock services."""
+class MSTeamsClient:
+    """MS Teams client for mock services."""
 
     agent_url: str = "http://localhost:8080"
     webhook_url: str = "http://localhost:3000"
@@ -124,11 +124,11 @@ class TestClient:
 
 
 async def main() -> None:
-    """Demo the test client."""
-    client = TestClient()
+    """Demo the MS Teams client."""
+    client = MSTeamsClient()
 
     print("=" * 60)
-    print("  Test Client Demo")
+    print("  MS Teams Client Demo")
     print("=" * 60)
 
     # Health checks

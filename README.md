@@ -31,7 +31,7 @@ client-valence-ms-client/
 │   └── phase0/
 │       ├── start_mock_agent.py
 │       ├── start_mock_webhook.py
-│       ├── test_client.py
+│       ├── msteams_client.py
 │       ├── run_all_endpoints.py
 │       └── send_to_teams.py
 ├── postman/
@@ -89,8 +89,8 @@ pytest tests/phase0/ -v
 # Run all endpoints demo
 python scripts/phase0/run_all_endpoints.py
 
-# Run interactive test client
-python scripts/phase0/test_client.py
+# Run interactive MS Teams client
+python scripts/phase0/msteams_client.py
 ```
 
 ## Configuration

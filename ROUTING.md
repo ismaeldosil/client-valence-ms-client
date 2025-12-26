@@ -129,7 +129,7 @@ python scripts/phase0/start_mock_agent.py &
 python scripts/phase0/start_mock_webhook.py &
 
 # 3. Test
-python scripts/phase0/test_client.py
+python scripts/phase0/msteams_client.py
 
 # 4. Run tests
 pytest tests/phase0/
