@@ -48,12 +48,19 @@ Before starting, verify you have:
 
 1. Click the **"..."** (More options) button to the right of the channel name
 2. Select **"Manage channel"**
-3. Select **"Edit"**
+
+![Manage Channel](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/manage-channel-new-teams.png)
+
+3. Select **"Edit"** under the Connectors section
+
+![Edit Connectors](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/edit-connector-new-teams.png)
 
 ### For Classic Teams Client:
 
 1. Click the **"..."** (More options) button in the upper-right corner
 2. Select **"Connectors"** from the dropdown menu
+
+![Select Connectors](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/connectors_1.png)
 
 ---
 
@@ -61,7 +68,12 @@ Before starting, verify you have:
 
 1. In the connectors list, search for **"Incoming Webhook"**
 2. Click **"Add"** next to Incoming Webhook
+
+![Search and Add Webhook](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/search-add-webhook.png)
+
 3. Click **"Add"** again in the confirmation dialog
+
+![Add Incoming Webhook](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/add-incoming-webhook.png)
 
 ---
 
@@ -70,6 +82,8 @@ Before starting, verify you have:
 1. **Name:** Enter a descriptive name (e.g., "Agent Notifications - Alerts")
 2. **Image:** (Optional) Upload an icon for the webhook
 3. Click **"Create"**
+
+![Create Webhook](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/create-incoming-webhook-new-teams.png)
 
 ---
 
@@ -81,6 +95,8 @@ Before starting, verify you have:
 2. Click **"Copy"** to copy the URL to your clipboard
 3. **Save this URL securely** - you will need to send it to the development team
 4. Click **"Done"**
+
+![Copy Webhook URL](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/url_1-new-teams.png)
 
 **Example URL format:**
 ```
@@ -136,16 +152,26 @@ If successful, you should see the message appear in the Teams channel.
 ## Step 1: Navigate to Team Settings
 
 1. Select **Teams** from the left sidebar
+
+![Select Teams](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/teamschannel-select.png)
+
 2. Find your team and click **"..."** (More options)
 3. Select **"Manage team"**
+
+![Manage Team](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/outgoingwebhook-manage-team.png)
 
 ---
 
 ## Step 2: Access Apps Configuration
 
 1. Select the **"Apps"** tab on the channel page
+
+![Apps Tab](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/outgoing-webhook.png)
+
 2. Scroll to **"Create an outgoing webhook"** (under "Upload an app" section)
 3. Click on it to open the configuration dialog
+
+![Create Outgoing Webhook](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/create-an-outgoing-webhook.png)
 
 ---
 
@@ -159,6 +185,8 @@ Fill in the following details:
 | **Callback URL** | Your agent's HTTPS endpoint | `https://your-agent.example.com/webhook` |
 | **Description** | Brief description | `AI Agent for HR queries` |
 | **Profile Picture** | (Optional) Upload an icon | - |
+
+![Configure Webhook](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/create-outgoingwebhook.png)
 
 ---
 
@@ -177,7 +205,7 @@ Fill in the following details:
 
 After completing the setup, please provide the following:
 
-### For Incoming Webhooks (Required):
+### For Incoming Webhooks (Required - Phase 1):
 
 | Channel | Webhook URL |
 |---------|-------------|
@@ -185,12 +213,13 @@ After completing the setup, please provide the following:
 | Reports | `https://outlook.office.com/webhook/...` |
 | General | `https://outlook.office.com/webhook/...` |
 
-### For Outgoing Webhook (Phase 2 - Optional):
+### For Outgoing Webhook (Optional - Phase 2):
 
 | Item | Value |
 |------|-------|
 | HMAC Security Token | `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx` |
 | Bot Name | The name you configured |
+| Callback URL Used | The HTTPS endpoint configured |
 
 ---
 
@@ -252,11 +281,27 @@ Before sending the configuration back, verify:
 
 ---
 
+# Summary
+
+## What We Need From You
+
+### Phase 1 (Required Now):
+
+```
+Alerts Webhook URL:   ________________________________
+Reports Webhook URL:  ________________________________
+General Webhook URL:  ________________________________
+```
+
+### Phase 2 (Optional - Later):
+
+```
+HMAC Security Token:  ________________________________
+Callback URL:         ________________________________
+```
+
+---
+
 # Support
 
-If you encounter any issues during setup, please contact:
-
-- **Email:** [your-email@company.com]
-- **Teams:** [Your Name]
-
-We're happy to schedule a call to walk through the setup together.
+If you encounter any issues during setup, please contact us. We're happy to schedule a call to walk through the setup together.
