@@ -61,30 +61,34 @@ pip install -r requirements/base.txt
 cp .env.example .env
 ```
 
-### Running Mock Servers
+### Running Servers
 
 ```bash
 # Activate virtual environment
 source .venv/bin/activate
 
-# Start mock agent (port 8080)
-python scripts/phase0/start_mock_agent.py &
+# Phase 0: Start mock servers
+python scripts/phase0/start_mock_agent.py &    # port 8080
+python scripts/phase0/start_mock_webhook.py &  # port 3000
 
-# Start mock webhook (port 3000)
-python scripts/phase0/start_mock_webhook.py &
+# Phase 1: Start Notifier API
+python scripts/phase1/start_notifier_api.py &  # port 8001
 ```
 
 ### Testing
 
 ```bash
 # Run all tests
-pytest tests/phase0/ -v
+pytest tests/ -v
 
-# Run all endpoints demo
+# Run Phase 0 endpoints demo
 python scripts/phase0/run_all_endpoints.py
 
 # Run interactive MS Teams client
 python scripts/phase0/msteams_client.py
+
+# Send notification (Phase 1)
+python scripts/phase1/send_notification.py --channel alerts --message "Test" --card alert
 ```
 
 ## Configuration
@@ -96,18 +100,34 @@ Environment variables (`.env`):
 ENVIRONMENT=development
 LOG_LEVEL=DEBUG
 
-# Mock Servers
+# Phase 0: Mock Servers
 MOCK_AGENT_PORT=8080
 MOCK_WEBHOOK_PORT=3000
 
-# Teams (optional)
-TEAMS_INCOMING_WEBHOOK=https://outlook.office.com/webhook/...
+# Phase 1: Notifications (Agent → Teams)
+# For local testing, use mock webhook. For production, use real Teams URLs.
+TEAMS_WEBHOOK_ALERTS=http://localhost:3000/webhook
+TEAMS_WEBHOOK_REPORTS=http://localhost:3000/webhook
+TEAMS_WEBHOOK_GENERAL=http://localhost:3000/webhook
+NOTIFIER_API_KEY=dev-api-key
+NOTIFIER_PORT=8001
 ```
+
+## Servers
+
+| Server | Port | Phase | Description |
+|--------|------|-------|-------------|
+| Mock Agent | 8080 | 0 | Simulates AI Agent |
+| Mock Webhook | 3000 | 0 | Simulates Teams webhook receiver |
+| Notifier API | 8001 | 1 | Sends notifications to Teams |
 
 ## Documentation
 
 - **[API Reference](docs/api-reference.md)** - Endpoints, request/response formats
-- **Swagger UI**: http://localhost:8080/docs (Agent) | http://localhost:3000/docs (Webhook)
+- **Swagger UI**:
+  - Agent: http://localhost:8080/docs
+  - Webhook: http://localhost:3000/docs
+  - Notifier: http://localhost:8001/docs
 - **Postman Collection**: Import `postman/teams-agent-integration.postman_collection.json`
 
 ## Development Phases

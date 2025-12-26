@@ -150,9 +150,140 @@ The webhook receiver supports the following commands:
 
 ---
 
+## Notifier API (`:8001`) - Phase 1
+
+Base URL: `http://localhost:8001`
+
+### Endpoints
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/health` | No | Health check |
+| GET | `/api/v1/channels` | X-API-Key | List registered channels |
+| POST | `/api/v1/notify` | X-API-Key | Send notification |
+
+---
+
+### GET /health
+
+Health check endpoint.
+
+**Response:**
+```json
+{
+  "status": "ok",
+  "service": "notifier"
+}
+```
+
+---
+
+### GET /api/v1/channels
+
+List all registered notification channels.
+
+**Headers:**
+| Header | Required | Description |
+|--------|----------|-------------|
+| `X-API-Key` | Yes | API key (default: `dev-api-key`) |
+
+**Response:**
+```json
+{
+  "channels": [
+    {"name": "alerts", "enabled": true, "description": "Alert notifications"},
+    {"name": "reports", "enabled": true, "description": "Report notifications"},
+    {"name": "general", "enabled": true, "description": "General notifications"}
+  ]
+}
+```
+
+---
+
+### POST /api/v1/notify
+
+Send a notification to a Teams channel.
+
+**Headers:**
+| Header | Required | Description |
+|--------|----------|-------------|
+| `Content-Type` | Yes | `application/json` |
+| `X-API-Key` | Yes | API key (default: `dev-api-key`) |
+
+**Request:**
+```json
+{
+  "channel": "alerts",
+  "message": "CPU usage exceeded 90%",
+  "title": "High CPU Alert",
+  "card_type": "alert",
+  "priority": "critical",
+  "metadata": {}
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `channel` | string | Yes | Channel name (alerts, reports, general) |
+| `message` | string | Yes | Notification message |
+| `title` | string | No | Notification title |
+| `card_type` | string | No | Card type: `alert`, `info`, `report` |
+| `priority` | string | No | Priority: `low`, `medium`, `high`, `critical` |
+| `metadata` | object | No | Additional metadata |
+
+**Response (Success):**
+```json
+{
+  "success": true,
+  "notification_id": "uuid-here",
+  "channel": "alerts",
+  "status": "sent",
+  "error": null
+}
+```
+
+**Response (Error - Channel not found):**
+```json
+{
+  "detail": "Channel 'invalid' not found or disabled"
+}
+```
+
+**Response (Error - Unauthorized):**
+```json
+{
+  "detail": [{"type": "missing", "loc": ["header", "X-API-Key"], "msg": "Field required"}]
+}
+```
+
+---
+
+## Card Types
+
+### Alert Card
+Used for critical alerts and warnings.
+```json
+{"card_type": "alert", "priority": "critical"}
+```
+
+### Info Card
+Used for informational messages.
+```json
+{"card_type": "info", "priority": "low"}
+```
+
+### Report Card
+Used for reports and summaries.
+```json
+{"card_type": "report", "priority": "medium"}
+```
+
+---
+
 ## Interactive Documentation
 
 When servers are running:
 
 - **Agent Swagger UI**: http://localhost:8080/docs
 - **Webhook Swagger UI**: http://localhost:3000/docs
+- **Notifier Swagger UI**: http://localhost:8001/docs
