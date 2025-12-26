@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microsoft Teams Webhook Setup Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px;
+            background: #fff;
+        }
+
+        h1 {
+            color: #5B5FC7;
+            font-size: 28px;
+            margin-bottom: 10px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #5B5FC7;
+        }
+
+        h2 {
+            color: #5B5FC7;
+            font-size: 22px;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #E8E8E8;
+        }
+
+        h3 {
+            color: #444;
+            font-size: 18px;
+            margin-top: 25px;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        p {
+            margin-bottom: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        th {
+            background: #5B5FC7;
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #E8E8E8;
+        }
+
+        tr:nth-child(even) {
+            background: #F9F9F9;
+        }
+
+        tr:hover {
+            background: #F0F0FF;
+        }
+
+        .step-container {
+            background: #FAFAFA;
+            border-left: 4px solid #5B5FC7;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #5B5FC7;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .step-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            display: inline;
+        }
+
+        ol, ul {
+            margin: 15px 0 15px 25px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .image-container {
+            text-align: center;
+            margin: 25px 0;
+            padding: 15px;
+            background: #F5F5F5;
+            border-radius: 8px;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #DDD;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .image-caption {
+            font-size: 13px;
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .warning-box {
+            background: #FFF4E5;
+            border-left: 4px solid #FF9800;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning-box strong {
+            color: #E65100;
+        }
+
+        .info-box {
+            background: #E3F2FD;
+            border-left: 4px solid #2196F3;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box strong {
+            color: #1565C0;
+        }
+
+        .critical-box {
+            background: #FFEBEE;
+            border-left: 4px solid #F44336;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .critical-box strong {
+            color: #C62828;
+        }
+
+        code {
+            background: #F5F5F5;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            color: #D63384;
+        }
+
+        pre {
+            background: #2D2D2D;
+            color: #F8F8F2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .checklist {
+            background: #F0FFF4;
+            border: 1px solid #A5D6A7;
+            border-radius: 8px;
+            padding: 20px 25px;
+            margin: 25px 0;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #4CAF50;
+            border-radius: 4px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .form-section {
+            background: #F5F5F5;
+            border: 2px dashed #CCC;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .form-field {
+            margin: 15px 0;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-input {
+            width: 100%;
+            border: 1px solid #CCC;
+            border-bottom: 2px solid #5B5FC7;
+            background: white;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .divider {
+            border: none;
+            border-top: 2px solid #E8E8E8;
+            margin: 40px 0;
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+
+        .header-logo {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .header-logo img {
+            height: 40px;
+        }
+
+        .toc {
+            background: #FAFAFA;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            color: #5B5FC7;
+        }
+
+        .toc ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .toc li {
+            padding: 8px 0;
+            border-bottom: 1px dotted #DDD;
+        }
+
+        .toc li:last-child {
+            border-bottom: none;
+        }
+
+        .toc a {
+            color: #333;
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            color: #5B5FC7;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-required {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .badge-optional {
+            background: #FFF3E0;
+            color: #E65100;
+        }
+
+        .badge-phase1 {
+            background: #E3F2FD;
+            color: #1565C0;
+        }
+
+        .badge-phase2 {
+            background: #F3E5F5;
+            color: #7B1FA2;
+        }
+
+        @media print {
+            body {
+                padding: 20px;
+            }
+
+            .page-break {
+                page-break-before: always;
+            }
+
+            .image-container img {
+                max-width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <h1>Microsoft Teams Webhook Setup Guide</h1>
+    <p class="subtitle">AI Agent Integration - Configuration Steps</p>
+
+    <!-- Table of Contents -->
+    <div class="toc">
+        <h3>Table of Contents</h3>
+        <ul>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#part1">Part 1: Incoming Webhook Setup</a> <span class="badge badge-required">Required - Phase 1</span></li>
+            <li><a href="#part2">Part 2: Outgoing Webhook Setup</a> <span class="badge badge-optional">Optional - Phase 2</span></li>
+            <li><a href="#specs">Technical Specifications</a></li>
+            <li><a href="#notes">Important Notes</a></li>
+            <li><a href="#checklist">Checklist</a></li>
+            <li><a href="#summary">Summary - What We Need</a></li>
+        </ul>
+    </div>
+
+    <!-- Overview -->
+    <h2 id="overview">Overview</h2>
+    <p>This guide covers the setup of Microsoft Teams webhooks for AI Agent integration:</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Webhook Type</th>
+                <th>Direction</th>
+                <th>Purpose</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Incoming Webhook</strong></td>
+                <td>Agent → Teams</td>
+                <td>Send notifications to Teams channels</td>
+            </tr>
+            <tr>
+                <td><strong>Outgoing Webhook</strong></td>
+                <td>Teams → Agent</td>
+                <td>Receive messages from Teams users</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr class="divider">
+
+    <!-- Part 1: Incoming Webhook -->
+    <h2 id="part1">Part 1: Incoming Webhook Setup <span class="badge badge-phase1">Phase 1</span></h2>
+    <p><strong>Purpose:</strong> Allow the AI Agent to send notifications to Teams channels.</p>
+
+    <h3>Prerequisites</h3>
+    <p>Before starting, verify you have:</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Requirement</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Teams Admin Access</strong></td>
+                <td>Or member permissions to add connectors</td>
+            </tr>
+            <tr>
+                <td><strong>Channel Access</strong></td>
+                <td>Access to the target channels (Alerts, Reports, General)</td>
+            </tr>
+            <tr>
+                <td><strong>Member Permissions</strong></td>
+                <td>Teams Settings → Member permissions → "Allow members to create, update, and remove connectors" must be enabled</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Step 1 -->
+    <div class="step-container">
+        <span class="step-number">1</span>
+        <span class="step-title">Navigate to the Channel</span>
+        <ol style="margin-top: 15px;">
+            <li>Open <strong>Microsoft Teams</strong></li>
+            <li>Select <strong>Teams</strong> from the left sidebar</li>
+            <li>Navigate to the team containing your target channel</li>
+            <li>Select the channel where notifications will be sent (e.g., "Alerts")</li>
+        </ol>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step-container">
+        <span class="step-number">2</span>
+        <span class="step-title">Access Channel Settings</span>
+
+        <h4 style="margin-top: 15px; margin-bottom: 10px;">For New Teams Client:</h4>
+        <ol>
+            <li>Click the <strong>"..."</strong> (More options) button to the right of the channel name</li>
+            <li>Select <strong>"Manage channel"</strong></li>
+        </ol>
+
+        <div class="image-container">
+            <img src="https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/manage-channel-new-teams.png" alt="Manage Channel">
+            <p class="image-caption">Figure 1: Click "..." and select "Manage channel"</p>
+        </div>
+
+        <ol start="3">
+            <li>Select <strong>"Edit"</strong> under the Connectors section</li>
+        </ol>
+
+        <div class="image-container">
+            <img src="https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/edit-connector-new-teams.png" alt="Edit Connectors">
+            <p class="image-caption">Figure 2: Click "Edit" under Connectors</p>
+        </div>
+
+        <h4 style="margin-top: 20px; margin-bottom: 10px;">For Classic Teams Client:</h4>
+        <ol>
+            <li>Click the <strong>"..."</strong> (More options) button in the upper-right corner</li>
+            <li>Select <strong>"Connectors"</strong> from the dropdown menu</li>
+        </ol>
+
+        <div class="image-container">
+            <img src="https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/connectors_1.png" alt="Select Connectors">
+            <p class="image-caption">Figure 3: Select "Connectors" from dropdown (Classic Teams)</p>
+        </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step-container">
+        <span class="step-number">3</span>
+        <span class="step-title">Add Incoming Webhook</span>
+        <ol style="margin-top: 15px;">
+            <li>In the connectors list, search for <strong>"Incoming Webhook"</strong></li>
+            <li>Click <strong>"Add"</strong> next to Incoming Webhook</li>
+        </ol>
+
+        <div class="image-container">
+            <img src="https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/search-add-webhook.png" alt="Search and Add Webhook">
+            <p class="image-caption">Figure 4: Search for "Incoming Webhook" and click "Add"</p>
+        </div>
+
+        <ol start="3">
+            <li>Click <strong>"Add"</strong> again in the confirmation dialog</li>
+        </ol>
+
+        <div class="image-container">
+            <img src="https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/add-incoming-webhook.png" alt="Add Incoming Webhook">
+            <p class="image-caption">Figure 5: Confirm by clicking "Add"</p>
+        </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step-container">
+        <span class="step-number">4</span>
+        <span class="step-title">Configure the Webhook</span>
+        <ol style="margin-top: 15px;">
+            <li><strong>Name:</strong> Enter a descriptive name (e.g., "Agent Notifications - Alerts")</li>
+            <li><strong>Image:</strong> (Optional) Upload an icon for the webhook</li>
+            <li>Click <strong>"Create"</strong></li>
+        </ol>
+
+        <div class="image-container">
+            <img src="https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/create-incoming-webhook-new-teams.png" alt="Create Webhook">
+            <p class="image-caption">Figure 6: Configure the webhook name and click "Create"</p>
+        </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step-container">
+        <span class="step-number">5</span>
+        <span class="step-title">Copy the Webhook URL</span>
+
+        <div class="critical-box">
+            <strong>⚠️ IMPORTANT:</strong> The webhook URL is only shown once. Copy it immediately before closing the dialog.
+        </div>
+
+        <ol style="margin-top: 15px;">
+            <li>After clicking "Create", a unique webhook URL will be displayed</li>
+            <li>Click <strong>"Copy"</strong> to copy the URL to your clipboard</li>
+            <li><strong>Save this URL securely</strong> - you will need to send it to the development team</li>
+            <li>Click <strong>"Done"</strong></li>
+        </ol>
+
+        <div class="image-container">
+            <img src="https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/url_1-new-teams.png" alt="Copy Webhook URL">
+            <p class="image-caption">Figure 7: Copy the webhook URL before closing</p>
+        </div>
+
+        <p><strong>Example URL format:</strong></p>
+        <pre>https://outlook.office.com/webhook/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx@xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/IncomingWebhook/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</pre>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="step-container">
+        <span class="step-number">6</span>
+        <span class="step-title">Repeat for Each Channel</span>
+        <p style="margin-top: 15px;">Repeat Steps 1-5 for each channel:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Channel</th>
+                    <th>Webhook Name</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Alerts</td>
+                    <td>Agent Notifications - Alerts</td>
+                    <td>☐ Pending</td>
+                </tr>
+                <tr>
+                    <td>Reports</td>
+                    <td>Agent Notifications - Reports</td>
+                    <td>☐ Pending</td>
+                </tr>
+                <tr>
+                    <td>General</td>
+                    <td>Agent Notifications - General</td>
+                    <td>☐ Pending</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Verification -->
+    <h3>Verification</h3>
+    <p>To verify the webhook is working, you can send a test message using curl:</p>
+    <pre>curl -X POST "YOUR_WEBHOOK_URL" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Hello from the AI Agent! Webhook configured successfully."}'</pre>
+    <p>If successful, you should see the message appear in the Teams channel.</p>
+
+    <hr class="divider">
+    <div class="page-break"></div>
+
+    <!-- Part 2: Outgoing Webhook -->
+    <h2 id="part2">Part 2: Outgoing Webhook Setup <span class="badge badge-phase2">Phase 2 - Optional</span></h2>
+    <p><strong>Purpose:</strong> Allow Teams users to send messages to the AI Agent using @mentions.</p>
+
+    <div class="info-box">
+        <strong>Note:</strong> This is only required for Phase 2 (Teams → Agent communication).
+    </div>
+
+    <h3>Prerequisites</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Requirement</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Team Owner Access</strong></td>
+                <td>Only team owners can create outgoing webhooks</td>
+            </tr>
+            <tr>
+                <td><strong>Public Channel</strong></td>
+                <td>Outgoing webhooks only work in public channels</td>
+            </tr>
+            <tr>
+                <td><strong>HTTPS Endpoint</strong></td>
+                <td>A publicly accessible HTTPS URL for your agent</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Outgoing Step 1 -->
+    <div class="step-container">
+        <span class="step-number">1</span>
+        <span class="step-title">Navigate to Team Settings</span>
+        <ol style="margin-top: 15px;">
+            <li>Select <strong>Teams</strong> from the left sidebar</li>
+        </ol>
+
+        <div class="image-container">
+            <img src="https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/teamschannel-select.png" alt="Select Teams">
+            <p class="image-caption">Figure 8: Select Teams from the sidebar</p>
+        </div>
+
+        <ol start="2">
+            <li>Find your team and click <strong>"..."</strong> (More options)</li>
+            <li>Select <strong>"Manage team"</strong></li>
+        </ol>
+
+        <div class="image-container">
+            <img src="https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/outgoingwebhook-manage-team.png" alt="Manage Team">
+            <p class="image-caption">Figure 9: Click "..." and select "Manage team"</p>
+        </div>
+    </div>
+
+    <!-- Outgoing Step 2 -->
+    <div class="step-container">
+        <span class="step-number">2</span>
+        <span class="step-title">Access Apps Configuration</span>
+        <ol style="margin-top: 15px;">
+            <li>Select the <strong>"Apps"</strong> tab on the channel page</li>
+        </ol>
+
+        <div class="image-container">
+            <img src="https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/outgoing-webhook.png" alt="Apps Tab">
+            <p class="image-caption">Figure 10: Select the "Apps" tab</p>
+        </div>
+
+        <ol start="2">
+            <li>Scroll to <strong>"Create an outgoing webhook"</strong> (under "Upload an app" section)</li>
+            <li>Click on it to open the configuration dialog</li>
+        </ol>
+
+        <div class="image-container">
+            <img src="https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/create-an-outgoing-webhook.png" alt="Create Outgoing Webhook">
+            <p class="image-caption">Figure 11: Click "Create an outgoing webhook"</p>
+        </div>
+    </div>
+
+    <!-- Outgoing Step 3 -->
+    <div class="step-container">
+        <span class="step-number">3</span>
+        <span class="step-title">Configure the Outgoing Webhook</span>
+        <p style="margin-top: 15px;">Fill in the following details:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Value</th>
+                    <th>Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Name</strong></td>
+                    <td>Bot display name</td>
+                    <td><code>AI Agent</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Callback URL</strong></td>
+                    <td>Your agent's HTTPS endpoint</td>
+                    <td><code>https://your-agent.example.com/webhook</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Description</strong></td>
+                    <td>Brief description</td>
+                    <td><code>AI Agent for HR queries</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Profile Picture</strong></td>
+                    <td>(Optional) Upload an icon</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="image-container">
+            <img src="https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/create-outgoingwebhook.png" alt="Configure Webhook">
+            <p class="image-caption">Figure 12: Fill in the webhook configuration</p>
+        </div>
+    </div>
+
+    <!-- Outgoing Step 4 -->
+    <div class="step-container">
+        <span class="step-number">4</span>
+        <span class="step-title">Save the Security Token</span>
+        <ol style="margin-top: 15px;">
+            <li>Click <strong>"Create"</strong></li>
+            <li>A dialog will appear with the <strong>HMAC security token</strong></li>
+        </ol>
+
+        <div class="critical-box">
+            <strong>⚠️ CRITICAL:</strong> Copy and save this token securely. This token is used to verify messages are from Teams.
+        </div>
+
+        <div class="info-box">
+            <strong>Note:</strong> The HMAC token does not expire and is unique to this webhook configuration.
+        </div>
+    </div>
+
+    <hr class="divider">
+    <div class="page-break"></div>
+
+    <!-- Technical Specifications -->
+    <h2 id="specs">Technical Specifications</h2>
+
+    <h3>Incoming Webhook Limits</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Specification</th>
+                <th>Limit</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Message Size</td>
+                <td>28 KB maximum</td>
+            </tr>
+            <tr>
+                <td>Rate Limit</td>
+                <td>4 requests per second</td>
+            </tr>
+            <tr>
+                <td>Card Version</td>
+                <td>Adaptive Cards v1.4</td>
+            </tr>
+            <tr>
+                <td>Supported Actions</td>
+                <td>All card actions</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Outgoing Webhook Limits</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Specification</th>
+                <th>Limit</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Response Timeout</td>
+                <td><strong>5 seconds</strong> (connection terminates after)</td>
+            </tr>
+            <tr>
+                <td>Channel Type</td>
+                <td>Public channels only</td>
+            </tr>
+            <tr>
+                <td>Trigger</td>
+                <td>Requires @mention</td>
+            </tr>
+            <tr>
+                <td>Supported Actions</td>
+                <td>Only <code>openURL</code> action</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr class="divider">
+
+    <!-- Important Notes -->
+    <h2 id="notes">Important Notes</h2>
+
+    <h3>Deprecation Notice</h3>
+    <div class="warning-box">
+        <strong>⚠️ Microsoft Notice:</strong> Microsoft 365 Connectors (including Incoming Webhooks) are scheduled for deprecation. While existing webhooks continue to work, consider migrating to <strong>Power Automate Workflows</strong> for new implementations.
+    </div>
+
+    <h3>Security Considerations</h3>
+    <ol>
+        <li><strong>Keep webhook URLs private</strong> - Anyone with the URL can send messages to your channel</li>
+        <li><strong>Rotate webhooks</strong> if URLs are compromised</li>
+        <li><strong>HMAC verification</strong> is required for outgoing webhooks to prevent spoofing</li>
+    </ol>
+
+    <h3>Troubleshooting</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Issue</th>
+                <th>Solution</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Can't find "Connectors" option</td>
+                <td>Check member permissions in Team Settings</td>
+            </tr>
+            <tr>
+                <td>Webhook URL not shown</td>
+                <td>You may have closed the dialog - delete and recreate</td>
+            </tr>
+            <tr>
+                <td>Messages not appearing</td>
+                <td>Verify the URL is correct and channel is accessible</td>
+            </tr>
+            <tr>
+                <td>429 Too Many Requests</td>
+                <td>You're exceeding 4 requests/second rate limit</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr class="divider">
+    <div class="page-break"></div>
+
+    <!-- Checklist -->
+    <h2 id="checklist">Checklist</h2>
+    <p>Before sending the configuration back, verify:</p>
+
+    <div class="checklist">
+        <div class="checklist-item">
+            <div class="checkbox"></div>
+            <span>Incoming Webhook created for <strong>Alerts</strong> channel</span>
+        </div>
+        <div class="checklist-item">
+            <div class="checkbox"></div>
+            <span>Incoming Webhook created for <strong>Reports</strong> channel</span>
+        </div>
+        <div class="checklist-item">
+            <div class="checkbox"></div>
+            <span>Incoming Webhook created for <strong>General</strong> channel</span>
+        </div>
+        <div class="checklist-item">
+            <div class="checkbox"></div>
+            <span>All webhook URLs copied and saved</span>
+        </div>
+        <div class="checklist-item">
+            <div class="checkbox"></div>
+            <span>Test message sent successfully to each channel</span>
+        </div>
+        <div class="checklist-item">
+            <div class="checkbox"></div>
+            <span>(Optional) Outgoing Webhook created with HMAC token saved</span>
+        </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Summary -->
+    <h2 id="summary">Summary - What We Need From You</h2>
+
+    <h3>Phase 1 (Required Now) <span class="badge badge-required">Required</span></h3>
+    <div class="form-section">
+        <div class="form-field">
+            <label class="form-label">Alerts Webhook URL:</label>
+            <div class="form-input"></div>
+        </div>
+        <div class="form-field">
+            <label class="form-label">Reports Webhook URL:</label>
+            <div class="form-input"></div>
+        </div>
+        <div class="form-field">
+            <label class="form-label">General Webhook URL:</label>
+            <div class="form-input"></div>
+        </div>
+    </div>
+
+    <h3>Phase 2 (Optional - Later) <span class="badge badge-optional">Optional</span></h3>
+    <div class="form-section">
+        <div class="form-field">
+            <label class="form-label">HMAC Security Token:</label>
+            <div class="form-input"></div>
+        </div>
+        <div class="form-field">
+            <label class="form-label">Callback URL:</label>
+            <div class="form-input"></div>
+        </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Support -->
+    <h2>Support</h2>
+    <p>If you encounter any issues during setup, please contact us. We're happy to schedule a call to walk through the setup together.</p>
+
+    <div style="margin-top: 50px; padding-top: 20px; border-top: 1px solid #E0E0E0; text-align: center; color: #999; font-size: 12px;">
+        <p>AI Agent Integration - Microsoft Teams Webhook Setup Guide</p>
+    </div>
+
+</body>
+</html>
