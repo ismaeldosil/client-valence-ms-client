@@ -1,0 +1,10 @@
+# Phase 1 - Notificaciones
+# Include base.txt dependencies
+
+# No additional dependencies required for Phase 1
+# All dependencies are already in base.txt:
+# - fastapi
+# - uvicorn
+# - httpx
+# - pydantic
+# - structlog

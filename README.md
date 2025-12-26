@@ -1,46 +1,40 @@
 # Teams Agent Integration Client
 
-**Phase 0**: Mock servers and testing infrastructure for Teams-Agent integration.
+Microsoft Teams integration client for AI Agent communication.
 
-## Features (Phase 0)
+## Features
 
-- **Mock Agent Server**: Simulates AI Agent responses on port 8080
-- **Mock Webhook Receiver**: Simulates Teams webhook on port 3000
-- **Knowledge Base**: Pre-configured responses for testing
-- **Test Client**: Interactive testing script
-- **Postman Collection**: Ready-to-use API collection
+### Phase 0 - Testing & Mocks
+- Mock Agent Server (port 8080)
+- Mock Webhook Receiver (port 3000)
+- Knowledge Base with test responses
+- Postman Collection
+
+### Phase 1 - Notifications (Agent → Teams)
+- Incoming Webhook sender with retry logic
+- Adaptive Cards builder (alert, info, report)
+- Notification Service with channel registry
+- Notifier API with authentication
 
 ## Project Structure
 
 ```
 client-valence-ms-client/
 ├── src/
-│   └── core/
-│       ├── config.py          # Configuration (pydantic-settings)
-│       ├── exceptions.py      # Custom exceptions
-│       └── logging.py         # Structured logging (structlog)
+│   ├── core/                   # Core modules
+│   ├── teams/sender/           # Phase 1: Teams sender
+│   ├── notifier/               # Phase 1: Notification service
+│   └── api/                    # Phase 1: Notifier API
 ├── tests/
-│   ├── mocks/
-│   │   ├── mock_agent_server.py     # Mock AI Agent (:8080)
-│   │   ├── mock_webhook_receiver.py # Mock webhook (:3000)
-│   │   └── mock_responses.py        # Knowledge base
-│   └── phase0/
-│       └── test_*.py                # Unit tests
+│   ├── mocks/                  # Mock servers
+│   ├── phase0/                 # Phase 0 tests
+│   └── phase1/                 # Phase 1 tests
 ├── scripts/
-│   ├── setup.sh
-│   └── phase0/
-│       ├── start_mock_agent.py
-│       ├── start_mock_webhook.py
-│       ├── msteams_client.py
-│       ├── run_all_endpoints.py
-│       └── send_to_teams.py
-├── postman/
-│   ├── teams-agent-integration.postman_collection.json
-│   └── environments/
-│       └── local.postman_environment.json
-├── requirements/
-│   └── base.txt
-└── pyproject.toml
+│   ├── phase0/                 # Mock server scripts
+│   └── phase1/                 # Notification scripts
+├── postman/                    # Postman collection
+├── requirements/               # Dependencies
+└── docs/                       # Documentation
 ```
 
 ## Quick Start
@@ -121,7 +115,7 @@ TEAMS_INCOMING_WEBHOOK=https://outlook.office.com/webhook/...
 | Phase | Description | Status |
 |-------|-------------|--------|
 | 0 | Testing & Mocks | Complete |
-| 1 | Notifications (Agent → Teams) | Pending |
+| 1 | Notifications (Agent → Teams) | Complete |
 | 2 | Queries Stateless (Teams → Agent) | Pending |
 | 3 | Queries with Memory | Pending |
 
