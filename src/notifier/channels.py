@@ -20,7 +20,7 @@ class Channel:
 
     Attributes:
         name: Channel identifier (e.g., "alerts", "reports")
-        webhook_url: Incoming Webhook URL for the channel
+        webhook_url: Power Automate Workflow URL for the channel
         enabled: Whether the channel is active
         description: Optional channel description
     """
@@ -38,8 +38,9 @@ class ChannelRegistry:
     Stores channel configurations and provides lookup by name.
     """
 
+    # Power Automate Workflow URL pattern (logic.azure.com)
     WEBHOOK_URL_PATTERN = re.compile(
-        r"^https://[\w.-]+\.webhook\.office\.com/webhookb2/[\w-]+@[\w-]+/IncomingWebhook/[\w-]+/[\w-]+$"
+        r"^https://[\w.-]+\.logic\.azure\.com(:\d+)?/workflows/[\w-]+/triggers/[\w]+/paths/invoke"
     )
 
     def __init__(self) -> None:
@@ -94,18 +95,18 @@ class ChannelRegistry:
         """Validate webhook URL format."""
         if not url:
             return False
-        # Basic validation - URL should be HTTPS and look like Office webhook
-        return url.startswith("https://") and "webhook" in url.lower()
+        # Basic validation - URL should be HTTPS (Power Automate or mock)
+        return url.startswith("https://") or url.startswith("http://localhost")
 
     @classmethod
     def from_settings(cls, settings) -> "ChannelRegistry":
         """
         Create registry from settings.
 
-        Reads TEAMS_WEBHOOK_* settings and creates channels.
+        Reads TEAMS_WORKFLOW_* settings and creates channels.
 
         Args:
-            settings: Settings object with webhook URLs
+            settings: Settings object with Power Automate Workflow URLs
 
         Returns:
             Configured ChannelRegistry
@@ -114,9 +115,9 @@ class ChannelRegistry:
 
         # Map setting names to channel names
         channel_map = {
-            "teams_webhook_alerts": ("alerts", "Alert notifications"),
-            "teams_webhook_reports": ("reports", "Report notifications"),
-            "teams_webhook_general": ("general", "General notifications"),
+            "teams_workflow_alerts": ("alerts", "Alert notifications"),
+            "teams_workflow_reports": ("reports", "Report notifications"),
+            "teams_workflow_general": ("general", "General notifications"),
         }
 
         for setting_name, (channel_name, description) in channel_map.items():
@@ -130,13 +131,13 @@ class ChannelRegistry:
                     )
                 )
 
-        # Also check generic incoming webhook
-        if hasattr(settings, "teams_incoming_webhook") and settings.teams_incoming_webhook:
+        # Also check generic workflow URL
+        if hasattr(settings, "teams_workflow_url") and settings.teams_workflow_url:
             if "default" not in registry._channels:
                 registry.register(
                     Channel(
                         name="default",
-                        webhook_url=settings.teams_incoming_webhook,
+                        webhook_url=settings.teams_workflow_url,
                         description="Default channel",
                     )
                 )

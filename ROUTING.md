@@ -63,15 +63,6 @@ Phase 0 → Phase 2 → Done
 Phase 0 → Phase 2 → Phase 3 → Done
 ```
 
-## Phase Prompts
-
-| Phase | Prompt File |
-|-------|-------------|
-| 0 | `prompts/prompt-fase-0-testing.md` |
-| 1 | `prompts/prompt-fase-1-notificaciones.md` |
-| 2 | `prompts/prompt-fase-2-consultas-stateless.md` |
-| 3 | `prompts/prompt-fase-3-consultas-stateful.md` |
-
 ## Transition Checklist
 
 ### Phase 0 → Phase 1/2
@@ -141,5 +132,4 @@ python scripts/phase0/msteams_client.py
 pytest tests/phase0/
 
 # 5. When ready, proceed to next phase
-# Read: prompts/prompt-fase-X-....md
 ```

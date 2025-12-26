@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Send message to Teams via Incoming Webhook.
+Send message to Teams via Power Automate Workflow.
 
 Usage:
     python scripts/phase0/send_to_teams.py "Your message"
@@ -90,12 +90,12 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    # Get webhook URL
-    webhook_url = args.webhook_url or settings.teams_incoming_webhook
+    # Get workflow URL
+    webhook_url = args.webhook_url or settings.teams_workflow_url
 
     if not webhook_url:
-        print("[ERROR] No webhook URL configured.")
-        print("  Set TEAMS_INCOMING_WEBHOOK in .env or use --webhook-url")
+        print("[ERROR] No workflow URL configured.")
+        print("  Set TEAMS_WORKFLOW_URL in .env or use --webhook-url")
         sys.exit(1)
 
     # Send message

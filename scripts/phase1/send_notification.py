@@ -75,10 +75,10 @@ async def send_direct(
     webhook_url: str = None,
 ) -> None:
     """Send notification directly to webhook."""
-    url = webhook_url or settings.teams_incoming_webhook
+    url = webhook_url or settings.teams_workflow_url
 
     if not url:
-        print("[ERROR] No webhook URL. Set TEAMS_INCOMING_WEBHOOK or use --webhook")
+        print("[ERROR] No workflow URL. Set TEAMS_WORKFLOW_URL or use --webhook")
         return
 
     sender = WebhookSender()

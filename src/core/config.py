@@ -22,17 +22,17 @@ class Settings(BaseSettings):
     mock_webhook_port: int = 3000
 
     # Teams real (optional in Phase 0)
-    teams_incoming_webhook: Optional[str] = None
+    teams_workflow_url: Optional[str] = None
 
-    # Phase 1: Notifications
-    teams_webhook_alerts: Optional[str] = None
-    teams_webhook_reports: Optional[str] = None
-    teams_webhook_general: Optional[str] = None
+    # Phase 1: Notifications (Power Automate Workflows)
+    teams_workflow_alerts: Optional[str] = None
+    teams_workflow_reports: Optional[str] = None
+    teams_workflow_general: Optional[str] = None
     notifier_api_key: str = "dev-api-key"
     notifier_port: int = 8001
 
-    # Phase 2: Queries
-    teams_webhook_secret: Optional[str] = None
+    # Phase 2: Queries (Outgoing Webhooks)
+    teams_hmac_secret: Optional[str] = None
     receiver_port: int = 3000
     agent_protocol: str = "rest"
     agent_base_url: Optional[str] = None
