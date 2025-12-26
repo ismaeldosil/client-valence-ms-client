@@ -1,8 +1,8 @@
-# MS Teams Agent Integration Client - Python Implementation
+# MS Teams Notification Client - Phase 1
 
 ## Summary
 
-Python client for integration between Microsoft Teams and AI Agent, enabling bidirectional communication: notifications from the agent to Teams and user queries from Teams to the agent.
+Python client for sending notifications from an AI Agent to Microsoft Teams channels via Incoming Webhooks.
 
 ---
 
@@ -10,28 +10,23 @@ Python client for integration between Microsoft Teams and AI Agent, enabling bid
 
 ### Objective
 
-Develop a Python client that acts as middleware between Microsoft Teams and an AI Agent, enabling:
-- **Notifications (Agent → Teams):** The agent can send alerts, reports, and information to Teams channels
-- **Queries (Teams → Agent):** Users can query the agent from Teams via @mentions
+Develop a Python client that enables an AI Agent to send notifications to Microsoft Teams channels. This is a **one-way communication** (Agent → Teams) for alerts, reports, and informational messages.
 
 ---
 
 ### Implemented Components
 
-**Phase 0 - Testing & Mocks** ✅
-- Mock Agent Server (FastAPI, port 8080)
-- Mock Webhook Receiver (FastAPI, port 3000)
-- Knowledge Base with test responses
-- Interactive client for testing
-- Postman collection with 40 endpoints
-- 28 unit tests
-
-**Phase 1 - Notifications (Agent → Teams)** ✅
+**Notification System** ✅
 - Webhook Sender with retry logic (exponential backoff)
-- Adaptive Cards Builder (alert, info, report)
+- Adaptive Cards Builder (alert, info, report templates)
 - Notification Service with channel registry
-- Notifier API (FastAPI, port 8001) with X-API-Key authentication
-- 37 unit tests
+- Notifier REST API with X-API-Key authentication
+
+**Testing Infrastructure** ✅
+- Mock Agent Server (port 8080)
+- Mock Webhook Receiver (port 3000)
+- Postman collection with all endpoints
+- 65 unit tests
 
 ---
 
@@ -40,7 +35,7 @@ Develop a Python client that acts as middleware between Microsoft Teams and an A
 | Technology | Usage |
 |------------|-------|
 | Python 3.11+ | Runtime |
-| FastAPI | REST APIs |
+| FastAPI | REST API |
 | Pydantic | Validation and configuration |
 | HTTPX | Async HTTP client |
 | Structlog | Structured logging |
@@ -48,26 +43,42 @@ Develop a Python client that acts as middleware between Microsoft Teams and an A
 
 ---
 
-### Available Endpoints
+### API Endpoints
 
 **Notifier API (`:8001`)**
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/health` | Health check |
-| GET | `/api/v1/channels` | List registered channels |
-| POST | `/api/v1/notify` | Send notification to Teams |
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/health` | No | Health check |
+| GET | `/api/v1/channels` | X-API-Key | List registered channels |
+| POST | `/api/v1/notify` | X-API-Key | Send notification to Teams |
+
+---
+
+### Notification Types
+
+| Type | Card | Use Case |
+|------|------|----------|
+| Alert | `alert` | Critical errors, warnings, system alerts |
+| Info | `info` | Informational messages, deployments, updates |
+| Report | `report` | Daily reports, summaries, metrics |
+
+### Priority Levels
+
+`low` | `medium` | `high` | `critical`
 
 ---
 
 ### Required Configuration
 
 ```bash
-# Phase 1: Notifications
+# Teams Incoming Webhook URLs (one per channel)
 TEAMS_WEBHOOK_ALERTS=https://outlook.office.com/webhook/...
 TEAMS_WEBHOOK_REPORTS=https://outlook.office.com/webhook/...
 TEAMS_WEBHOOK_GENERAL=https://outlook.office.com/webhook/...
-NOTIFIER_API_KEY=<api-key>
+
+# API Security
+NOTIFIER_API_KEY=<secure-api-key>
 NOTIFIER_PORT=8001
 ```
 
@@ -75,24 +86,49 @@ NOTIFIER_PORT=8001
 
 ### Usage Examples
 
+**CLI:**
 ```bash
-# Start server
-python scripts/phase1/start_notifier_api.py
-
-# Send notification via CLI
 python scripts/phase1/send_notification.py \
   --channel alerts \
   --message "CPU usage exceeded 90%" \
   --title "High CPU Alert" \
   --card alert \
   --priority critical
+```
 
-# Send via API
+**API:**
+```bash
 curl -X POST http://localhost:8001/api/v1/notify \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: dev-api-key" \
-  -d '{"channel":"alerts","message":"Test","priority":"high"}'
+  -H "X-API-Key: <api-key>" \
+  -d '{
+    "channel": "alerts",
+    "message": "Database connection failed",
+    "title": "Critical Error",
+    "card_type": "alert",
+    "priority": "critical"
+  }'
 ```
+
+**Response:**
+```json
+{
+  "success": true,
+  "notification_id": "uuid",
+  "channel": "alerts",
+  "status": "sent"
+}
+```
+
+---
+
+### Features
+
+- **Retry Logic:** Automatic retries with exponential backoff on failure
+- **Multiple Channels:** Support for alerts, reports, and general channels
+- **Adaptive Cards:** Rich formatting with colors, icons, and actions
+- **Authentication:** X-API-Key header required for all endpoints
+- **Async:** Non-blocking HTTP requests with HTTPX
 
 ---
 
@@ -104,7 +140,6 @@ curl -X POST http://localhost:8001/api/v1/notify \
 
 - `main` - Stable code
 - `develop` - Active development
-- `feature/phase-1` - Phase 1 feature branch
 
 ---
 
@@ -116,30 +151,23 @@ pytest tests/ -v  # 65 tests passing
 
 ---
 
-### Pending (Future Phases)
-
-- **Phase 2:** Stateless Queries (Teams → Agent) with HMAC verification and 5s timeout
-- **Phase 3:** Queries with conversation memory (sessions)
-
----
-
 ## Acceptance Criteria
 
-- [x] Mock servers working for local development
-- [x] Notifier API with authentication
-- [x] Adaptive Cards support (alert, info, report)
+- [x] Send text notifications to Teams channels
+- [x] Send Adaptive Cards (alert, info, report)
 - [x] Retry logic with exponential backoff
-- [x] Complete documentation (README, API Reference)
-- [x] Updated Postman collection
-- [x] Unit tests (>80% coverage)
+- [x] Channel registry with multiple webhooks
+- [x] REST API with authentication
 - [x] Configuration via environment variables
+- [x] Unit tests with >80% coverage
+- [x] Documentation and Postman collection
 
 ---
 
 ## Labels
 
-`python` `teams` `integration` `fastapi` `notifications`
+`python` `teams` `notifications` `fastapi` `webhooks`
 
 ## Story Points
 
-13
+8
