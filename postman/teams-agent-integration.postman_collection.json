@@ -1,8 +1,8 @@
 {
   "info": {
     "_postman_id": "teams-agent-integration",
-    "name": "Teams Agent Integration",
-    "description": "Collection for testing Teams Agent Integration - All Phases",
+    "name": "MS Teams Agent Integration APIs",
+    "description": "Collection for testing MS Teams Agent Integration - All Phases",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
