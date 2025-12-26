@@ -93,65 +93,6 @@ python scripts/phase0/run_all_endpoints.py
 python scripts/phase0/test_client.py
 ```
 
-## API Endpoints
-
-### Mock Agent Server (`:8080`)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/health` | Health check |
-| POST | `/query` | Query the agent |
-
-**Query Request:**
-```json
-{
-  "message": "What is the vacation policy?",
-  "context": {
-    "platform": "teams",
-    "user_id": "user123"
-  },
-  "conversation_history": []
-}
-```
-
-**Query Response:**
-```json
-{
-  "text": "The vacation policy allows 15 business days per year...",
-  "sources": ["hr-policies.pdf"],
-  "confidence": 0.95,
-  "processing_time_ms": 450
-}
-```
-
-### Mock Webhook Receiver (`:3000`)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/health` | Health check |
-| POST | `/webhook` | Receive Teams messages |
-
-**Webhook Request (Teams format):**
-```json
-{
-  "type": "message",
-  "id": "msg-001",
-  "text": "<at>Bot</at> Hello!",
-  "from": {
-    "id": "user-001",
-    "name": "John Doe"
-  },
-  "conversation": {
-    "id": "conv-001"
-  }
-}
-```
-
-**Supported Commands:**
-- `/help` - Show available commands
-- `/clear` - Clear conversation history
-- `/history` - Show conversation history
-
 ## Configuration
 
 Environment variables (`.env`):
@@ -171,6 +112,7 @@ TEAMS_INCOMING_WEBHOOK=https://outlook.office.com/webhook/...
 
 ## Documentation
 
+- **[API Reference](docs/api-reference.md)** - Endpoints, request/response formats
 - **Swagger UI**: http://localhost:8080/docs (Agent) | http://localhost:3000/docs (Webhook)
 - **Postman Collection**: Import `postman/teams-agent-integration.postman_collection.json`
 
