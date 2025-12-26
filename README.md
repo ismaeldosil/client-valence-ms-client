@@ -11,7 +11,7 @@ Microsoft Teams integration client for AI Agent communication.
 - Postman Collection
 
 ### Phase 1 - Notifications (Agent → Teams)
-- Incoming Webhook sender with retry logic
+- Power Automate Workflow integration (replaces deprecated Incoming Webhooks)
 - Adaptive Cards builder (alert, info, report)
 - Notification Service with channel registry
 - Notifier API with authentication
@@ -104,14 +104,16 @@ LOG_LEVEL=DEBUG
 MOCK_AGENT_PORT=8080
 MOCK_WEBHOOK_PORT=3000
 
-# Phase 1: Notifications (Agent → Teams)
-# For local testing, use mock webhook. For production, use real Teams URLs.
-TEAMS_WEBHOOK_ALERTS=http://localhost:3000/webhook
-TEAMS_WEBHOOK_REPORTS=http://localhost:3000/webhook
-TEAMS_WEBHOOK_GENERAL=http://localhost:3000/webhook
+# Phase 1: Power Automate Workflow URLs
+# For local testing, use mock webhook. For production, use Power Automate URLs.
+TEAMS_WORKFLOW_ALERTS=http://localhost:3000/webhook
+TEAMS_WORKFLOW_REPORTS=http://localhost:3000/webhook
+TEAMS_WORKFLOW_GENERAL=http://localhost:3000/webhook
 NOTIFIER_API_KEY=dev-api-key
 NOTIFIER_PORT=8001
 ```
+
+> **Note:** Legacy Incoming Webhooks (Office 365 Connectors) were deprecated by Microsoft in 2025. This project uses Power Automate Workflows for Teams integration.
 
 ## Servers
 

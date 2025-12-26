@@ -82,7 +82,7 @@ Phase 0 → Phase 2 → Phase 3 → Done
 
 ### Phase 1 → Phase 2
 - [ ] Notifications work
-- [ ] At least one Incoming Webhook configured
+- [ ] At least one Power Automate Workflow configured
 - [ ] Tests pass: `pytest tests/phase1/`
 
 ### Phase 2 → Phase 3
@@ -101,13 +101,19 @@ LOG_LEVEL=DEBUG
 
 ### Phase 1 (Add)
 ```bash
-TEAMS_WEBHOOK_ALERTS=https://...
+# Power Automate Workflow URLs
+TEAMS_WORKFLOW_ALERTS=https://prod-XX.westus.logic.azure.com:443/workflows/...
+TEAMS_WORKFLOW_REPORTS=https://prod-XX.westus.logic.azure.com:443/workflows/...
+TEAMS_WORKFLOW_GENERAL=https://prod-XX.westus.logic.azure.com:443/workflows/...
 NOTIFIER_API_KEY=your-key
+NOTIFIER_PORT=8001
 ```
+
+> **Note:** Legacy Incoming Webhooks (Office 365 Connectors) were deprecated by Microsoft in 2025.
 
 ### Phase 2 (Add)
 ```bash
-TEAMS_WEBHOOK_SECRET=your-hmac-secret
+TEAMS_HMAC_SECRET=your-hmac-secret
 AGENT_BASE_URL=https://your-agent.com
 AGENT_API_KEY=your-key
 ```

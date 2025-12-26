@@ -1,4 +1,4 @@
-# Microsoft Teams Webhook Setup Guide
+# Microsoft Teams Workflow Setup Guide
 
 **AI Agent Integration - Configuration Steps**
 
@@ -6,16 +6,18 @@
 
 ## Overview
 
-This guide covers the setup of Microsoft Teams webhooks for AI Agent integration:
+This guide covers the setup of Microsoft Teams Workflows for AI Agent integration using **Power Automate Workflows** (the modern replacement for legacy Incoming Webhooks).
 
-| Webhook Type | Direction | Purpose |
-|--------------|-----------|---------|
-| **Incoming Webhook** | Agent → Teams | Send notifications to Teams channels |
+| Integration Type | Direction | Purpose |
+|------------------|-----------|---------|
+| **Workflow Webhook** | Agent → Teams | Send notifications to Teams channels |
 | **Outgoing Webhook** | Teams → Agent | Receive messages from Teams users |
+
+> **Note:** Microsoft retired legacy Incoming Webhooks (Office 365 Connectors) in 2025. This guide uses the recommended Power Automate Workflows approach.
 
 ---
 
-# Part 1: Incoming Webhook Setup
+# Part 1: Workflow Webhook Setup
 
 **Purpose:** Allow the AI Agent to send notifications to Teams channels.
 
@@ -27,81 +29,115 @@ Before starting, verify you have:
 
 | Requirement | Description |
 |-------------|-------------|
-| **Teams Admin Access** | Or member permissions to add connectors |
-| **Channel Access** | Access to the target channels (Alerts, Reports, General) |
-| **Member Permissions** | Teams Settings → Member permissions → "Allow members to create, update, and remove connectors" must be enabled |
+| **Microsoft 365 Account** | With access to Power Automate |
+| **Teams Access** | Member of the target team and channels |
+| **Workflows App** | Installed in Teams (or access to Power Automate portal) |
 
 ---
 
-## Step 1: Navigate to the Channel
+## Step 1: Access Workflows in Teams
+
+### Option A: From the Channel (Recommended)
 
 1. Open **Microsoft Teams**
-2. Select **Teams** from the left sidebar
-3. Navigate to the team containing your target channel
-4. Select the channel where notifications will be sent (e.g., "Alerts")
+2. Navigate to the target channel (e.g., "Alerts")
+3. Click the **"+"** (Add a tab) or **"..."** (More options) button
+4. Search for **"Workflows"**
+5. Select the Workflows app
+
+### Option B: From Power Automate Portal
+
+1. Go to [make.powerautomate.com](https://make.powerautomate.com)
+2. Sign in with your Microsoft 365 account
+3. Click **"Create"** → **"Instant cloud flow"**
 
 ---
 
-## Step 2: Access Channel Settings
+## Step 2: Create a New Workflow
 
-### For New Teams Client:
+1. In the Workflows app or Power Automate, search for templates:
+   - **"Post to a channel when a webhook request is received"**
+   - Or **"When a Teams webhook request is received"**
 
-1. Click the **"..."** (More options) button to the right of the channel name
-2. Select **"Manage channel"**
+2. Select the template and click **"Continue"**
 
-![Manage Channel](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/manage-channel-new-teams.png)
-
-3. Select **"Edit"** under the Connectors section
-
-![Edit Connectors](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/edit-connector-new-teams.png)
-
-### For Classic Teams Client:
-
-1. Click the **"..."** (More options) button in the upper-right corner
-2. Select **"Connectors"** from the dropdown menu
-
-![Select Connectors](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/connectors_1.png)
+3. Verify your connection shows a green checkmark with your username
 
 ---
 
-## Step 3: Add Incoming Webhook
+## Step 3: Configure the Workflow
 
-1. In the connectors list, search for **"Incoming Webhook"**
-2. Click **"Add"** next to Incoming Webhook
+### 3.1 Set the Trigger
 
-![Search and Add Webhook](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/search-add-webhook.png)
+The trigger **"When a Teams webhook request is received"** will be pre-configured.
 
-3. Click **"Add"** again in the confirmation dialog
+### 3.2 Add Parse JSON Action (Optional but Recommended)
 
-![Add Incoming Webhook](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/add-incoming-webhook.png)
+1. Click **"+ New step"**
+2. Search for **"Parse JSON"**
+3. In the **Content** field, select **"Body"** from dynamic content
+4. Click **"Use sample payload to generate schema"**
+5. Paste this sample:
+
+```json
+{
+  "type": "message",
+  "attachments": [
+    {
+      "contentType": "application/vnd.microsoft.card.adaptive",
+      "content": {
+        "type": "AdaptiveCard",
+        "version": "1.4",
+        "body": [
+          {
+            "type": "TextBlock",
+            "text": "Sample notification"
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+### 3.3 Configure Post to Channel
+
+1. Click **"+ New step"**
+2. Search for **"Post card in a chat or channel"**
+3. Configure:
+   - **Post as**: Flow bot
+   - **Post in**: Channel
+   - **Team**: Select your team
+   - **Channel**: Select the target channel
+   - **Adaptive Card**: Select the parsed content or use dynamic content
 
 ---
 
-## Step 4: Configure the Webhook
+## Step 4: Save and Get the Webhook URL
 
-1. **Name:** Enter a descriptive name (e.g., "Agent Notifications - Alerts")
-2. **Image:** (Optional) Upload an icon for the webhook
-3. Click **"Create"**
+1. Click **"Save"** to save the workflow
+2. Go back to the trigger step **"When a Teams webhook request is received"**
+3. Click on the trigger to expand it
+4. Copy the **HTTP POST URL**
 
-![Create Webhook](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/create-incoming-webhook-new-teams.png)
-
----
-
-## Step 5: Copy the Webhook URL
-
-> **⚠️ IMPORTANT:** The webhook URL is only shown once. Copy it immediately before closing the dialog.
-
-1. After clicking "Create", a unique webhook URL will be displayed
-2. Click **"Copy"** to copy the URL to your clipboard
-3. **Save this URL securely** - you will need to send it to the development team
-4. Click **"Done"**
-
-![Copy Webhook URL](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/url_1-new-teams.png)
+> **IMPORTANT:** Save this URL securely - you will need to send it to the development team.
 
 **Example URL format:**
 ```
-https://outlook.office.com/webhook/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx@xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/IncomingWebhook/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+https://prod-XX.westus.logic.azure.com:443/workflows/XXXXXXXX/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=XXXXXXXX
 ```
+
+---
+
+## Step 5: Configure Workflow Security (Recommended)
+
+1. In the workflow, click on the trigger step
+2. Under **"Who can trigger the flow?"**, select one of:
+   - **Anyone** (less secure, easier setup)
+   - **Any user in my tenant** (recommended)
+   - **Specific users in my tenant** (most secure)
+
+3. Optionally, add a **Trigger condition** with a secret header
 
 ---
 
@@ -109,8 +145,8 @@ https://outlook.office.com/webhook/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx@xxxxxxxx
 
 Repeat Steps 1-5 for each channel:
 
-| Channel | Webhook Name | Status |
-|---------|--------------|--------|
+| Channel | Workflow Name | Status |
+|---------|---------------|--------|
 | Alerts | Agent Notifications - Alerts | ☐ Pending |
 | Reports | Agent Notifications - Reports | ☐ Pending |
 | General | Agent Notifications - General | ☐ Pending |
@@ -119,23 +155,38 @@ Repeat Steps 1-5 for each channel:
 
 ## Verification
 
-To verify the webhook is working, you can send a test message using curl:
+To verify the workflow is working, send a test message using curl:
 
 ```bash
-curl -X POST "YOUR_WEBHOOK_URL" \
+curl -X POST "YOUR_WORKFLOW_URL" \
   -H "Content-Type: application/json" \
-  -d '{"text": "Hello from the AI Agent! Webhook configured successfully."}'
+  -d '{
+    "type": "message",
+    "attachments": [{
+      "contentType": "application/vnd.microsoft.card.adaptive",
+      "contentUrl": null,
+      "content": {
+        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+        "type": "AdaptiveCard",
+        "version": "1.4",
+        "body": [{
+          "type": "TextBlock",
+          "text": "Hello from the AI Agent!",
+          "weight": "Bolder",
+          "size": "Medium"
+        }]
+      }
+    }]
+  }'
 ```
 
 If successful, you should see the message appear in the Teams channel.
 
 ---
 
-# Part 2: Outgoing Webhook Setup (Optional - Phase 2)
+# Part 2: Outgoing Webhook Setup
 
 **Purpose:** Allow Teams users to send messages to the AI Agent using @mentions.
-
-> **Note:** This is only required for Phase 2 (Teams → Agent communication).
 
 ---
 
@@ -152,26 +203,16 @@ If successful, you should see the message appear in the Teams channel.
 ## Step 1: Navigate to Team Settings
 
 1. Select **Teams** from the left sidebar
-
-![Select Teams](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/teamschannel-select.png)
-
 2. Find your team and click **"..."** (More options)
 3. Select **"Manage team"**
-
-![Manage Team](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/outgoingwebhook-manage-team.png)
 
 ---
 
 ## Step 2: Access Apps Configuration
 
 1. Select the **"Apps"** tab on the channel page
-
-![Apps Tab](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/outgoing-webhook.png)
-
-2. Scroll to **"Create an outgoing webhook"** (under "Upload an app" section)
+2. Scroll to **"Create an outgoing webhook"**
 3. Click on it to open the configuration dialog
-
-![Create Outgoing Webhook](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/create-an-outgoing-webhook.png)
 
 ---
 
@@ -186,59 +227,33 @@ Fill in the following details:
 | **Description** | Brief description | `AI Agent for HR queries` |
 | **Profile Picture** | (Optional) Upload an icon | - |
 
-![Configure Webhook](https://learn.microsoft.com/en-us/microsoftteams/platform/assets/images/create-outgoingwebhook.png)
-
 ---
 
 ## Step 4: Save the Security Token
 
 1. Click **"Create"**
 2. A dialog will appear with the **HMAC security token**
-3. **⚠️ CRITICAL:** Copy and save this token securely
-4. This token is used to verify messages are from Teams
 
-> **Note:** The HMAC token does not expire and is unique to this webhook configuration.
-
----
-
-## Information to Send Back
-
-After completing the setup, please provide the following:
-
-### For Incoming Webhooks (Required - Phase 1):
-
-| Channel | Webhook URL |
-|---------|-------------|
-| Alerts | `https://outlook.office.com/webhook/...` |
-| Reports | `https://outlook.office.com/webhook/...` |
-| General | `https://outlook.office.com/webhook/...` |
-
-### For Outgoing Webhook (Optional - Phase 2):
-
-| Item | Value |
-|------|-------|
-| HMAC Security Token | `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx` |
-| Bot Name | The name you configured |
-| Callback URL Used | The HTTPS endpoint configured |
+> **CRITICAL:** Copy and save this token securely. This token is used to verify messages are from Teams.
 
 ---
 
 # Technical Specifications
 
-## Incoming Webhook Limits
+## Workflow Webhook Limits
 
 | Specification | Limit |
 |---------------|-------|
-| Message Size | 28 KB maximum |
-| Rate Limit | 4 requests per second |
+| Message Format | Adaptive Cards only (JSON) |
 | Card Version | Adaptive Cards v1.4 |
 | Supported Actions | All card actions |
+| Rate Limit | Depends on Power Automate plan |
 
 ## Outgoing Webhook Limits
 
 | Specification | Limit |
 |---------------|-------|
-| Response Timeout | **5 seconds** (connection terminates after) |
+| Response Timeout | **5 seconds** |
 | Channel Type | Public channels only |
 | Trigger | Requires @mention |
 | Supported Actions | Only `openURL` action |
@@ -247,24 +262,15 @@ After completing the setup, please provide the following:
 
 # Important Notes
 
-## Deprecation Notice
+## Workflow Ownership
 
-> **⚠️ Microsoft Notice:** Microsoft 365 Connectors (including Incoming Webhooks) are scheduled for deprecation. While existing webhooks continue to work, consider migrating to **Power Automate Workflows** for new implementations.
+> **Important:** Workflows are linked to specific users (owners). If the owner leaves the organization, the workflow may stop working. **Add co-owners** to ensure continuity.
 
 ## Security Considerations
 
-1. **Keep webhook URLs private** - Anyone with the URL can send messages to your channel
-2. **Rotate webhooks** if URLs are compromised
-3. **HMAC verification** is required for outgoing webhooks to prevent spoofing
-
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| Can't find "Connectors" option | Check member permissions in Team Settings |
-| Webhook URL not shown | You may have closed the dialog - delete and recreate |
-| Messages not appearing | Verify the URL is correct and channel is accessible |
-| 429 Too Many Requests | You're exceeding 4 requests/second rate limit |
+1. **Keep workflow URLs private**
+2. **Use trigger conditions** with secret headers for additional security
+3. **HMAC verification** is required for outgoing webhooks
 
 ---
 
@@ -272,36 +278,16 @@ After completing the setup, please provide the following:
 
 Before sending the configuration back, verify:
 
-- [ ] Incoming Webhook created for **Alerts** channel
-- [ ] Incoming Webhook created for **Reports** channel
-- [ ] Incoming Webhook created for **General** channel
-- [ ] All webhook URLs copied and saved
+- [ ] Workflow created for **Alerts** channel
+- [ ] Workflow created for **Reports** channel
+- [ ] Workflow created for **General** channel
+- [ ] All workflow URLs copied and saved
+- [ ] Co-owners added to each workflow
 - [ ] Test message sent successfully to each channel
 - [ ] (Optional) Outgoing Webhook created with HMAC token saved
 
 ---
 
-# Summary
-
-## What We Need From You
-
-### Phase 1 (Required Now):
-
-```
-Alerts Webhook URL:   ________________________________
-Reports Webhook URL:  ________________________________
-General Webhook URL:  ________________________________
-```
-
-### Phase 2 (Optional - Later):
-
-```
-HMAC Security Token:  ________________________________
-Callback URL:         ________________________________
-```
-
----
-
 # Support
 
-If you encounter any issues during setup, please contact us. We're happy to schedule a call to walk through the setup together.
+If you encounter any issues during setup, please contact us.

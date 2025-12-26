@@ -446,7 +446,7 @@
           ]
         },
         {
-          "name": "Teams Direct (Incoming Webhook)",
+          "name": "Teams Direct (Power Automate Workflow)",
           "item": [
             {
               "name": "Send Text Message",
@@ -463,8 +463,8 @@
                   "raw": "{\n  \"text\": \"Hello from Postman! This is a direct message to Teams.\"\n}"
                 },
                 "url": {
-                  "raw": "{{teams_incoming_webhook_url}}",
-                  "host": ["{{teams_incoming_webhook_url}}"]
+                  "raw": "{{teams_workflow_url}}",
+                  "host": ["{{teams_workflow_url}}"]
                 }
               },
               "response": []
@@ -484,8 +484,8 @@
                   "raw": "{\n  \"text\": \"**Important Notice**\\n\\nThis message contains:\\n- Bold text\\n- A bullet list\\n- [A link](https://example.com)\"\n}"
                 },
                 "url": {
-                  "raw": "{{teams_incoming_webhook_url}}",
-                  "host": ["{{teams_incoming_webhook_url}}"]
+                  "raw": "{{teams_workflow_url}}",
+                  "host": ["{{teams_workflow_url}}"]
                 }
               },
               "response": []
@@ -505,8 +505,8 @@
                   "raw": "{\n  \"type\": \"message\",\n  \"attachments\": [\n    {\n      \"contentType\": \"application/vnd.microsoft.card.adaptive\",\n      \"content\": {\n        \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n        \"type\": \"AdaptiveCard\",\n        \"version\": \"1.4\",\n        \"body\": [\n          {\n            \"type\": \"TextBlock\",\n            \"text\": \"Test Card\",\n            \"weight\": \"Bolder\",\n            \"size\": \"Medium\"\n          },\n          {\n            \"type\": \"TextBlock\",\n            \"text\": \"This is a test card sent directly from Postman.\",\n            \"wrap\": true\n          }\n        ]\n      }\n    }\n  ]\n}"
                 },
                 "url": {
-                  "raw": "{{teams_incoming_webhook_url}}",
-                  "host": ["{{teams_incoming_webhook_url}}"]
+                  "raw": "{{teams_workflow_url}}",
+                  "host": ["{{teams_workflow_url}}"]
                 }
               },
               "response": []
@@ -526,8 +526,8 @@
                   "raw": "{\n  \"type\": \"message\",\n  \"attachments\": [\n    {\n      \"contentType\": \"application/vnd.microsoft.card.adaptive\",\n      \"content\": {\n        \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n        \"type\": \"AdaptiveCard\",\n        \"version\": \"1.4\",\n        \"body\": [\n          {\n            \"type\": \"Container\",\n            \"style\": \"attention\",\n            \"items\": [\n              {\n                \"type\": \"TextBlock\",\n                \"text\": \"\\ud83d\\udea8 CRITICAL ALERT\",\n                \"weight\": \"Bolder\",\n                \"size\": \"Large\",\n                \"color\": \"Attention\"\n              }\n            ]\n          },\n          {\n            \"type\": \"TextBlock\",\n            \"text\": \"Production server is down!\",\n            \"wrap\": true,\n            \"size\": \"Medium\"\n          },\n          {\n            \"type\": \"FactSet\",\n            \"facts\": [\n              {\"title\": \"Priority\", \"value\": \"Critical\"},\n              {\"title\": \"Server\", \"value\": \"prod-web-01\"},\n              {\"title\": \"Time\", \"value\": \"2025-12-26 10:30:00 UTC\"}\n            ]\n          }\n        ],\n        \"actions\": [\n          {\n            \"type\": \"Action.OpenUrl\",\n            \"title\": \"View Dashboard\",\n            \"url\": \"https://dashboard.example.com\"\n          }\n        ]\n      }\n    }\n  ]\n}"
                 },
                 "url": {
-                  "raw": "{{teams_incoming_webhook_url}}",
-                  "host": ["{{teams_incoming_webhook_url}}"]
+                  "raw": "{{teams_workflow_url}}",
+                  "host": ["{{teams_workflow_url}}"]
                 }
               },
               "response": []
