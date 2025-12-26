@@ -40,8 +40,3 @@ Thumbs.db
 *.pem
 *.key
 secrets/
-
-# Claude
-CLAUDE.md
-.claude/
-.claude*
