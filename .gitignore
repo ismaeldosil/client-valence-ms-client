@@ -40,3 +40,8 @@ Thumbs.db
 *.pem
 *.key
 secrets/
+
+# AI tools
+CLAUDE.md
+.claude/
+.claude*
