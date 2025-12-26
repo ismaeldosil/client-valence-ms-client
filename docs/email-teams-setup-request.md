@@ -54,6 +54,10 @@ Once we receive the webhook URLs, we'll:
 2. Send a test message to each channel
 3. Confirm everything is working
 
+## Important Note
+
+Some advanced configurations (such as bidirectional communication where users can chat with the agent) may require additional Microsoft services that incur monthly costs. We'll discuss these options and their associated costs before implementing any features that require them.
+
 Let me know if you have any questions - happy to jump on a call if needed!
 
 Thanks,
@@ -86,6 +90,8 @@ Quick request for the MS Teams integration.
 - General webhook URL
 
 I've attached a setup guide with screenshots. The webhook URL is only shown once, so please copy it before closing.
+
+**Note:** Some advanced configurations (e.g., bidirectional chat with the agent) may require additional Microsoft services with monthly costs. We'll discuss options before implementing.
 
 Let me know if you need help!
 
