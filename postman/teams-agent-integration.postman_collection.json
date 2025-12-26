@@ -1,0 +1,274 @@
+{
+  "info": {
+    "_postman_id": "teams-agent-integration",
+    "name": "Teams Agent Integration",
+    "description": "Collection for testing Teams Agent Integration",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Checks",
+      "item": [
+        {
+          "name": "Mock Agent Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{mock_agent_url}}/health",
+              "host": ["{{mock_agent_url}}"],
+              "path": ["health"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mock Webhook Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{mock_webhook_url}}/health",
+              "host": ["{{mock_webhook_url}}"],
+              "path": ["health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Mock Agent",
+      "item": [
+        {
+          "name": "Query - Simple",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Hola, como estas?\",\n  \"context\": {\n    \"platform\": \"postman\",\n    \"user_id\": \"postman-user\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{mock_agent_url}}/query",
+              "host": ["{{mock_agent_url}}"],
+              "path": ["query"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Query - Vacaciones",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Cual es la politica de vacaciones?\",\n  \"context\": {\n    \"platform\": \"postman\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{mock_agent_url}}/query",
+              "host": ["{{mock_agent_url}}"],
+              "path": ["query"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Query - Horario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Cual es el horario de trabajo?\",\n  \"context\": {\n    \"platform\": \"postman\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{mock_agent_url}}/query",
+              "host": ["{{mock_agent_url}}"],
+              "path": ["query"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Query - With History",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Y si no los uso todos?\",\n  \"context\": {\n    \"platform\": \"postman\"\n  },\n  \"conversation_history\": [\n    {\"role\": \"user\", \"content\": \"Cual es la politica de vacaciones?\"},\n    {\"role\": \"assistant\", \"content\": \"La politica de vacaciones permite 15 dias...\"}\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{mock_agent_url}}/query",
+              "host": ["{{mock_agent_url}}"],
+              "path": ["query"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Mock Webhook",
+      "item": [
+        {
+          "name": "Simple Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"message\",\n  \"id\": \"postman-msg-001\",\n  \"text\": \"<at>Bot</at> Hola, como estas?\",\n  \"from\": {\n    \"id\": \"postman-user-001\",\n    \"name\": \"Postman User\"\n  },\n  \"conversation\": {\n    \"id\": \"postman-conv-001\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{mock_webhook_url}}/webhook",
+              "host": ["{{mock_webhook_url}}"],
+              "path": ["webhook"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Command - Clear",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"message\",\n  \"id\": \"postman-msg-002\",\n  \"text\": \"<at>Bot</at> /clear\",\n  \"from\": {\n    \"id\": \"postman-user-001\",\n    \"name\": \"Postman User\"\n  },\n  \"conversation\": {\n    \"id\": \"postman-conv-001\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{mock_webhook_url}}/webhook",
+              "host": ["{{mock_webhook_url}}"],
+              "path": ["webhook"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Command - History",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"message\",\n  \"id\": \"postman-msg-003\",\n  \"text\": \"<at>Bot</at> /history\",\n  \"from\": {\n    \"id\": \"postman-user-001\",\n    \"name\": \"Postman User\"\n  },\n  \"conversation\": {\n    \"id\": \"postman-conv-001\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{mock_webhook_url}}/webhook",
+              "host": ["{{mock_webhook_url}}"],
+              "path": ["webhook"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Command - Help",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"message\",\n  \"id\": \"postman-msg-004\",\n  \"text\": \"<at>Bot</at> /help\",\n  \"from\": {\n    \"id\": \"postman-user-001\",\n    \"name\": \"Postman User\"\n  },\n  \"conversation\": {\n    \"id\": \"postman-conv-001\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{mock_webhook_url}}/webhook",
+              "host": ["{{mock_webhook_url}}"],
+              "path": ["webhook"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Teams Real (Optional)",
+      "item": [
+        {
+          "name": "Send Text Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Hello from Postman!\"\n}"
+            },
+            "url": {
+              "raw": "{{teams_webhook_url}}",
+              "host": ["{{teams_webhook_url}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Adaptive Card",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"message\",\n  \"attachments\": [\n    {\n      \"contentType\": \"application/vnd.microsoft.card.adaptive\",\n      \"content\": {\n        \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n        \"type\": \"AdaptiveCard\",\n        \"version\": \"1.4\",\n        \"body\": [\n          {\n            \"type\": \"TextBlock\",\n            \"text\": \"Test Card\",\n            \"weight\": \"Bolder\",\n            \"size\": \"Medium\"\n          },\n          {\n            \"type\": \"TextBlock\",\n            \"text\": \"This is a test card from Postman\",\n            \"wrap\": true\n          }\n        ]\n      }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{teams_webhook_url}}",
+              "host": ["{{teams_webhook_url}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
