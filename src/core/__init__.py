@@ -4,10 +4,10 @@ Core module - shared utilities.
 
 from .config import settings
 from .exceptions import (
-    TeamsAgentError,
+    AgentConnectionError,
     AgentError,
     AgentTimeoutError,
-    AgentConnectionError,
+    TeamsAgentError,
     TeamsError,
     WebhookVerificationError,
 )

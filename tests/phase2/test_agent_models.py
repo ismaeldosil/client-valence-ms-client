@@ -1,17 +1,14 @@
 """Tests for Agent API models."""
 
-import pytest
-from datetime import datetime, timezone
-
 from src.agent.models import (
-    AgentStatus,
-    SessionStatus,
-    MessageRole,
-    ChatRequest,
     AgentExecution,
+    AgentStatus,
+    ChatRequest,
     ChatResponse,
     Message,
+    MessageRole,
     SessionResponse,
+    SessionStatus,
 )
 
 

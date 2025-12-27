@@ -10,8 +10,8 @@ from typing import Optional
 import httpx
 import structlog
 
-from .base import TeamsSender
 from ...core.exceptions import TeamsError
+from .base import TeamsSender
 
 logger = structlog.get_logger()
 
@@ -189,9 +189,7 @@ class WebhookSender(TeamsSender):
                 await asyncio.sleep(delay)
                 delay *= 2  # Exponential backoff
 
-        raise TeamsError(
-            f"Failed to send after {self.max_retries} attempts: {last_error}"
-        )
+        raise TeamsError(f"Failed to send after {self.max_retries} attempts: {last_error}")
 
     async def close(self) -> None:
         """Close the HTTP client."""

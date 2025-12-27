@@ -8,11 +8,11 @@ from typing import Optional
 
 import structlog
 
-from .channels import ChannelRegistry
-from .models import Notification, Priority
+from ..core.exceptions import TeamsError
 from ..teams.sender.base import TeamsSender
 from ..teams.sender.cards import AdaptiveCardBuilder
-from ..core.exceptions import TeamsError
+from .channels import ChannelRegistry
+from .models import Notification, Priority
 
 logger = structlog.get_logger()
 

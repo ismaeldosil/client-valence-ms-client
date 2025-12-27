@@ -7,17 +7,19 @@ Phase 2: Stateless - Each message is independent
 Phase 3: Will add session management for conversation continuity
 """
 
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from typing import Any
 
-from fastapi import FastAPI, Request, Response, HTTPException
-from fastapi.responses import JSONResponse
 import structlog
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 
-from src.core.config import settings
 from src.agent import AgentClient
+from src.core.config import settings
 from src.teams.receiver import (
-    HMACVerifier,
     HMACVerificationError,
+    HMACVerifier,
     TeamsMessage,
     TeamsMessageHandler,
     create_verifier,
@@ -32,7 +34,7 @@ _hmac_verifier: HMACVerifier | None = None
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan manager."""
     global _agent_client, _message_handler, _hmac_verifier
 
@@ -83,7 +85,7 @@ app = FastAPI(
 
 
 @app.get("/health")
-async def health_check():
+async def health_check() -> dict[str, Any]:
     """Health check endpoint.
 
     Returns basic health status. Does not require authentication.
@@ -113,7 +115,7 @@ async def health_check():
 
 
 @app.post("/webhook")
-async def webhook_handler(request: Request):
+async def webhook_handler(request: Request) -> JSONResponse:
     """Handle incoming Teams Outgoing Webhook messages.
 
     This endpoint receives messages when users @mention the bot in Teams.
@@ -175,7 +177,7 @@ async def webhook_handler(request: Request):
 
 
 @app.post("/api/v1/test-message")
-async def test_message(request: Request):
+async def test_message(request: Request) -> JSONResponse:
     """Test endpoint for sending messages without HMAC verification.
 
     Only available in development mode. Useful for testing with Postman.

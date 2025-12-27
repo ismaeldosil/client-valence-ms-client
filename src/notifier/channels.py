@@ -6,11 +6,20 @@ Manages registered Teams channels and their webhook URLs.
 
 import re
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Protocol
 
 import structlog
 
 logger = structlog.get_logger()
+
+
+class SettingsProtocol(Protocol):
+    """Protocol for settings with workflow URLs."""
+
+    teams_workflow_alerts: Optional[str]
+    teams_workflow_reports: Optional[str]
+    teams_workflow_general: Optional[str]
+    teams_workflow_url: Optional[str]
 
 
 @dataclass
@@ -99,7 +108,7 @@ class ChannelRegistry:
         return url.startswith("https://") or url.startswith("http://localhost")
 
     @classmethod
-    def from_settings(cls, settings) -> "ChannelRegistry":
+    def from_settings(cls, settings: SettingsProtocol) -> "ChannelRegistry":
         """
         Create registry from settings.
 
@@ -132,7 +141,7 @@ class ChannelRegistry:
                 )
 
         # Also check generic workflow URL
-        if hasattr(settings, "teams_workflow_url") and settings.teams_workflow_url:
+        if settings.teams_workflow_url:
             if "default" not in registry._channels:
                 registry.register(
                     Channel(

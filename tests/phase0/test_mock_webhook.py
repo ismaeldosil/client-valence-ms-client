@@ -2,7 +2,6 @@
 Tests for Mock Webhook Receiver.
 """
 
-import pytest
 from fastapi.testclient import TestClient
 
 

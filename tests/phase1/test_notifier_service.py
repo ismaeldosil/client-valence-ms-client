@@ -2,14 +2,14 @@
 Tests for Notification Service.
 """
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
-from src.notifier.models import Notification, NotificationStatus, Priority
-from src.notifier.channels import Channel, ChannelRegistry
-from src.notifier.service import NotificationService
-from src.teams.sender.cards import AdaptiveCardBuilder
+import pytest
+
 from src.core.exceptions import TeamsError
+from src.notifier.channels import Channel, ChannelRegistry
+from src.notifier.models import Notification, NotificationStatus, Priority
+from src.notifier.service import NotificationService
 
 
 class TestNotificationModels:
@@ -133,14 +133,18 @@ class TestNotificationService:
     def registry(self) -> ChannelRegistry:
         """Create a channel registry with test channels."""
         registry = ChannelRegistry()
-        registry.register(Channel(
-            name="alerts",
-            webhook_url="https://outlook.office.com/webhook/alerts",
-        ))
-        registry.register(Channel(
-            name="reports",
-            webhook_url="https://outlook.office.com/webhook/reports",
-        ))
+        registry.register(
+            Channel(
+                name="alerts",
+                webhook_url="https://outlook.office.com/webhook/alerts",
+            )
+        )
+        registry.register(
+            Channel(
+                name="reports",
+                webhook_url="https://outlook.office.com/webhook/reports",
+            )
+        )
         return registry
 
     @pytest.fixture

@@ -1,5 +1,8 @@
 """HTTP client for communicating with the AI Agent API."""
 
+from types import TracebackType
+from typing import Any
+
 import httpx
 import structlog
 
@@ -73,7 +76,12 @@ class AgentClient:
         await self._ensure_client()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         """Async context manager exit."""
         await self.close()
 
@@ -97,7 +105,7 @@ class AgentClient:
             await self._client.aclose()
             self._client = None
 
-    async def health_check(self) -> dict:
+    async def health_check(self) -> dict[str, Any]:
         """Check agent health status.
 
         Returns:
@@ -110,7 +118,8 @@ class AgentClient:
         try:
             response = await client.get("/health")
             response.raise_for_status()
-            return response.json()
+            result: dict[str, Any] = response.json()
+            return result
         except httpx.ConnectError as e:
             raise AgentConnectionError(f"Failed to connect to agent: {e}") from e
         except httpx.HTTPStatusError as e:
@@ -189,15 +198,14 @@ class AgentClient:
                     log.warning("rate_limited", attempt=attempt + 1)
                     if attempt < self.max_retries:
                         import asyncio
-                        await asyncio.sleep(2 ** attempt)
+
+                        await asyncio.sleep(2**attempt)
                         continue
 
                 response.raise_for_status()
 
             except httpx.TimeoutException as e:
-                last_error = AgentTimeoutError(
-                    f"Request timed out after {self.timeout}s"
-                )
+                last_error = AgentTimeoutError(f"Request timed out after {self.timeout}s")
                 log.warning("request_timeout", attempt=attempt + 1, error=str(e))
                 if attempt < self.max_retries:
                     continue

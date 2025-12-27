@@ -2,7 +2,6 @@
 Tests for Mock Agent Server.
 """
 
-import pytest
 from fastapi.testclient import TestClient
 
 

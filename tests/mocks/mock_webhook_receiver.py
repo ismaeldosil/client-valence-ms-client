@@ -128,10 +128,7 @@ async def webhook(request: Request) -> WebhookResponse:
 
     # Default response
     return WebhookResponse(
-        text=(
-            f"Recibido: '{text[:100]}'\n\n"
-            f"_(Respuesta mock del webhook receiver)_"
-        )
+        text=(f"Recibido: '{text[:100]}'\n\n_(Respuesta mock del webhook receiver)_")
     )
 
 

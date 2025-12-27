@@ -4,10 +4,10 @@ These models represent the JSON payload sent by Microsoft Teams
 when a user mentions an Outgoing Webhook bot.
 """
 
+import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
-import re
 
 
 @dataclass

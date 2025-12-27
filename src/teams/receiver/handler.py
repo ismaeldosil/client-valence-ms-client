@@ -3,6 +3,7 @@
 import structlog
 
 from src.agent import AgentClient, AgentClientError, AgentTimeoutError
+
 from .models import TeamsMessage, TeamsResponse
 
 logger = structlog.get_logger(__name__)
@@ -79,9 +80,7 @@ class TeamsMessageHandler:
         # Regular message - send to agent
         query = message.get_clean_text()
         if not query:
-            return TeamsResponse(
-                text="I didn't catch that. Please mention me and ask a question."
-            )
+            return TeamsResponse(text="I didn't catch that. Please mention me and ask a question.")
 
         log.info("processing_query", query_preview=query[:50])
         return await self._handle_query(query, message)
@@ -202,9 +201,7 @@ class TeamsMessageHandler:
         """
         # In stateless mode, just acknowledge
         # Phase 3 will actually clear the session
-        return TeamsResponse(
-            text="Conversation cleared. Starting fresh!"
-        )
+        return TeamsResponse(text="Conversation cleared. Starting fresh!")
 
     async def _handle_status(self) -> TeamsResponse:
         """Handle the /status command.
@@ -219,11 +216,7 @@ class TeamsMessageHandler:
             status = health.get("status", "unknown")
             version = health.get("version", "unknown")
 
-            return TeamsResponse(
-                text=f"**Agent Status:** {status}\n**Version:** {version}"
-            )
+            return TeamsResponse(text=f"**Agent Status:** {status}\n**Version:** {version}")
 
         except AgentClientError as e:
-            return TeamsResponse(
-                text=f"**Agent Status:** Unavailable\n**Error:** {str(e)}"
-            )
+            return TeamsResponse(text=f"**Agent Status:** Unavailable\n**Error:** {str(e)}")

@@ -1,7 +1,6 @@
 """Tests for configuration module."""
 
 import os
-import pytest
 from unittest.mock import patch
 
 from src.core.config import Settings

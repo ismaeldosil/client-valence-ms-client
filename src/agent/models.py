@@ -113,9 +113,7 @@ class ChatResponse:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ChatResponse":
         """Create from API response dictionary."""
-        agents = [
-            AgentExecution.from_dict(a) for a in data.get("agents_executed", [])
-        ]
+        agents = [AgentExecution.from_dict(a) for a in data.get("agents_executed", [])]
         return cls(
             session_id=data["session_id"],
             message=data["message"],
@@ -180,12 +178,8 @@ class SessionResponse:
         return cls(
             session_id=data["session_id"],
             status=SessionStatus(data["status"]),
-            created_at=datetime.fromisoformat(
-                data["created_at"].replace("Z", "+00:00")
-            ),
-            last_activity=datetime.fromisoformat(
-                data["last_activity"].replace("Z", "+00:00")
-            ),
+            created_at=datetime.fromisoformat(data["created_at"].replace("Z", "+00:00")),
+            last_activity=datetime.fromisoformat(data["last_activity"].replace("Z", "+00:00")),
             message_count=data["message_count"],
             messages=messages,
         )

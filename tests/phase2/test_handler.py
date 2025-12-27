@@ -5,8 +5,8 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from src.agent.client import AgentClientError, AgentTimeoutError
-from src.agent.models import ChatResponse, AgentExecution, AgentStatus
-from src.teams.receiver.handler import TeamsMessageHandler, COMMANDS
+from src.agent.models import AgentExecution, AgentStatus, ChatResponse
+from src.teams.receiver.handler import COMMANDS, TeamsMessageHandler
 from src.teams.receiver.models import TeamsMessage, TeamsResponse
 
 
@@ -33,22 +33,26 @@ class TestTeamsMessageHandler:
     @pytest.fixture
     def sample_message(self):
         """Create a sample Teams message."""
-        return TeamsMessage.from_dict({
-            "id": "msg-123",
-            "text": "<at>Bot</at> What is the vacation policy?",
-            "from": {"id": "user-456", "name": "Test User", "aadObjectId": "aad-789"},
-            "conversation": {"id": "conv-abc"},
-        })
+        return TeamsMessage.from_dict(
+            {
+                "id": "msg-123",
+                "text": "<at>Bot</at> What is the vacation policy?",
+                "from": {"id": "user-456", "name": "Test User", "aadObjectId": "aad-789"},
+                "conversation": {"id": "conv-abc"},
+            }
+        )
 
     @pytest.fixture
     def command_message(self):
         """Create a command message."""
-        return TeamsMessage.from_dict({
-            "id": "msg-cmd",
-            "text": "<at>Bot</at> /help",
-            "from": {"id": "user-1", "name": "User"},
-            "conversation": {"id": "conv-1"},
-        })
+        return TeamsMessage.from_dict(
+            {
+                "id": "msg-cmd",
+                "text": "<at>Bot</at> /help",
+                "from": {"id": "user-1", "name": "User"},
+                "conversation": {"id": "conv-1"},
+            }
+        )
 
     @pytest.fixture
     def agent_response(self):
@@ -94,12 +98,14 @@ class TestTeamsMessageHandler:
 
     async def test_handle_clear_command(self, handler):
         """Test handling /clear command."""
-        message = TeamsMessage.from_dict({
-            "id": "msg-1",
-            "text": "<at>Bot</at> /clear",
-            "from": {"id": "u1", "name": "User"},
-            "conversation": {"id": "c1"},
-        })
+        message = TeamsMessage.from_dict(
+            {
+                "id": "msg-1",
+                "text": "<at>Bot</at> /clear",
+                "from": {"id": "u1", "name": "User"},
+                "conversation": {"id": "c1"},
+            }
+        )
 
         response = await handler.handle(message)
 
@@ -112,12 +118,14 @@ class TestTeamsMessageHandler:
             "version": "2.0.0",
         }
 
-        message = TeamsMessage.from_dict({
-            "id": "msg-1",
-            "text": "<at>Bot</at> /status",
-            "from": {"id": "u1", "name": "User"},
-            "conversation": {"id": "c1"},
-        })
+        message = TeamsMessage.from_dict(
+            {
+                "id": "msg-1",
+                "text": "<at>Bot</at> /status",
+                "from": {"id": "u1", "name": "User"},
+                "conversation": {"id": "c1"},
+            }
+        )
 
         response = await handler.handle(message)
 
@@ -128,12 +136,14 @@ class TestTeamsMessageHandler:
         """Test handling /status command when agent is unavailable."""
         mock_agent_client.health_check.side_effect = AgentClientError("Connection refused")
 
-        message = TeamsMessage.from_dict({
-            "id": "msg-1",
-            "text": "<at>Bot</at> /status",
-            "from": {"id": "u1", "name": "User"},
-            "conversation": {"id": "c1"},
-        })
+        message = TeamsMessage.from_dict(
+            {
+                "id": "msg-1",
+                "text": "<at>Bot</at> /status",
+                "from": {"id": "u1", "name": "User"},
+                "conversation": {"id": "c1"},
+            }
+        )
 
         response = await handler.handle(message)
 
@@ -141,12 +151,14 @@ class TestTeamsMessageHandler:
 
     async def test_handle_unknown_command(self, handler):
         """Test handling unknown command."""
-        message = TeamsMessage.from_dict({
-            "id": "msg-1",
-            "text": "<at>Bot</at> /unknown",
-            "from": {"id": "u1", "name": "User"},
-            "conversation": {"id": "c1"},
-        })
+        message = TeamsMessage.from_dict(
+            {
+                "id": "msg-1",
+                "text": "<at>Bot</at> /unknown",
+                "from": {"id": "u1", "name": "User"},
+                "conversation": {"id": "c1"},
+            }
+        )
 
         response = await handler.handle(message)
 
@@ -155,20 +167,20 @@ class TestTeamsMessageHandler:
 
     async def test_handle_empty_message(self, handler):
         """Test handling message with only mention (no text)."""
-        message = TeamsMessage.from_dict({
-            "id": "msg-1",
-            "text": "<at>Bot</at>",
-            "from": {"id": "u1", "name": "User"},
-            "conversation": {"id": "c1"},
-        })
+        message = TeamsMessage.from_dict(
+            {
+                "id": "msg-1",
+                "text": "<at>Bot</at>",
+                "from": {"id": "u1", "name": "User"},
+                "conversation": {"id": "c1"},
+            }
+        )
 
         response = await handler.handle(message)
 
         assert "didn't catch that" in response.text.lower()
 
-    async def test_handle_agent_timeout(
-        self, handler, mock_agent_client, sample_message
-    ):
+    async def test_handle_agent_timeout(self, handler, mock_agent_client, sample_message):
         """Test handling agent timeout."""
         mock_agent_client.chat.side_effect = AgentTimeoutError("Timeout")
 
@@ -176,9 +188,7 @@ class TestTeamsMessageHandler:
 
         assert response.text == "Request timed out"
 
-    async def test_handle_agent_error(
-        self, handler, mock_agent_client, sample_message
-    ):
+    async def test_handle_agent_error(self, handler, mock_agent_client, sample_message):
         """Test handling agent error."""
         mock_agent_client.chat.side_effect = AgentClientError("Server error")
 
@@ -207,12 +217,14 @@ class TestTeamsMessageHandler:
 
     async def test_handle_command_case_insensitive(self, handler):
         """Test that commands are case-insensitive."""
-        message = TeamsMessage.from_dict({
-            "id": "msg-1",
-            "text": "<at>Bot</at> /HELP",
-            "from": {"id": "u1", "name": "User"},
-            "conversation": {"id": "c1"},
-        })
+        message = TeamsMessage.from_dict(
+            {
+                "id": "msg-1",
+                "text": "<at>Bot</at> /HELP",
+                "from": {"id": "u1", "name": "User"},
+                "conversation": {"id": "c1"},
+            }
+        )
 
         response = await handler.handle(message)
 

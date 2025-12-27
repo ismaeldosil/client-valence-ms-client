@@ -3,10 +3,10 @@
 import pytest
 
 from src.core.exceptions import (
-    TeamsAgentError,
+    AgentConnectionError,
     AgentError,
     AgentTimeoutError,
-    AgentConnectionError,
+    TeamsAgentError,
     TeamsError,
     WebhookVerificationError,
 )
@@ -125,7 +125,7 @@ class TestExceptionHierarchy:
         for exc in exceptions:
             try:
                 raise exc
-            except TeamsAgentError as e:
+            except TeamsAgentError:
                 assert True
             except Exception:
                 pytest.fail(f"{type(exc).__name__} not caught by TeamsAgentError")
@@ -140,7 +140,7 @@ class TestExceptionHierarchy:
         for exc in agent_exceptions:
             try:
                 raise exc
-            except AgentError as e:
+            except AgentError:
                 assert True
             except Exception:
                 pytest.fail(f"{type(exc).__name__} not caught by AgentError")
@@ -149,7 +149,7 @@ class TestExceptionHierarchy:
         """Test catching teams-specific errors."""
         try:
             raise WebhookVerificationError("invalid")
-        except TeamsError as e:
+        except TeamsError:
             assert True
         except Exception:
             pytest.fail("WebhookVerificationError not caught by TeamsError")

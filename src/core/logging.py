@@ -11,6 +11,7 @@ import sys
 from typing import Optional
 
 import structlog
+from structlog.typing import Processor
 
 from .config import settings
 
@@ -32,6 +33,7 @@ def setup_logging() -> None:
     )
 
     # Choose renderer based on environment
+    renderer: Processor
     if settings.environment == "production":
         renderer = structlog.processors.JSONRenderer()
     else:
@@ -72,4 +74,5 @@ def get_logger(name: Optional[str] = None) -> structlog.stdlib.BoundLogger:
         logger.info("message", key="value")
     """
     setup_logging()
-    return structlog.get_logger(name)
+    logger: structlog.stdlib.BoundLogger = structlog.get_logger(name)
+    return logger

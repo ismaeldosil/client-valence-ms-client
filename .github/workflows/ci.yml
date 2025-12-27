@@ -39,7 +39,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install bandit
-      - run: bandit -r src/ -ll
+      - run: bandit -r src/ -ll -c pyproject.toml
 
   test:
     name: Tests & Coverage

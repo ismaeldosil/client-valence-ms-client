@@ -2,8 +2,6 @@
 Tests for Mock Responses data.
 """
 
-import pytest
-
 from tests.mocks.mock_responses import (
     DEFAULT_RESPONSE,
     KNOWLEDGE_BASE,

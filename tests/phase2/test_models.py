@@ -1,14 +1,13 @@
 """Tests for Teams receiver models."""
 
 import pytest
-from datetime import datetime, timezone
 
 from src.teams.receiver.models import (
-    TeamsUser,
     TeamsConversation,
     TeamsMention,
     TeamsMessage,
     TeamsResponse,
+    TeamsUser,
 )
 
 

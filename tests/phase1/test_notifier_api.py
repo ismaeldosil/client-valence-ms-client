@@ -2,13 +2,14 @@
 Tests for Notifier API.
 """
 
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
 from fastapi.testclient import TestClient
 
-from src.api.notifier_api import app, get_service, get_channels
-from src.notifier.models import Notification, NotificationStatus, Priority
+from src.api.notifier_api import app
 from src.notifier.channels import Channel, ChannelRegistry
+from src.notifier.models import Notification
 
 
 class TestNotifierAPI:
@@ -28,11 +29,13 @@ class TestNotifierAPI:
     def mock_channels(self) -> ChannelRegistry:
         """Create mock channels."""
         registry = ChannelRegistry()
-        registry.register(Channel(
-            name="alerts",
-            webhook_url="https://test.webhook.com/alerts",
-            description="Alert channel",
-        ))
+        registry.register(
+            Channel(
+                name="alerts",
+                webhook_url="https://test.webhook.com/alerts",
+                description="Alert channel",
+            )
+        )
         return registry
 
     def test_health_no_auth(self, client: TestClient) -> None:

@@ -7,8 +7,8 @@ import hmac
 import pytest
 
 from src.teams.receiver.hmac import (
-    HMACVerifier,
     HMACVerificationError,
+    HMACVerifier,
     create_verifier,
 )
 

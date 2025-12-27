@@ -158,11 +158,13 @@ async def chat(request: ChatRequest) -> ChatResponse:
     session = _sessions[session_id]
 
     # Add user message to history
-    session["messages"].append({
-        "role": "user",
-        "content": request.message,
-        "timestamp": datetime.now(timezone.utc),
-    })
+    session["messages"].append(
+        {
+            "role": "user",
+            "content": request.message,
+            "timestamp": datetime.now(timezone.utc),
+        }
+    )
     session["last_activity"] = datetime.now(timezone.utc)
 
     # Simulate latency (0.3 - 1.5 seconds)
@@ -207,11 +209,13 @@ async def chat(request: ChatRequest) -> ChatResponse:
     ]
 
     # Add assistant message to history
-    session["messages"].append({
-        "role": "assistant",
-        "content": response_data["text"],
-        "timestamp": datetime.now(timezone.utc),
-    })
+    session["messages"].append(
+        {
+            "role": "assistant",
+            "content": response_data["text"],
+            "timestamp": datetime.now(timezone.utc),
+        }
+    )
 
     logger.info(
         "chat_processed",

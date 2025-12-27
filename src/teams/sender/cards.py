@@ -5,7 +5,7 @@ Builds Adaptive Cards following the 1.4 schema.
 """
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 
 class AdaptiveCardBuilder:
@@ -23,9 +23,9 @@ class AdaptiveCardBuilder:
     """
 
     PRIORITY_COLORS = {
-        "low": "good",        # Green
-        "medium": "accent",   # Blue
-        "high": "warning",    # Yellow
+        "low": "good",  # Green
+        "medium": "accent",  # Blue
+        "high": "warning",  # Yellow
         "critical": "attention",  # Red
     }
 
@@ -57,7 +57,7 @@ class AdaptiveCardBuilder:
         Returns:
             Adaptive Card dictionary
         """
-        builders = {
+        builders: dict[str, Callable[..., dict[str, Any]]] = {
             "alert": self.build_alert_card,
             "info": self.build_info_card,
             "report": self.build_report_card,
@@ -119,20 +119,24 @@ class AdaptiveCardBuilder:
 
         # Add source if provided
         if source:
-            body.append({
-                "type": "TextBlock",
-                "text": f"Fuente: {source}",
-                "size": "Small",
-                "isSubtle": True,
-            })
+            body.append(
+                {
+                    "type": "TextBlock",
+                    "text": f"Fuente: {source}",
+                    "size": "Small",
+                    "isSubtle": True,
+                }
+            )
 
         # Add timestamp
-        body.append({
-            "type": "TextBlock",
-            "text": f"_{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}_",
-            "size": "Small",
-            "isSubtle": True,
-        })
+        body.append(
+            {
+                "type": "TextBlock",
+                "text": f"_{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}_",
+                "size": "Small",
+                "isSubtle": True,
+            }
+        )
 
         card = {
             "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
@@ -191,13 +195,15 @@ class AdaptiveCardBuilder:
         ]
 
         if footer:
-            body.append({
-                "type": "TextBlock",
-                "text": footer,
-                "size": "Small",
-                "isSubtle": True,
-                "wrap": True,
-            })
+            body.append(
+                {
+                    "type": "TextBlock",
+                    "text": footer,
+                    "size": "Small",
+                    "isSubtle": True,
+                    "wrap": True,
+                }
+            )
 
         return {
             "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
@@ -247,22 +253,23 @@ class AdaptiveCardBuilder:
 
         # Add data as fact set
         if data:
-            facts = [
-                {"title": str(k), "value": str(v)}
-                for k, v in data.items()
-            ]
-            body.append({
-                "type": "FactSet",
-                "facts": facts,
-            })
+            facts = [{"title": str(k), "value": str(v)} for k, v in data.items()]
+            body.append(
+                {
+                    "type": "FactSet",
+                    "facts": facts,
+                }
+            )
 
         # Add timestamp
-        body.append({
-            "type": "TextBlock",
-            "text": f"Generado: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-            "size": "Small",
-            "isSubtle": True,
-        })
+        body.append(
+            {
+                "type": "TextBlock",
+                "text": f"Generado: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+                "size": "Small",
+                "isSubtle": True,
+            }
+        )
 
         return {
             "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",

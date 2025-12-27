@@ -33,7 +33,7 @@ disallow_untyped_defs = true
 
 [tool.bandit]
 exclude_dirs = ["tests", "scripts"]
-skips = ["B101"]  # Skip assert warnings in tests
+skips = ["B101", "B104"]  # Skip assert warnings and bind-all-interfaces (expected for servers)
 
 [tool.coverage.run]
 source = ["src"]

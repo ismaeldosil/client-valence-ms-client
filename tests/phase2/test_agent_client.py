@@ -1,17 +1,17 @@
 """Tests for AgentClient."""
 
-import pytest
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import httpx
-from unittest.mock import AsyncMock, patch, MagicMock
+import pytest
 
 from src.agent.client import (
-    AgentClient,
-    AgentClientError,
-    AgentTimeoutError,
-    AgentConnectionError,
     AgentAPIError,
+    AgentClient,
+    AgentConnectionError,
+    AgentTimeoutError,
 )
-from src.agent.models import ChatResponse, AgentStatus
+from src.agent.models import ChatResponse
 
 
 class TestAgentClient:

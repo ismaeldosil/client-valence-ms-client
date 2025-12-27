@@ -1,7 +1,7 @@
 """Notification service module."""
 
-from .models import Notification, NotificationStatus, Priority
 from .channels import Channel, ChannelRegistry
+from .models import Notification, NotificationStatus, Priority
 from .service import NotificationService
 
 __all__ = [

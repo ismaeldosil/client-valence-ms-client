@@ -4,9 +4,9 @@ import base64
 import hashlib
 import hmac
 import json
-import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import patch
 
+import pytest
 from fastapi.testclient import TestClient
 
 from src.agent.models import ChatResponse
@@ -138,7 +138,9 @@ class TestWebhookHMAC:
         """Test webhook fails without Authorization header when HMAC is configured."""
         with patch.dict("os.environ", {"TEAMS_HMAC_SECRET": hmac_secret}, clear=False):
             from importlib import reload
+
             import src.api.receiver_api as api_module
+
             reload(api_module)
 
             with TestClient(api_module.app) as client:
@@ -153,7 +155,9 @@ class TestWebhookHMAC:
         """Test webhook fails with invalid HMAC signature."""
         with patch.dict("os.environ", {"TEAMS_HMAC_SECRET": hmac_secret}, clear=False):
             from importlib import reload
+
             import src.api.receiver_api as api_module
+
             reload(api_module)
 
             with TestClient(api_module.app) as client:

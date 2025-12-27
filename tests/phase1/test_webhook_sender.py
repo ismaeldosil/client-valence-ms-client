@@ -2,12 +2,12 @@
 Tests for WebhookSender.
 """
 
-import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
-import httpx
+from unittest.mock import AsyncMock, MagicMock, patch
 
-from src.teams.sender.webhook_sender import WebhookSender
+import pytest
+
 from src.core.exceptions import TeamsError
+from src.teams.sender.webhook_sender import WebhookSender
 
 
 class TestWebhookSender:
@@ -65,11 +65,16 @@ class TestWebhookSender:
             call_args = mock_client.post.call_args
             payload = call_args[1]["json"]
             assert payload["type"] == "message"
-            assert payload["attachments"][0]["contentType"] == "application/vnd.microsoft.card.adaptive"
+            assert (
+                payload["attachments"][0]["contentType"]
+                == "application/vnd.microsoft.card.adaptive"
+            )
             assert payload["attachments"][0]["content"] == card
 
     @pytest.mark.asyncio
-    async def test_send_retry_on_server_error(self, sender: WebhookSender, webhook_url: str) -> None:
+    async def test_send_retry_on_server_error(
+        self, sender: WebhookSender, webhook_url: str
+    ) -> None:
         """Test retry on 5xx errors."""
         mock_response_fail = MagicMock()
         mock_response_fail.status_code = 500
@@ -106,7 +111,9 @@ class TestWebhookSender:
             assert "Failed to send after 2 attempts" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    async def test_send_no_retry_on_client_error(self, sender: WebhookSender, webhook_url: str) -> None:
+    async def test_send_no_retry_on_client_error(
+        self, sender: WebhookSender, webhook_url: str
+    ) -> None:
         """Test no retry on 4xx errors."""
         mock_response = MagicMock()
         mock_response.status_code = 400
