@@ -10,8 +10,9 @@ This guide explains how to set up and use the Microsoft Teams integration client
 4. [Running the Services](#running-the-services)
 5. [Sending Notifications (Agent → Teams)](#sending-notifications-agent--teams)
 6. [Receiving Queries (Teams → Agent)](#receiving-queries-teams--agent)
-7. [Testing](#testing)
-8. [Troubleshooting](#troubleshooting)
+7. [Development Workflow](#development-workflow)
+8. [Testing](#testing)
+9. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -36,11 +37,18 @@ cd client-valence-ms-client
 python -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Install dependencies
+# Install base dependencies
 pip install -r requirements/base.txt
+
+# Install development dependencies (includes testing tools)
+pip install -r requirements/dev.txt
 
 # Copy environment file
 cp .env.example .env
+
+# Install pre-commit hooks (recommended)
+pre-commit install
+pre-commit install --hook-type pre-push
 ```
 
 ---
@@ -65,6 +73,7 @@ NOTIFIER_PORT=8001
 # Queries (Teams → Agent)
 AGENT_BASE_URL=http://localhost:8000      # Your AI Agent URL
 AGENT_TIMEOUT=4.5                          # Must be < 5 seconds (Teams limit)
+AGENT_MAX_RETRIES=1                        # Retry attempts
 RECEIVER_PORT=3001
 TEAMS_HMAC_SECRET=your-base64-secret       # From Outgoing Webhook creation
 ```
@@ -181,7 +190,7 @@ Once the Outgoing Webhook is configured in Teams, users can interact with the bo
    ```
    @Valerie find suppliers with Nadcap certification
    ```
-3. The bot will respond in the channel
+3. The bot will respond in the channel (supports Spanish and English)
 
 ### Available Commands
 
@@ -203,7 +212,84 @@ Once the Outgoing Webhook is configured in Teams, users can interact with the bo
 
 ---
 
+## Development Workflow
+
+### Quality Commands (Makefile)
+
+```bash
+# Linting and auto-fix
+make lint
+
+# Type checking with MyPy
+make type-check
+
+# Security scan with Bandit
+make security
+
+# Run tests with coverage
+make test
+
+# Full pre-push analysis (lint + types + security + tests)
+make pre-push
+
+# Find code without tests
+make find-gaps
+
+# Run all quality checks
+make all
+```
+
+### Pre-commit Hooks
+
+The project uses pre-commit hooks for quality assurance:
+
+**On commit:**
+- Ruff linting and formatting
+- Trailing whitespace removal
+- YAML validation
+
+**On push:**
+- Full static analysis (lint, type-check, security, tests)
+
+```bash
+# Install hooks
+pre-commit install
+pre-commit install --hook-type pre-push
+
+# Run manually
+pre-commit run --all-files
+```
+
+### CI/CD Pipeline
+
+GitHub Actions runs on every push/PR to main:
+
+| Job | Tool | Description |
+|-----|------|-------------|
+| Lint & Format | Ruff | Code style and formatting |
+| Type Check | MyPy | Static type analysis |
+| Security | Bandit | SAST vulnerability scan |
+| Tests | Pytest | Unit/integration tests + coverage |
+
+---
+
 ## Testing
+
+### Run Tests
+
+```bash
+# All tests
+pytest tests/ -v
+
+# With coverage report
+pytest tests/ --cov=src --cov-report=html
+
+# Specific phase
+pytest tests/phase2/ -v
+
+# Single test file
+pytest tests/phase2/test_handler.py -v
+```
 
 ### Health Checks
 
@@ -223,9 +309,10 @@ Send a test message without HMAC verification:
 curl -X POST http://localhost:3001/api/v1/test-message \
   -H "Content-Type: application/json" \
   -d '{
-    "message": "Hello, how are you?",
-    "user_id": "test-user",
-    "user_name": "Test User"
+    "id": "test-1",
+    "text": "<at>Bot</at> Hello, how are you?",
+    "from": {"id": "user-1", "name": "Test User"},
+    "conversation": {"id": "conv-1"}
   }'
 ```
 
@@ -238,6 +325,19 @@ Import the Postman collection and environment:
 3. Import `postman/environments/local.postman_environment.json`
 4. Select the "Microsoft Client - Environment" environment
 5. Run the requests
+
+### Test Coverage
+
+Current coverage: **83%** (174 tests)
+
+```bash
+# Generate HTML coverage report
+pytest tests/ --cov=src --cov-report=html
+open htmlcov/index.html
+
+# Check coverage threshold (must be >= 70%)
+pytest tests/ --cov=src --cov-fail-under=70
+```
 
 ---
 
@@ -269,11 +369,25 @@ Teams Outgoing Webhooks have a 5-second timeout. If your agent takes longer:
 2. Don't decode or modify the secret
 3. Check that the request body hasn't been modified
 
+### Pre-commit hook failures
+
+```bash
+# See what failed
+pre-commit run --all-files
+
+# Fix linting issues automatically
+make lint
+
+# Check type errors
+make type-check
+```
+
 ### Common Error Codes
 
 | Code | Meaning | Solution |
 |------|---------|----------|
 | 401 | Invalid HMAC signature | Check TEAMS_HMAC_SECRET |
+| 400 | Invalid message format | Check request JSON structure |
 | 503 | Agent unavailable | Verify AGENT_BASE_URL |
 | 504 | Agent timeout | Query took > 5 seconds |
 

@@ -19,8 +19,9 @@ Microsoft Teams integration client for AI Agent communication.
 ### Phase 2 - Queries Stateless (Teams → Agent)
 - Webhook Receiver for Teams Outgoing Webhooks (port 3001)
 - HMAC-SHA256 signature verification
-- Agent Client for forwarding queries
+- Agent Client with retry logic and timeout handling
 - Commands: `/help`, `/status`, `/clear`
+- Full Spanish language support
 
 ## Project Structure
 
@@ -37,13 +38,16 @@ client-valence-ms-client/
 ├── tests/
 │   ├── mocks/                  # Mock servers
 │   ├── phase0/                 # Phase 0 tests
-│   └── phase1/                 # Phase 1 tests
+│   ├── phase1/                 # Phase 1 tests
+│   ├── phase2/                 # Phase 2 tests (handler, hmac, models, client)
+│   └── core/                   # Core module tests
 ├── scripts/
 │   ├── phase0/                 # Mock server scripts
 │   ├── phase1/                 # Notification scripts
 │   └── phase2/                 # Receiver scripts
+├── .github/workflows/          # CI/CD (GitHub Actions)
 ├── postman/                    # Postman collection & environments
-├── requirements/               # Dependencies
+├── requirements/               # Dependencies (base, dev)
 └── docs/                       # Documentation
 ```
 
@@ -58,16 +62,20 @@ client-valence-ms-client/
 
 ```bash
 # Clone the repository
-git clone https://github.com/REEA-Global/client-valence-ms-client.git
+git clone https://github.com/REEA-Global-LLC/client-valence-ms-client.git
 cd client-valence-ms-client
 
-# Run setup script
-./scripts/setup.sh
-
-# Or manually
+# Create virtual environment
 python -m venv .venv
 source .venv/bin/activate
+
+# Install dependencies
 pip install -r requirements/base.txt
+
+# For development (includes testing tools)
+pip install -r requirements/dev.txt
+
+# Copy environment file
 cp .env.example .env
 ```
 
@@ -91,11 +99,56 @@ python scripts/phase2/start_receiver.py &      # port 3001
 cloudflared tunnel --url http://localhost:3001
 ```
 
+## Development
+
+### Quality Commands (Makefile)
+
+```bash
+# Linting and formatting
+make lint
+
+# Type checking
+make type-check
+
+# Security scan
+make security
+
+# Run tests with coverage
+make test
+
+# Full analysis (pre-push)
+make pre-push
+
+# Find untested code
+make find-gaps
+
+# Run all quality checks
+make all
+```
+
+### Pre-commit Hooks
+
+```bash
+# Install hooks
+pip install pre-commit
+pre-commit install
+pre-commit install --hook-type pre-push
+
+# Run manually
+pre-commit run --all-files
+```
+
 ### Testing
 
 ```bash
 # Run all tests
 pytest tests/ -v
+
+# Run with coverage
+pytest tests/ --cov=src --cov-report=html
+
+# Run specific phase
+pytest tests/phase2/ -v
 
 # Run Phase 0 endpoints demo
 python scripts/phase0/run_all_endpoints.py
@@ -106,6 +159,17 @@ python scripts/phase0/msteams_client.py
 # Send notification (Phase 1)
 python scripts/phase1/send_notification.py --channel alerts --message "Test" --card alert
 ```
+
+### Test Coverage
+
+Current coverage: **83%** (174 tests passing)
+
+| Module | Coverage |
+|--------|----------|
+| `src/teams/receiver/` | 99% |
+| `src/agent/` | 83-100% |
+| `src/core/` | 100% |
+| `src/notifier/` | 61-100% |
 
 ## Configuration
 
@@ -121,12 +185,18 @@ MOCK_AGENT_PORT=8080
 MOCK_WEBHOOK_PORT=3000
 
 # Phase 1: Power Automate Workflow URLs
-# For local testing, use mock webhook. For production, use Power Automate URLs.
 TEAMS_WORKFLOW_ALERTS=http://localhost:3000/webhook
 TEAMS_WORKFLOW_REPORTS=http://localhost:3000/webhook
 TEAMS_WORKFLOW_GENERAL=http://localhost:3000/webhook
 NOTIFIER_API_KEY=dev-api-key
 NOTIFIER_PORT=8001
+
+# Phase 2: Webhook Receiver
+TEAMS_HMAC_SECRET=your-base64-secret
+RECEIVER_PORT=3001
+AGENT_BASE_URL=http://localhost:8000
+AGENT_TIMEOUT=4.5
+AGENT_MAX_RETRIES=1
 ```
 
 > **Note:** Legacy Incoming Webhooks (Office 365 Connectors) were deprecated by Microsoft in 2025. This project uses Power Automate Workflows for Teams integration.
@@ -140,13 +210,25 @@ NOTIFIER_PORT=8001
 | Notifier API | 8001 | 1 | Sends notifications to Teams |
 | Webhook Receiver | 3001 | 2 | Receives messages from Teams |
 
+## CI/CD
+
+GitHub Actions workflow runs on push/PR to main:
+
+1. **Lint & Format** - Ruff check and format
+2. **Type Check** - MyPy strict mode
+3. **Security Scan** - Bandit SAST
+4. **Tests & Coverage** - Pytest with 70% minimum coverage
+
 ## Documentation
 
+- **[USAGE.md](USAGE.md)** - Setup and usage guide
+- **[ROUTING.md](ROUTING.md)** - Phase navigation guide
 - **[API Reference](docs/api-reference.md)** - Endpoints, request/response formats
 - **Swagger UI**:
   - Agent: http://localhost:8080/docs
   - Webhook: http://localhost:3000/docs
   - Notifier: http://localhost:8001/docs
+  - Receiver: http://localhost:3001/docs
 - **Postman Collection**: Import `postman/teams-agent-integration.postman_collection.json`
 
 ## Development Phases
@@ -167,11 +249,15 @@ NOTIFIER_PORT=8001
 ## Tech Stack
 
 - **Python 3.11+**
-- **FastAPI** - Mock servers
+- **FastAPI** - Web framework
 - **Pydantic** - Configuration and validation
 - **Structlog** - Structured logging
 - **HTTPX** - Async HTTP client
 - **Pytest** - Testing framework
+- **Ruff** - Linting and formatting
+- **MyPy** - Static type checking
+- **Bandit** - Security analysis
+- **Pre-commit** - Git hooks
 
 ## License
 

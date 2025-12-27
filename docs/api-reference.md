@@ -9,27 +9,129 @@ Base URL: `http://localhost:8080`
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/health` | Health check |
-| POST | `/query` | Query the agent |
+| GET | `/ready` | Readiness check |
+| GET | `/live` | Liveness check |
+| POST | `/api/v1/chat` | Chat with agent (v2) |
+| GET | `/api/v1/sessions/{id}` | Get session details |
+| DELETE | `/api/v1/sessions/{id}` | Delete session |
+| POST | `/query` | Legacy query endpoint (deprecated) |
 
 ---
 
 ### GET /health
 
-Health check endpoint.
+Health check endpoint with service status.
 
 **Response:**
 ```json
 {
-  "status": "ok",
-  "service": "mock-agent"
+  "status": "healthy",
+  "version": "2.2.0-mock",
+  "timestamp": "2025-12-27T10:30:00Z",
+  "services": [
+    {"name": "knowledge_base", "status": "healthy", "latency_ms": 5.2},
+    {"name": "agent_pipeline", "status": "healthy", "latency_ms": 12.1}
+  ]
 }
 ```
 
 ---
 
-### POST /query
+### POST /api/v1/chat
 
-Query the agent with a message.
+Send a message to the chatbot (v2 API).
+
+**Request:**
+```json
+{
+  "message": "Find suppliers with Nadcap certification",
+  "session_id": "existing-session-id",
+  "user_id": "user-123"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `message` | string | Yes | User's message (1-5000 chars) |
+| `session_id` | string | No | Existing session ID for conversation continuity |
+| `user_id` | string | No | User identifier for tracking |
+
+**Response:**
+```json
+{
+  "session_id": "sess-abc123",
+  "message": "Here are the suppliers with Nadcap certification...",
+  "agents_executed": [
+    {
+      "agent_name": "intent_classifier",
+      "display_name": "Intent Classifier",
+      "status": "completed",
+      "duration_ms": 50,
+      "output": {"intent": "supplier_search", "confidence": 0.95}
+    },
+    {
+      "agent_name": "knowledge_retrieval",
+      "display_name": "Knowledge Retrieval",
+      "status": "completed",
+      "duration_ms": 200,
+      "output": {}
+    }
+  ],
+  "intent": "supplier_search",
+  "confidence": 0.95,
+  "requires_approval": false
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `session_id` | string | Session identifier for conversation continuity |
+| `message` | string | Agent's response message |
+| `agents_executed` | array | List of agents that processed the request |
+| `intent` | string | Detected user intent |
+| `confidence` | float | Confidence score (0-1) |
+| `requires_approval` | boolean | Whether action requires user approval |
+
+---
+
+### GET /api/v1/sessions/{session_id}
+
+Get session details and message history.
+
+**Response:**
+```json
+{
+  "session_id": "sess-abc123",
+  "status": "active",
+  "created_at": "2025-12-27T10:00:00Z",
+  "last_activity": "2025-12-27T10:30:00Z",
+  "message_count": 5,
+  "messages": [
+    {"role": "user", "content": "Hello", "timestamp": "2025-12-27T10:00:00Z"},
+    {"role": "assistant", "content": "Hi there!", "timestamp": "2025-12-27T10:00:01Z"}
+  ]
+}
+```
+
+---
+
+### DELETE /api/v1/sessions/{session_id}
+
+Delete a session.
+
+**Response:**
+```json
+{
+  "deleted": true,
+  "session_id": "sess-abc123"
+}
+```
+
+---
+
+### POST /query (Deprecated)
+
+Legacy query endpoint. Use `/api/v1/chat` instead.
 
 **Request:**
 ```json
@@ -43,14 +145,6 @@ Query the agent with a message.
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `message` | string | Yes | User's question |
-| `context` | object | No | Additional context |
-| `context.platform` | string | No | Source platform |
-| `context.user_id` | string | No | User identifier |
-| `conversation_history` | array | No | Previous messages |
-
 **Response:**
 ```json
 {
@@ -60,13 +154,6 @@ Query the agent with a message.
   "processing_time_ms": 450
 }
 ```
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `text` | string | Agent's response |
-| `sources` | array | Source documents used |
-| `confidence` | float | Confidence score (0-1) |
-| `processing_time_ms` | int | Processing time in milliseconds |
 
 ---
 
@@ -90,7 +177,7 @@ Health check endpoint.
 **Response:**
 ```json
 {
-  "status": "ok",
+  "status": "healthy",
   "service": "mock-webhook"
 }
 ```
@@ -117,17 +204,6 @@ Receive messages from Teams (Outgoing Webhook format).
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `type` | string | Yes | Message type |
-| `id` | string | No | Message ID |
-| `text` | string | Yes | Message content (may include @mentions) |
-| `from` | object | No | Sender information |
-| `from.id` | string | No | Sender ID |
-| `from.name` | string | No | Sender name |
-| `conversation` | object | No | Conversation info |
-| `conversation.id` | string | No | Conversation ID |
-
 **Response:**
 ```json
 {
@@ -135,18 +211,6 @@ Receive messages from Teams (Outgoing Webhook format).
   "text": "Response text here"
 }
 ```
-
----
-
-## Supported Commands
-
-The webhook receiver supports the following commands:
-
-| Command | Description |
-|---------|-------------|
-| `/help` | Show available commands |
-| `/clear` | Clear conversation history |
-| `/history` | Show conversation history |
 
 ---
 
@@ -171,8 +235,9 @@ Health check endpoint.
 **Response:**
 ```json
 {
-  "status": "ok",
-  "service": "notifier"
+  "status": "healthy",
+  "service": "notifier",
+  "version": "1.0.0"
 }
 ```
 
@@ -249,13 +314,6 @@ Send a notification to a Teams channel.
 }
 ```
 
-**Response (Error - Unauthorized):**
-```json
-{
-  "detail": [{"type": "missing", "loc": ["header", "X-API-Key"], "msg": "Field required"}]
-}
-```
-
 ---
 
 ## Card Types
@@ -277,8 +335,6 @@ Used for reports and summaries.
 ```json
 {"card_type": "report", "priority": "medium"}
 ```
-
----
 
 ---
 
@@ -332,7 +388,7 @@ Receive messages from Teams Outgoing Webhook.
 {
   "type": "message",
   "id": "msg-001",
-  "timestamp": "2025-12-26T18:41:34.000Z",
+  "timestamp": "2025-12-27T18:41:34.000Z",
   "serviceUrl": "https://smba.trafficmanager.net/amer/",
   "channelId": "msteams",
   "from": {
@@ -374,7 +430,14 @@ Receive messages from Teams Outgoing Webhook.
 **Error Response (401 - Invalid HMAC):**
 ```json
 {
-  "detail": "Invalid HMAC signature"
+  "detail": "Invalid signature"
+}
+```
+
+**Error Response (400 - Invalid message):**
+```json
+{
+  "detail": "Invalid message format"
 }
 ```
 
@@ -389,9 +452,10 @@ Test endpoint for development (no HMAC required).
 **Request:**
 ```json
 {
-  "message": "Hello, how are you?",
-  "user_id": "test-user",
-  "user_name": "Test User"
+  "id": "test-1",
+  "text": "<at>Bot</at> Hello, how are you?",
+  "from": {"id": "user-1", "name": "Test User"},
+  "conversation": {"id": "conv-1"}
 }
 ```
 
@@ -412,6 +476,20 @@ Test endpoint for development (no HMAC required).
 | `/help` | Show available commands |
 | `/status` | Check agent connection status |
 | `/clear` | Clear conversation history (Phase 3) |
+
+---
+
+## Error Codes
+
+| Code | Meaning | Common Cause |
+|------|---------|--------------|
+| 400 | Bad Request | Invalid JSON or message format |
+| 401 | Unauthorized | Invalid or missing HMAC signature / API key |
+| 403 | Forbidden | Feature not available (e.g., test endpoint in production) |
+| 404 | Not Found | Session or resource not found |
+| 422 | Validation Error | Request validation failed |
+| 503 | Service Unavailable | Agent or service not ready |
+| 504 | Gateway Timeout | Agent response took > 5 seconds |
 
 ---
 
