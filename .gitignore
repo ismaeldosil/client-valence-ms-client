@@ -41,6 +41,11 @@ Thumbs.db
 *.key
 secrets/
 
+# AI tools
+CLAUDE.md
+.claude/
+.claude*
+
 # Reports and coverage
 reports/*.html
 reports/*.xml
