@@ -210,7 +210,38 @@ AGENT_MAX_RETRIES=1
 | Notifier API | 8001 | 1 | Sends notifications to Teams |
 | Webhook Receiver | 3001 | 2 | Receives messages from Teams |
 
+## Docker
+
+### Local Development with Docker
+
+```bash
+# Build and run both services
+docker-compose up -d
+
+# Check health
+curl http://localhost:3001/health  # Receiver
+curl http://localhost:8001/health  # Notifier
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+### Build Individual Images
+
+```bash
+# Build Receiver
+docker build --target receiver -t teams-receiver:local .
+
+# Build Notifier
+docker build --target notifier -t teams-notifier:local .
+```
+
 ## CI/CD
+
+### Continuous Integration
 
 GitHub Actions workflow runs on push/PR to main:
 
@@ -219,11 +250,23 @@ GitHub Actions workflow runs on push/PR to main:
 3. **Security Scan** - Bandit SAST
 4. **Tests & Coverage** - Pytest with 70% minimum coverage
 
+### Continuous Deployment (AWS)
+
+On merge to `main`, the release workflow:
+
+1. Runs all tests
+2. Builds Docker images for both services
+3. Pushes to AWS ECR
+4. Deploys to ECS Fargate with rolling update
+
+See [AWS Deployment Guide](docs/aws-deployment.md) for full setup instructions.
+
 ## Documentation
 
 - **[USAGE.md](USAGE.md)** - Setup and usage guide
 - **[ROUTING.md](ROUTING.md)** - Phase navigation guide
 - **[API Reference](docs/api-reference.md)** - Endpoints, request/response formats
+- **[AWS Deployment](docs/aws-deployment.md)** - AWS ECS deployment guide
 - **Swagger UI**:
   - Agent: http://localhost:8080/docs
   - Webhook: http://localhost:3000/docs

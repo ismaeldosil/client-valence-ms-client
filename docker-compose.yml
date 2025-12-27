@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # Webhook Receiver - receives messages from Teams
+  receiver:
+    build:
+      context: .
+      target: receiver
+    ports:
+      - "3001:3001"
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - LOG_LEVEL=${LOG_LEVEL:-DEBUG}
+      - RECEIVER_PORT=3001
+      - AGENT_BASE_URL=${AGENT_BASE_URL:-http://host.docker.internal:8000}
+      - AGENT_API_KEY=${AGENT_API_KEY:-}
+      - AGENT_TIMEOUT=${AGENT_TIMEOUT:-4.5}
+      - AGENT_MAX_RETRIES=${AGENT_MAX_RETRIES:-1}
+      - TEAMS_HMAC_SECRET=${TEAMS_HMAC_SECRET:-}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - teams-network
+
+  # Notifier API - sends notifications to Teams
+  notifier:
+    build:
+      context: .
+      target: notifier
+    ports:
+      - "8001:8001"
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - LOG_LEVEL=${LOG_LEVEL:-DEBUG}
+      - NOTIFIER_PORT=8001
+      - NOTIFIER_API_KEY=${NOTIFIER_API_KEY:-dev-api-key}
+      - TEAMS_WORKFLOW_ALERTS=${TEAMS_WORKFLOW_ALERTS:-}
+      - TEAMS_WORKFLOW_REPORTS=${TEAMS_WORKFLOW_REPORTS:-}
+      - TEAMS_WORKFLOW_GENERAL=${TEAMS_WORKFLOW_GENERAL:-}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - teams-network
+
+  # Optional: Redis for Phase 3 (session management)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - teams-network
+    profiles:
+      - with-redis
+
+networks:
+  teams-network:
+    driver: bridge
+
+volumes:
+  redis-data:

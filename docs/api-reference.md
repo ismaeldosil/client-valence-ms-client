@@ -248,6 +248,7 @@ Health check endpoint.
 List all registered notification channels.
 
 **Headers:**
+
 | Header | Required | Description |
 |--------|----------|-------------|
 | `X-API-Key` | Yes | API key (default: `dev-api-key`) |
@@ -270,6 +271,7 @@ List all registered notification channels.
 Send a notification to a Teams channel.
 
 **Headers:**
+
 | Header | Required | Description |
 |--------|----------|-------------|
 | `Content-Type` | Yes | `application/json` |
@@ -378,6 +380,7 @@ Health check with agent connection status.
 Receive messages from Teams Outgoing Webhook.
 
 **Headers:**
+
 | Header | Required | Description |
 |--------|----------|-------------|
 | `Authorization` | Yes | `HMAC <base64-signature>` |
