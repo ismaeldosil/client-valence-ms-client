@@ -136,14 +136,13 @@ class TestWebhookHMAC:
 
     def test_webhook_missing_auth_header(self, hmac_secret):
         """Test webhook fails without Authorization header when HMAC is configured."""
-        with patch.dict("os.environ", {"TEAMS_HMAC_SECRET": hmac_secret}, clear=False):
-            from importlib import reload
+        from src.api.receiver_api import app
+        from src.teams.receiver import HMACVerifier
 
-            import src.api.receiver_api as api_module
+        mock_verifier = HMACVerifier(hmac_secret)
 
-            reload(api_module)
-
-            with TestClient(api_module.app) as client:
+        with patch("src.api.receiver_api._hmac_verifier", mock_verifier):
+            with TestClient(app, raise_server_exceptions=False) as client:
                 response = client.post(
                     "/webhook",
                     json={"id": "1", "text": "test", "from": {}, "conversation": {}},
@@ -153,14 +152,13 @@ class TestWebhookHMAC:
 
     def test_webhook_invalid_signature(self, hmac_secret):
         """Test webhook fails with invalid HMAC signature."""
-        with patch.dict("os.environ", {"TEAMS_HMAC_SECRET": hmac_secret}, clear=False):
-            from importlib import reload
+        from src.api.receiver_api import app
+        from src.teams.receiver import HMACVerifier
 
-            import src.api.receiver_api as api_module
+        mock_verifier = HMACVerifier(hmac_secret)
 
-            reload(api_module)
-
-            with TestClient(api_module.app) as client:
+        with patch("src.api.receiver_api._hmac_verifier", mock_verifier):
+            with TestClient(app, raise_server_exceptions=False) as client:
                 response = client.post(
                     "/webhook",
                     json={"id": "1", "text": "test", "from": {}, "conversation": {}},
