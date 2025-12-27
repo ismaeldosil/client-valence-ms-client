@@ -147,9 +147,7 @@ class TestWebhookHMAC:
 
         from src.api.receiver_api import app
 
-        body = json.dumps(
-            {"id": "1", "text": "test", "from": {}, "conversation": {}}
-        ).encode()
+        body = json.dumps({"id": "1", "text": "test", "from": {}, "conversation": {}}).encode()
         signature = self._compute_hmac(settings.teams_hmac_secret, body)
 
         with TestClient(app) as client:
