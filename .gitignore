@@ -45,3 +45,11 @@ secrets/
 CLAUDE.md
 .claude/
 .claude*
+
+# Reports and coverage
+reports/*.html
+reports/*.xml
+coverage.xml
+coverage.json
+htmlcov/
+.mutmut-cache

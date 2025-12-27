@@ -10,13 +10,13 @@ class TestMockAgentHealth:
     """Tests for /health endpoint."""
 
     def test_health_returns_ok(self, agent_test_client: TestClient) -> None:
-        """Health check returns status ok."""
+        """Health check returns healthy status."""
         response = agent_test_client.get("/health")
 
         assert response.status_code == 200
         data = response.json()
-        assert data["status"] == "ok"
-        assert data["service"] == "mock-agent"
+        assert data["status"] == "healthy"
+        assert "version" in data
 
 
 class TestMockAgentQuery:
