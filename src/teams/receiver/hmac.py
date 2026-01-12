@@ -125,10 +125,11 @@ def create_verifier(secret: str | None) -> HMACVerifier | None:
     Returns:
         HMACVerifier instance or None if no secret provided
     """
-    if not secret:
+    # Check for empty or placeholder values
+    if not secret or secret.upper() in ("DISABLED", "NONE", "OFF", "FALSE"):
         logger.warning(
             "hmac_verifier_disabled",
-            reason="no_secret_configured",
+            reason="no_secret_configured" if not secret else "explicitly_disabled",
         )
         return None
 
