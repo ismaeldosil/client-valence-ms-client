@@ -1,26 +1,38 @@
-name: Release to AWS
+# Release workflow - Builds Docker images and creates GitHub Release
+# Triggered by commits with [ci-release] in the message
+# Does NOT deploy to AWS - use [ci-deploy] for that
+
+name: Release
 
 on:
   push:
     branches:
       - main
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.gitignore'
-
-env:
-  AWS_REGION: us-east-1
-  ECR_REPOSITORY_RECEIVER: teams-receiver
-  ECR_REPOSITORY_NOTIFIER: teams-notifier
-  ECS_CLUSTER: teams-integration
-  ECS_SERVICE_RECEIVER: teams-receiver-service
-  ECS_SERVICE_NOTIFIER: teams-notifier-service
 
 jobs:
-  # Run tests before deployment
+  # Check if this commit should trigger release
+  check-trigger:
+    name: Check Trigger
+    runs-on: ubuntu-latest
+    outputs:
+      should-release: ${{ steps.check.outputs.release }}
+    steps:
+      - name: Check commit message for [ci-release]
+        id: check
+        run: |
+          if [[ "${{ github.event.head_commit.message }}" == *"[ci-release]"* ]]; then
+            echo "release=true" >> $GITHUB_OUTPUT
+            echo "Release triggered by [ci-release] in commit message"
+          else
+            echo "release=false" >> $GITHUB_OUTPUT
+            echo "Skipping release - no [ci-release] in commit message"
+          fi
+
+  # Run tests before building
   test:
     name: Run Tests
+    needs: check-trigger
+    if: needs.check-trigger.outputs.should-release == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,152 +48,120 @@ jobs:
       - name: Run tests
         run: pytest --cov=src --cov-fail-under=70 -q
 
-  # Build and push Docker images to ECR
-  build-and-push:
-    name: Build & Push to ECR
+  # Build Docker images and create GitHub Release
+  build-and-release:
+    name: Build & Create Release
     needs: test
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
-      contents: read
+      contents: write
     outputs:
-      receiver-image: ${{ steps.build-receiver.outputs.image }}
-      notifier-image: ${{ steps.build-notifier.outputs.image }}
+      version: ${{ steps.version.outputs.version }}
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+          fetch-depth: 0
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Generate image tag
-        id: tag
+      - name: Generate version
+        id: version
         run: |
           SHA_SHORT=$(echo ${{ github.sha }} | cut -c1-7)
-          echo "tag=${SHA_SHORT}" >> $GITHUB_OUTPUT
-          echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+          DATE=$(date +'%Y%m%d')
+          VERSION="v${DATE}-${SHA_SHORT}"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "sha_short=${SHA_SHORT}" >> $GITHUB_OUTPUT
 
-      - name: Build and push Receiver image
-        id: build-receiver
+      - name: Build Receiver image
         uses: docker/build-push-action@v5
         with:
           context: .
           target: receiver
-          push: true
-          tags: |
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_RECEIVER }}:${{ steps.tag.outputs.tag }}
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_RECEIVER }}:latest
+          push: false
+          tags: teams-receiver:${{ steps.version.outputs.version }}
+          outputs: type=docker,dest=/tmp/teams-receiver.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Build and push Notifier image
-        id: build-notifier
+      - name: Build Notifier image
         uses: docker/build-push-action@v5
         with:
           context: .
           target: notifier
-          push: true
-          tags: |
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NOTIFIER }}:${{ steps.tag.outputs.tag }}
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NOTIFIER }}:latest
+          push: false
+          tags: teams-notifier:${{ steps.version.outputs.version }}
+          outputs: type=docker,dest=/tmp/teams-notifier.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Output image URIs
+      - name: Compress images
         run: |
-          echo "Receiver: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_RECEIVER }}:${{ steps.tag.outputs.tag }}"
-          echo "Notifier: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NOTIFIER }}:${{ steps.tag.outputs.tag }}"
+          gzip /tmp/teams-receiver.tar
+          gzip /tmp/teams-notifier.tar
 
-  # Deploy to ECS
-  deploy:
-    name: Deploy to ECS
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    environment:
-      name: production
-      url: https://teams-integration.example.com
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Generate image tag
-        id: tag
-        run: echo "tag=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
-
-      - name: Download Receiver task definition
+      - name: Generate release notes
+        id: notes
         run: |
-          aws ecs describe-task-definition \
-            --task-definition ${{ env.ECS_SERVICE_RECEIVER }} \
-            --query taskDefinition > receiver-task-def.json
+          cat << 'EOF' > /tmp/release-notes.md
+          ## Docker Images
 
-      - name: Update Receiver task definition
-        id: receiver-task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
+          | Service | Image |
+          |---------|-------|
+          | Receiver | `teams-receiver:${{ steps.version.outputs.version }}` |
+          | Notifier | `teams-notifier:${{ steps.version.outputs.version }}` |
+
+          ## Installation
+
+          ```bash
+          # Download and load images
+          gunzip -c teams-receiver.tar.gz | docker load
+          gunzip -c teams-notifier.tar.gz | docker load
+          ```
+
+          ## Deploy to AWS
+
+          To deploy this release to AWS, create a commit with `[ci-deploy]`:
+
+          ```bash
+          git commit --allow-empty -m "deploy: ${{ steps.version.outputs.version }} [ci-deploy]"
+          ```
+
+          ## Commit
+
+          ${{ github.sha }}
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
         with:
-          task-definition: receiver-task-def.json
-          container-name: receiver
-          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_RECEIVER }}:${{ steps.tag.outputs.tag }}
+          tag_name: ${{ steps.version.outputs.version }}
+          name: Release ${{ steps.version.outputs.version }}
+          body_path: /tmp/release-notes.md
+          files: |
+            /tmp/teams-receiver.tar.gz
+            /tmp/teams-notifier.tar.gz
+          draft: false
+          prerelease: false
 
-      - name: Deploy Receiver to ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.receiver-task-def.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE_RECEIVER }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true
-
-      - name: Download Notifier task definition
+      - name: Release Summary
         run: |
-          aws ecs describe-task-definition \
-            --task-definition ${{ env.ECS_SERVICE_NOTIFIER }} \
-            --query taskDefinition > notifier-task-def.json
-
-      - name: Update Notifier task definition
-        id: notifier-task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: notifier-task-def.json
-          container-name: notifier
-          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NOTIFIER }}:${{ steps.tag.outputs.tag }}
-
-      - name: Deploy Notifier to ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.notifier-task-def.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE_NOTIFIER }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true
-
-      - name: Deployment Summary
-        run: |
-          echo "## Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "## Release Created" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Service | Image Tag |" >> $GITHUB_STEP_SUMMARY
-          echo "|---------|-----------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Receiver | ${{ steps.tag.outputs.tag }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Notifier | ${{ steps.tag.outputs.tag }} |" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "### Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| File | Size |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+          echo "| teams-receiver.tar.gz | $(du -h /tmp/teams-receiver.tar.gz | cut -f1) |" >> $GITHUB_STEP_SUMMARY
+          echo "| teams-notifier.tar.gz | $(du -h /tmp/teams-notifier.tar.gz | cut -f1) |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "To deploy to AWS:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "git commit --allow-empty -m 'deploy: ${{ steps.version.outputs.version }} [ci-deploy]'" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

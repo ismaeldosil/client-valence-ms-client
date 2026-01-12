@@ -252,12 +252,28 @@ GitHub Actions workflow runs on push/PR to main:
 
 ### Continuous Deployment (AWS)
 
-On merge to `main`, the release workflow:
+Deployment uses commit message triggers for explicit control:
 
-1. Runs all tests
-2. Builds Docker images for both services
-3. Pushes to AWS ECR
-4. Deploys to ECS Fargate with rolling update
+**Step 1: Create Release** (include `[ci-release]` in commit message)
+```bash
+git commit -m "feat: new feature [ci-release]"
+```
+- Runs tests
+- Builds Docker images
+- Creates GitHub Release with artifacts (`.tar.gz`)
+
+**Step 2: Deploy to AWS** (include `[ci-deploy]` in commit message)
+```bash
+git commit -m "deploy: production [ci-deploy]"
+```
+- Downloads artifacts from latest GitHub Release
+- Pushes images to AWS ECR
+- Deploys to ECS Fargate with rolling update
+
+**Combined release + deploy:**
+```bash
+git commit -m "release: v1.2.0 [ci-release] [ci-deploy]"
+```
 
 See [AWS Deployment Guide](docs/aws-deployment.md) for full setup instructions.
 

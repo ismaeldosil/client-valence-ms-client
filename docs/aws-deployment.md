@@ -336,14 +336,45 @@ aws iam create-open-id-connect-provider \
 
 ## 3. Release Process
 
-### Automatic Deployment
+### Two-Step Deployment
 
-The release workflow triggers automatically when code is pushed to `main`:
+Deployment uses commit message triggers for explicit control:
 
-1. **Tests Run** - All 173 tests must pass
+#### Step 1: Create Release (`[ci-release]`)
+
+```bash
+# Build and create GitHub Release with artifacts
+git commit -m "feat: add new feature [ci-release]"
+git push origin main
+```
+
+This triggers:
+1. **Tests Run** - All tests must pass with 70% coverage
 2. **Docker Build** - Multi-stage build for both services
-3. **ECR Push** - Images tagged with commit SHA
-4. **ECS Deploy** - Rolling update with health checks
+3. **GitHub Release** - Creates release with Docker images as `.tar.gz` artifacts
+
+#### Step 2: Deploy to AWS (`[ci-deploy]`)
+
+```bash
+# Deploy the latest release to AWS
+git commit --allow-empty -m "deploy: production [ci-deploy]"
+git push origin main
+```
+
+This triggers:
+1. **Download Release** - Gets artifacts from latest GitHub Release
+2. **Push to ECR** - Tags and pushes images to AWS ECR
+3. **ECS Deploy** - Rolling update for both services
+4. **Health Checks** - Waits for service stability
+
+#### Combined Release + Deploy
+
+For convenience, both triggers can be used together:
+
+```bash
+git commit -m "release: v1.2.0 [ci-release] [ci-deploy]"
+git push origin main
+```
 
 ### Manual Deployment
 

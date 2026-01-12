@@ -1,0 +1,173 @@
+# Deploy workflow - Downloads release artifacts and deploys to AWS
+# Triggered by commits with [ci-deploy] in the message
+# Prerequisite: A GitHub Release must exist (created via [ci-release])
+
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY_RECEIVER: teams-receiver
+  ECR_REPOSITORY_NOTIFIER: teams-notifier
+  ECS_CLUSTER: teams-integration
+  ECS_SERVICE_RECEIVER: teams-receiver-service
+  ECS_SERVICE_NOTIFIER: teams-notifier-service
+
+jobs:
+  # Check if this commit should trigger deploy
+  check-trigger:
+    name: Check Trigger
+    runs-on: ubuntu-latest
+    outputs:
+      should-deploy: ${{ steps.check.outputs.deploy }}
+    steps:
+      - name: Check commit message for [ci-deploy]
+        id: check
+        run: |
+          if [[ "${{ github.event.head_commit.message }}" == *"[ci-deploy]"* ]]; then
+            echo "deploy=true" >> $GITHUB_OUTPUT
+            echo "Deploy triggered by [ci-deploy] in commit message"
+          else
+            echo "deploy=false" >> $GITHUB_OUTPUT
+            echo "Skipping deploy - no [ci-deploy] in commit message"
+          fi
+
+  # Download release, push to ECR, deploy to ECS
+  deploy:
+    name: Deploy to AWS
+    needs: check-trigger
+    if: needs.check-trigger.outputs.should-deploy == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    environment:
+      name: production
+      url: https://teams-integration.example.com
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get latest release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Get the latest release tag
+          RELEASE_TAG=$(gh release list --limit 1 --json tagName -q '.[0].tagName')
+          if [ -z "$RELEASE_TAG" ]; then
+            echo "::error::No release found. Run [ci-release] first."
+            exit 1
+          fi
+          echo "tag=${RELEASE_TAG}" >> $GITHUB_OUTPUT
+          echo "Found release: ${RELEASE_TAG}"
+
+      - name: Download release artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download ${{ steps.release.outputs.tag }} \
+            --pattern "*.tar.gz" \
+            --dir /tmp/artifacts
+
+          echo "Downloaded artifacts:"
+          ls -la /tmp/artifacts/
+
+      - name: Load Docker images
+        run: |
+          gunzip -c /tmp/artifacts/teams-receiver.tar.gz | docker load
+          gunzip -c /tmp/artifacts/teams-notifier.tar.gz | docker load
+
+          echo "Loaded images:"
+          docker images | grep teams-
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Tag and push images to ECR
+        id: push
+        run: |
+          REGISTRY=${{ steps.login-ecr.outputs.registry }}
+          TAG=${{ steps.release.outputs.tag }}
+
+          # Tag Receiver
+          docker tag teams-receiver:${TAG} ${REGISTRY}/${{ env.ECR_REPOSITORY_RECEIVER }}:${TAG}
+          docker tag teams-receiver:${TAG} ${REGISTRY}/${{ env.ECR_REPOSITORY_RECEIVER }}:latest
+          docker push ${REGISTRY}/${{ env.ECR_REPOSITORY_RECEIVER }}:${TAG}
+          docker push ${REGISTRY}/${{ env.ECR_REPOSITORY_RECEIVER }}:latest
+
+          # Tag Notifier
+          docker tag teams-notifier:${TAG} ${REGISTRY}/${{ env.ECR_REPOSITORY_NOTIFIER }}:${TAG}
+          docker tag teams-notifier:${TAG} ${REGISTRY}/${{ env.ECR_REPOSITORY_NOTIFIER }}:latest
+          docker push ${REGISTRY}/${{ env.ECR_REPOSITORY_NOTIFIER }}:${TAG}
+          docker push ${REGISTRY}/${{ env.ECR_REPOSITORY_NOTIFIER }}:latest
+
+          echo "image_tag=${TAG}" >> $GITHUB_OUTPUT
+
+      - name: Download Receiver task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ env.ECS_SERVICE_RECEIVER }} \
+            --query taskDefinition > receiver-task-def.json
+
+      - name: Update Receiver task definition
+        id: receiver-task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: receiver-task-def.json
+          container-name: receiver
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_RECEIVER }}:${{ steps.push.outputs.image_tag }}
+
+      - name: Deploy Receiver to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.receiver-task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE_RECEIVER }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+
+      - name: Download Notifier task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ env.ECS_SERVICE_NOTIFIER }} \
+            --query taskDefinition > notifier-task-def.json
+
+      - name: Update Notifier task definition
+        id: notifier-task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: notifier-task-def.json
+          container-name: notifier
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NOTIFIER }}:${{ steps.push.outputs.image_tag }}
+
+      - name: Deploy Notifier to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.notifier-task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE_NOTIFIER }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+
+      - name: Deploy Summary
+        run: |
+          echo "## Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Release:** ${{ steps.release.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Receiver | ✅ Deployed |" >> $GITHUB_STEP_SUMMARY
+          echo "| Notifier | ✅ Deployed |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** production" >> $GITHUB_STEP_SUMMARY

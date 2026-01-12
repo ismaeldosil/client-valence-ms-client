@@ -114,6 +114,12 @@ async def health_check() -> dict[str, Any]:
     }
 
 
+@app.get("/webhook")
+async def webhook_get() -> dict[str, str]:
+    """GET endpoint for Teams URL validation."""
+    return {"status": "ok", "message": "Webhook ready"}
+
+
 @app.post("/webhook")
 async def webhook_handler(request: Request) -> JSONResponse:
     """Handle incoming Teams Outgoing Webhook messages.
