@@ -145,26 +145,85 @@ async def webhook_handler(request: Request) -> JSONResponse:
     """Handle incoming Teams Outgoing Webhook messages.
 
     This endpoint receives messages when users @mention the bot in Teams.
+
+    HMAC Verification Logic:
+    - No Authorization header: Accept (validation request from Teams during webhook creation)
+    - Authorization header + HMAC configured: Validate signature, reject if invalid
+    - Authorization header + HMAC NOT configured: Accept with warning (setup not complete)
     """
     # Get raw body for HMAC verification
     body = await request.body()
+    auth_header = request.headers.get("Authorization")
 
-    # Verify HMAC signature if configured
-    if _hmac_verifier:
-        auth_header = request.headers.get("Authorization")
-        try:
-            _hmac_verifier.verify(auth_header, body)
-        except HMACVerificationError as e:
-            logger.warning("hmac_verification_failed", error=str(e))
-            raise HTTPException(status_code=401, detail="Invalid signature")
+    # HMAC Verification
+    if auth_header:
+        # Request has Authorization header - validate if we have HMAC configured
+        if _hmac_verifier:
+            try:
+                _hmac_verifier.verify(auth_header, body)
+                logger.debug("hmac_verification_success")
+            except HMACVerificationError as e:
+                logger.warning("hmac_verification_failed", error=str(e))
+                raise HTTPException(status_code=401, detail="Invalid signature")
+        else:
+            # HMAC not configured but request has auth header
+            logger.warning(
+                "hmac_not_configured_but_auth_header_present",
+                hint="Configure TEAMS_HMAC_SECRET to validate signatures",
+            )
+    else:
+        # No Authorization header - this is likely a validation request from Teams
+        # during webhook creation, or HMAC is not being used
+        logger.info(
+            "webhook_request_without_auth",
+            hint="Validation request or HMAC not configured on Teams side",
+            body_preview=body[:100].decode("utf-8", errors="ignore") if body else "empty",
+        )
+
+    # Handle empty body (validation request)
+    if not body or body == b"":
+        logger.info("webhook_validation_request", message="Empty body - responding with OK")
+        return JSONResponse(
+            content={
+                "type": "message",
+                "text": "Webhook endpoint is ready.",
+            }
+        )
 
     # Parse the message
     try:
         data = await request.json()
+    except Exception as e:
+        # Could be a validation request with non-JSON body
+        logger.warning("json_parse_error", error=str(e), body_preview=body[:200].decode("utf-8", errors="ignore"))
+        return JSONResponse(
+            content={
+                "type": "message",
+                "text": "Webhook received.",
+            }
+        )
+
+    # Check if this is a minimal validation payload (Teams sometimes sends minimal data)
+    if not data.get("text") and not data.get("type"):
+        logger.info("webhook_minimal_payload", data=data)
+        return JSONResponse(
+            content={
+                "type": "message",
+                "text": "Webhook validated successfully.",
+            }
+        )
+
+    try:
         message = TeamsMessage.from_dict(data)
     except Exception as e:
-        logger.error("message_parse_error", error=str(e))
-        raise HTTPException(status_code=400, detail="Invalid message format")
+        logger.error("message_parse_error", error=str(e), data_keys=list(data.keys()) if isinstance(data, dict) else "not_dict")
+        # Return a valid response instead of 400 to not break validation
+        return JSONResponse(
+            content={
+                "type": "message",
+                "text": "Message received but could not be fully processed.",
+            }
+        )
 
     log = logger.bind(
         message_id=message.id,
