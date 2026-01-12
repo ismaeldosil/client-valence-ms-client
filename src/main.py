@@ -296,6 +296,141 @@ async def dashboard_config():
     }
 
 
+@app.post("/dashboard/api/test/webhook", response_model=TestResult)
+async def dashboard_test_webhook(message: str = "Hello from dashboard webhook test"):
+    """Test the webhook endpoint by simulating a Teams message."""
+    import uuid
+
+    start = datetime.now(UTC)
+
+    # Create a simulated Teams message payload
+    test_payload = {
+        "type": "message",
+        "id": str(uuid.uuid4()),
+        "timestamp": datetime.now(UTC).isoformat(),
+        "localTimestamp": datetime.now(UTC).isoformat(),
+        "serviceUrl": "https://smba.trafficmanager.net/amer/",
+        "channelId": "msteams",
+        "from": {
+            "id": "dashboard-test-user",
+            "name": "Dashboard Test User",
+            "aadObjectId": str(uuid.uuid4()),
+        },
+        "conversation": {
+            "id": f"test-conversation-{uuid.uuid4()}",
+            "conversationType": "channel",
+            "tenantId": str(uuid.uuid4()),
+        },
+        "recipient": {
+            "id": "bot-id",
+            "name": "Valerie Bot",
+        },
+        "text": f"<at>Valerie</at> {message}",
+        "textFormat": "plain",
+        "channelData": {
+            "teamsChannelId": "test-channel",
+            "teamsTeamId": "test-team",
+        },
+    }
+
+    try:
+        # Process through the message handler (bypassing HMAC)
+        if not _message_handler:
+            return TestResult(
+                success=False,
+                message="Message handler not initialized",
+            )
+
+        teams_message = TeamsMessage.from_dict(test_payload)
+        response = await _message_handler.handle(teams_message)
+        elapsed = (datetime.now(UTC) - start).total_seconds() * 1000
+
+        return TestResult(
+            success=True,
+            message=response.text if hasattr(response, 'text') else str(response.to_dict()),
+            response_time_ms=round(elapsed, 2),
+            details=response.to_dict(),
+        )
+
+    except Exception as e:
+        elapsed = (datetime.now(UTC) - start).total_seconds() * 1000
+        return TestResult(
+            success=False,
+            message=str(e),
+            response_time_ms=round(elapsed, 2),
+        )
+
+
+@app.post("/dashboard/api/test/workflow/{workflow_type}", response_model=TestResult)
+async def dashboard_test_workflow(
+    workflow_type: str,
+    message: str = "Test message from dashboard",
+    title: str = "Dashboard Test",
+):
+    """Test sending a message through a workflow (alerts, reports, general)."""
+    import httpx
+
+    start = datetime.now(UTC)
+
+    # Get the workflow URL based on type
+    workflow_urls = {
+        "alerts": settings.teams_workflow_alerts,
+        "reports": settings.teams_workflow_reports,
+        "general": settings.teams_workflow_general,
+    }
+
+    workflow_url = workflow_urls.get(workflow_type)
+    if not workflow_url:
+        return TestResult(
+            success=False,
+            message=f"Workflow '{workflow_type}' not configured. Available: {list(workflow_urls.keys())}",
+        )
+
+    # Build the payload for Power Automate
+    payload = {
+        "title": title,
+        "message": message,
+        "timestamp": datetime.now(UTC).isoformat(),
+        "source": "dashboard-test",
+        "priority": "medium",
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(
+                workflow_url,
+                json=payload,
+                headers={"Content-Type": "application/json"},
+            )
+            elapsed = (datetime.now(UTC) - start).total_seconds() * 1000
+
+            if response.status_code in (200, 202):
+                return TestResult(
+                    success=True,
+                    message=f"Message sent to {workflow_type} workflow",
+                    response_time_ms=round(elapsed, 2),
+                    details={
+                        "workflow": workflow_type,
+                        "status_code": response.status_code,
+                        "response": response.text[:200] if response.text else "OK",
+                    },
+                )
+            else:
+                return TestResult(
+                    success=False,
+                    message=f"HTTP {response.status_code}: {response.text[:200]}",
+                    response_time_ms=round(elapsed, 2),
+                )
+
+    except Exception as e:
+        elapsed = (datetime.now(UTC) - start).total_seconds() * 1000
+        return TestResult(
+            success=False,
+            message=str(e),
+            response_time_ms=round(elapsed, 2),
+        )
+
+
 # ===========================================
 # Main Entry Point
 # ===========================================

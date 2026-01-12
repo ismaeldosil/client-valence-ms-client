@@ -592,14 +592,23 @@ def get_teams_dashboard_html() -> str:
                 <svg class="card-icon" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
                 </svg>
-                Test Agent Connection
+                Test Connections
             </h2>
             <div class="test-controls">
                 <input type="text" class="test-input" id="test-message"
                        placeholder="Enter test message..."
                        value="Hello, this is a test from Teams dashboard">
-                <button class="btn btn-primary" onclick="testAgent()">Send to Agent</button>
+            </div>
+            <div class="test-controls">
+                <button class="btn btn-primary" onclick="testAgent()">Test Agent (Direct)</button>
+                <button class="btn btn-primary" onclick="testWebhook()" style="background: #0078d4;">Test Webhook</button>
                 <button class="btn btn-secondary" onclick="refreshStatus()">Refresh Status</button>
+            </div>
+            <div class="test-controls" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color);">
+                <span style="color: var(--text-secondary); font-size: 0.85rem; margin-right: 10px;">Test Workflows:</span>
+                <button class="btn btn-secondary" onclick="testWorkflow('alerts')" style="background: #c50f1f; color: white;">Alerts</button>
+                <button class="btn btn-secondary" onclick="testWorkflow('reports')" style="background: #0078d4; color: white;">Reports</button>
+                <button class="btn btn-secondary" onclick="testWorkflow('general')" style="background: #6264a7; color: white;">General</button>
             </div>
             <div class="log" id="log">
                 <div class="log-entry log-info">
@@ -710,6 +719,62 @@ def get_teams_dashboard_html() -> str:
                     }
                 } else {
                     log(`Test failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testWebhook() {
+            const message = document.getElementById('test-message').value;
+            if (!message.trim()) {
+                log('Please enter a message', 'error');
+                return;
+            }
+
+            log(`Testing webhook with: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`, 'info');
+
+            try {
+                const response = await fetch(`api/test/webhook?message=${encodeURIComponent(message)}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    log(`Webhook response: ${data.message.substring(0, 100)}${data.message.length > 100 ? '...' : ''}`, 'success');
+                    if (data.response_time_ms) {
+                        log(`Response time: ${data.response_time_ms}ms`, 'info');
+                    }
+                } else {
+                    log(`Webhook test failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testWorkflow(workflowType) {
+            const message = document.getElementById('test-message').value;
+            if (!message.trim()) {
+                log('Please enter a message', 'error');
+                return;
+            }
+
+            log(`Sending to ${workflowType} workflow: "${message.substring(0, 40)}..."`, 'info');
+
+            try {
+                const response = await fetch(`api/test/workflow/${workflowType}?message=${encodeURIComponent(message)}&title=Dashboard Test`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    log(`${workflowType} workflow: ${data.message}`, 'success');
+                    if (data.response_time_ms) {
+                        log(`Response time: ${data.response_time_ms}ms`, 'info');
+                    }
+                } else {
+                    log(`${workflowType} workflow failed: ${data.message}`, 'error');
                 }
             } catch (error) {
                 log(`Error: ${error.message}`, 'error');
