@@ -659,7 +659,7 @@ def get_teams_dashboard_html() -> str:
             log('Refreshing status...', 'info');
 
             try {
-                const response = await fetch('/api/status');
+                const response = await fetch('api/status');
                 const data = await response.json();
 
                 // Update Client
@@ -698,7 +698,7 @@ def get_teams_dashboard_html() -> str:
             log(`Sending to agent: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`, 'info');
 
             try {
-                const response = await fetch(`/api/test/agent?message=${encodeURIComponent(message)}`, {
+                const response = await fetch(`api/test/agent?message=${encodeURIComponent(message)}`, {
                     method: 'POST'
                 });
                 const data = await response.json();
