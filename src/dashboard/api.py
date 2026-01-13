@@ -553,6 +553,34 @@ def get_teams_dashboard_html() -> str:
                 </div>
             </div>
 
+            <!-- Sessions Status -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">
+                        <svg class="card-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                        Sessions
+                    </span>
+                    <span class="status-label">
+                        <span class="status-dot" id="session-dot"></span>
+                        <span id="session-status">-</span>
+                    </span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Store Type</span>
+                    <span class="metric-value" id="session-type">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Active Sessions</span>
+                    <span class="metric-value" id="session-count">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">TTL</span>
+                    <span class="metric-value" id="session-ttl">-</span>
+                </div>
+            </div>
+
             <!-- Agent Status -->
             <div class="card">
                 <div class="card-header">
@@ -688,6 +716,28 @@ def get_teams_dashboard_html() -> str:
                     data.agent.details?.version || '-';
                 document.getElementById('agent-lastcheck').textContent =
                     new Date(data.agent.last_check).toLocaleTimeString();
+
+                // Update Sessions
+                const sessionStats = data.client.details?.session_stats || {};
+                const sessionType = data.client.details?.session_store || 'memory';
+                const sessionDot = document.getElementById('session-dot');
+                const sessionStatus = document.getElementById('session-status');
+
+                if (sessionStats.connected === true || sessionType === 'memory') {
+                    sessionDot.className = 'status-dot status-healthy';
+                    sessionStatus.textContent = 'Active';
+                } else if (sessionStats.connected === false) {
+                    sessionDot.className = 'status-dot status-error';
+                    sessionStatus.textContent = 'Disconnected';
+                } else {
+                    sessionDot.className = 'status-dot status-checking';
+                    sessionStatus.textContent = 'Unknown';
+                }
+
+                document.getElementById('session-type').textContent = sessionType;
+                document.getElementById('session-count').textContent = sessionStats.active_sessions ?? '-';
+                document.getElementById('session-ttl').textContent =
+                    data.client.details?.session_ttl_hours ? `${data.client.details.session_ttl_hours}h` : '-';
 
                 log('Status updated successfully', 'success');
             } catch (error) {
