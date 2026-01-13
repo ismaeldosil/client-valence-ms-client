@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valerie MS Teams Client - Documentación</title>
+    <style>
+        :root {
+            --bg-primary: #1b1a19;
+            --bg-secondary: #252423;
+            --bg-card: #323130;
+            --text-primary: #f3f2f1;
+            --text-secondary: #a19f9d;
+            --teams-purple: #6264a7;
+            --teams-green: #6bb700;
+            --teams-yellow: #ffb900;
+            --teams-red: #c50f1f;
+            --teams-blue: #0078d4;
+            --border-color: #484644;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--teams-purple) 0%, #464775 100%);
+            border-radius: 12px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .logo svg {
+            width: 50px;
+            height: 50px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.85);
+            font-size: 1rem;
+        }
+
+        .section {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            color: var(--teams-purple);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--teams-purple);
+            font-size: 1.4rem;
+        }
+
+        h3 {
+            color: var(--teams-blue);
+            margin: 20px 0 10px 0;
+            font-size: 1.1rem;
+        }
+
+        p {
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+        }
+
+        ul, ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        code {
+            background: var(--bg-card);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            color: var(--teams-green);
+        }
+
+        pre {
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            border: 1px solid var(--border-color);
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: var(--text-primary);
+        }
+
+        .env-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .env-table th, .env-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .env-table th {
+            background: var(--bg-card);
+            color: var(--teams-purple);
+            font-weight: 600;
+        }
+
+        .env-table td:first-child {
+            font-family: 'Consolas', monospace;
+            color: var(--teams-green);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-ok { background: var(--teams-green); color: white; }
+        .status-warning { background: var(--teams-yellow); color: #1b1a19; }
+        .status-error { background: var(--teams-red); color: white; }
+
+        .endpoint {
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid var(--teams-blue);
+        }
+
+        .endpoint-method {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            margin-right: 10px;
+        }
+
+        .method-get { background: var(--teams-green); color: white; }
+        .method-post { background: var(--teams-blue); color: white; }
+
+        .endpoint-path {
+            font-family: 'Consolas', monospace;
+            color: var(--text-primary);
+        }
+
+        .endpoint-desc {
+            margin-top: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .architecture {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85rem;
+            white-space: pre;
+            overflow-x: auto;
+            line-height: 1.4;
+        }
+
+        .note {
+            background: rgba(98, 100, 167, 0.2);
+            border-left: 4px solid var(--teams-purple);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning {
+            background: rgba(255, 185, 0, 0.2);
+            border-left: 4px solid var(--teams-yellow);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        a {
+            color: var(--teams-blue);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="white">
+                    <path d="M19.2 6.4H16V3.2c0-.88-.72-1.6-1.6-1.6h-4.8c-.88 0-1.6.72-1.6 1.6v3.2H4.8c-.88 0-1.6.72-1.6 1.6v12.8c0 .88.72 1.6 1.6 1.6h14.4c.88 0 1.6-.72 1.6-1.6V8c0-.88-.72-1.6-1.6-1.6zM9.6 3.2h4.8v3.2H9.6V3.2zm9.6 17.6H4.8V8h14.4v12.8z"/>
+                    <circle cx="12" cy="12" r="2.5"/>
+                    <path d="M12 16.5c-2.33 0-4.5 1.17-4.5 2.5h9c0-1.33-2.17-2.5-4.5-2.5z"/>
+                </svg>
+                <h1>Valerie MS Teams Client</h1>
+            </div>
+            <p class="subtitle">Documentación Técnica - Cliente de Microsoft Teams para Valerie AI Agent</p>
+        </header>
+
+        <!-- Resumen -->
+        <div class="section">
+            <h2>Resumen</h2>
+            <p>El MS Teams Client es un servicio que permite a los usuarios interactuar con Valerie AI Agent directamente desde Microsoft Teams. Recibe mensajes a través de Outgoing Webhooks o Power Automate, los procesa enviándolos al agente de IA, y devuelve las respuestas al canal de Teams.</p>
+
+            <h3>Estado Actual</h3>
+            <p>
+                <span class="status-badge status-ok">Desplegado</span>
+                <span class="status-badge status-warning">Webhook pendiente</span>
+            </p>
+            <p>El servicio está desplegado en Railway. Los Outgoing Webhooks de Teams están temporalmente afectados por un incidente de Microsoft (MO1176905) que se espera resolver a fin de Enero 2026.</p>
+
+            <h3>URLs de Producción</h3>
+            <ul>
+                <li><strong>Dashboard:</strong> <a href="https://teams-client-production.up.railway.app/dashboard/" target="_blank">https://teams-client-production.up.railway.app/dashboard/</a></li>
+                <li><strong>Webhook:</strong> <code>https://teams-client-production.up.railway.app/webhook</code></li>
+                <li><strong>Health:</strong> <a href="https://teams-client-production.up.railway.app/health" target="_blank">https://teams-client-production.up.railway.app/health</a></li>
+            </ul>
+        </div>
+
+        <!-- Arquitectura -->
+        <div class="section">
+            <h2>Arquitectura</h2>
+            <div class="architecture">
+┌─────────────────────┐     ┌─────────────────────┐     ┌─────────────────────┐
+│   Microsoft Teams   │     │   MS Teams Client   │     │   Valerie Agent     │
+│                     │     │     (Railway)       │     │     (Railway)       │
+│  ┌───────────────┐  │     │                     │     │                     │
+│  │ User @mention │──┼────▶│  POST /webhook      │     │                     │
+│  │   Valerie     │  │     │       │             │     │                     │
+│  └───────────────┘  │     │       ▼             │     │                     │
+│                     │     │  TeamsMessage       │     │                     │
+│                     │     │  Handler            │────▶│  POST /api/v1/chat  │
+│                     │     │       │             │     │       │             │
+│  ┌───────────────┐  │     │       │             │     │       ▼             │
+│  │   Response    │◀─┼─────│◀──────┘             │◀────│  AI Response        │
+│  │   in channel  │  │     │                     │     │                     │
+│  └───────────────┘  │     │                     │     │                     │
+└─────────────────────┘     └─────────────────────┘     └─────────────────────┘
+
+                    Flujo alternativo: Power Automate Workflows
+
+┌─────────────────────┐     ┌─────────────────────┐
+│   MS Teams Client   │     │   Microsoft Teams   │
+│                     │     │                     │
+│  Sistema genera     │     │  ┌───────────────┐  │
+│  alerta/reporte     │────▶│  │ Adaptive Card │  │
+│       │             │     │  │ en canal      │  │
+│       ▼             │     │  └───────────────┘  │
+│  POST to Workflow   │     │                     │
+│  (Power Automate)   │     │                     │
+└─────────────────────┘     └─────────────────────┘
+            </div>
+        </div>
+
+        <!-- Endpoints -->
+        <div class="section">
+            <h2>Endpoints API</h2>
+
+            <h3>Webhook (Recepción de mensajes)</h3>
+            <div class="endpoint">
+                <span class="endpoint-method method-get">GET</span>
+                <span class="endpoint-path">/webhook</span>
+                <p class="endpoint-desc">Validación de URL para Teams. Retorna status OK.</p>
+            </div>
+            <div class="endpoint">
+                <span class="endpoint-method method-post">POST</span>
+                <span class="endpoint-path">/webhook</span>
+                <p class="endpoint-desc">Recibe mensajes de Teams Outgoing Webhook. Valida HMAC si está configurado, procesa el mensaje y retorna respuesta.</p>
+            </div>
+
+            <h3>Dashboard</h3>
+            <div class="endpoint">
+                <span class="endpoint-method method-get">GET</span>
+                <span class="endpoint-path">/dashboard/</span>
+                <p class="endpoint-desc">Interfaz web para monitoreo y testing.</p>
+            </div>
+            <div class="endpoint">
+                <span class="endpoint-method method-get">GET</span>
+                <span class="endpoint-path">/dashboard/api/status</span>
+                <p class="endpoint-desc">Estado completo del cliente y conexión con el agente.</p>
+            </div>
+            <div class="endpoint">
+                <span class="endpoint-method method-post">POST</span>
+                <span class="endpoint-path">/dashboard/api/test/agent</span>
+                <p class="endpoint-desc">Prueba conexión directa con el agente (sin pasar por webhook).</p>
+            </div>
+            <div class="endpoint">
+                <span class="endpoint-method method-post">POST</span>
+                <span class="endpoint-path">/dashboard/api/test/webhook</span>
+                <p class="endpoint-desc">Simula un mensaje de Teams pasando por el handler completo.</p>
+            </div>
+            <div class="endpoint">
+                <span class="endpoint-method method-post">POST</span>
+                <span class="endpoint-path">/dashboard/api/test/workflow/{type}</span>
+                <p class="endpoint-desc">Prueba envío a workflows de Power Automate (alerts, reports, general).</p>
+            </div>
+
+            <h3>Health</h3>
+            <div class="endpoint">
+                <span class="endpoint-method method-get">GET</span>
+                <span class="endpoint-path">/health</span>
+                <p class="endpoint-desc">Health check para Railway y monitoreo.</p>
+            </div>
+        </div>
+
+        <!-- Configuración -->
+        <div class="section">
+            <h2>Variables de Entorno</h2>
+            <table class="env-table">
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Descripción</th>
+                        <th>Requerida</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>AGENT_BASE_URL</td>
+                        <td>URL base del Valerie Agent (ej: https://web-production-d82d.up.railway.app)</td>
+                        <td>Sí</td>
+                    </tr>
+                    <tr>
+                        <td>AGENT_API_KEY</td>
+                        <td>API Key para autenticación con el agente</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td>TEAMS_HMAC_SECRET</td>
+                        <td>Secret para validación HMAC de webhooks (se obtiene al crear el Outgoing Webhook en Teams). Usar "DISABLED" para deshabilitar.</td>
+                        <td>No*</td>
+                    </tr>
+                    <tr>
+                        <td>TEAMS_WORKFLOW_ALERTS</td>
+                        <td>URL del workflow de Power Automate para alertas</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td>TEAMS_WORKFLOW_REPORTS</td>
+                        <td>URL del workflow de Power Automate para reportes</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td>TEAMS_WORKFLOW_GENERAL</td>
+                        <td>URL del workflow de Power Automate para mensajes generales</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td>ENVIRONMENT</td>
+                        <td>Entorno de ejecución (development, production)</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td>PORT</td>
+                        <td>Puerto del servidor (Railway lo inyecta automáticamente)</td>
+                        <td>No</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="note">* TEAMS_HMAC_SECRET es recomendado para producción para validar que los requests vienen de Teams.</p>
+        </div>
+
+        <!-- Configuración de Teams -->
+        <div class="section">
+            <h2>Configuración en Microsoft Teams</h2>
+
+            <h3>Opción 1: Outgoing Webhook (Recomendado)</h3>
+            <ol>
+                <li>En Microsoft Teams, ir al equipo deseado</li>
+                <li>Click en <code>...</code> → <strong>Manage team</strong> → pestaña <strong>Apps</strong></li>
+                <li>Click en <strong>Create an outgoing webhook</strong></li>
+                <li>Configurar:
+                    <ul>
+                        <li><strong>Name:</strong> Valerie</li>
+                        <li><strong>Callback URL:</strong> <code>https://teams-client-production.up.railway.app/webhook</code></li>
+                        <li><strong>Description:</strong> Valerie AI Assistant</li>
+                    </ul>
+                </li>
+                <li>Click <strong>Create</strong></li>
+                <li>Copiar el <strong>Security Token</strong> que Teams genera</li>
+                <li>Configurar <code>TEAMS_HMAC_SECRET</code> en Railway con ese token</li>
+                <li>Redesplegar el servicio</li>
+            </ol>
+
+            <div class="warning">
+                <strong>Nota:</strong> Actualmente hay un incidente de Microsoft (MO1176905) que puede afectar la creación de Outgoing Webhooks. Se espera resolución a fin de Enero 2026.
+            </div>
+
+            <h3>Opción 2: Power Automate (Alternativa)</h3>
+            <p>Si los Outgoing Webhooks no funcionan, se puede usar Power Automate con el trigger "When keywords are mentioned", aunque este trigger también puede tener problemas de estabilidad.</p>
+        </div>
+
+        <!-- Bitácora -->
+        <div class="section">
+            <h2>Bitácora de Desarrollo</h2>
+
+            <h3>Enero 2026</h3>
+            <ul>
+                <li><strong>12 Ene:</strong> Creación inicial del cliente unificado (webhook + dashboard en un solo servicio)</li>
+                <li><strong>12 Ene:</strong> Despliegue en Railway con dominio <code>teams-client-production.up.railway.app</code></li>
+                <li><strong>12 Ene:</strong> Corrección de URL del agente (de URL incorrecta a <code>web-production-d82d.up.railway.app</code>)</li>
+                <li><strong>12 Ene:</strong> Configuración de workflows de Power Automate (alerts, reports, general)</li>
+                <li><strong>12 Ene:</strong> Agregado de endpoints de testing: <code>/dashboard/api/test/webhook</code> y <code>/dashboard/api/test/workflow/{type}</code></li>
+                <li><strong>12 Ene:</strong> Fix del webhook para aceptar requests de validación de Teams (sin HMAC)</li>
+                <li><strong>12 Ene:</strong> Soporte para deshabilitar HMAC con valor "DISABLED"</li>
+                <li><strong>12 Ene:</strong> Documentación de incidente Microsoft MO1176905 afectando webhooks</li>
+            </ul>
+        </div>
+
+        <!-- Estructura de archivos -->
+        <div class="section">
+            <h2>Estructura del Proyecto</h2>
+            <pre><code>client-valence-ms-client/
+├── src/
+│   ├── main.py                 # Entry point unificado (webhook + dashboard)
+│   ├── agent/                  # Cliente para Valerie Agent
+│   │   ├── __init__.py
+│   │   └── client.py
+│   ├── core/                   # Configuración y utilidades
+│   │   ├── __init__.py
+│   │   └── config.py
+│   ├── dashboard/              # Dashboard web
+│   │   ├── __init__.py
+│   │   └── api.py              # HTML embebido y endpoints
+│   └── teams/                  # Lógica específica de Teams
+│       └── receiver/
+│           ├── __init__.py
+│           ├── handler.py      # TeamsMessageHandler
+│           ├── hmac.py         # Verificación HMAC
+│           └── models.py       # TeamsMessage, TeamsResponse
+├── docs/
+│   └── index.html              # Esta documentación
+├── requirements/
+│   └── base.txt
+├── Dockerfile
+├── railway.toml
+└── README.md</code></pre>
+        </div>
+
+        <!-- Troubleshooting -->
+        <div class="section">
+            <h2>Troubleshooting</h2>
+
+            <h3>Error "Error submitting webhook!" al crear Outgoing Webhook</h3>
+            <p>Puede ser causado por:</p>
+            <ul>
+                <li>Incidente activo de Microsoft - verificar <a href="https://admin.microsoft.com" target="_blank">Service Health</a></li>
+                <li>HMAC secret configurado incorrectamente - temporalmente usar <code>TEAMS_HMAC_SECRET=DISABLED</code></li>
+                <li>URL no accesible - verificar con <code>curl -X POST https://teams-client-production.up.railway.app/webhook</code></li>
+            </ul>
+
+            <h3>El bot no responde en Teams</h3>
+            <ul>
+                <li>Verificar que el HMAC secret coincida con el token de Teams</li>
+                <li>Revisar logs en Railway: <code>railway logs</code></li>
+                <li>Probar el webhook desde el dashboard</li>
+            </ul>
+
+            <h3>Error 401 Invalid signature</h3>
+            <ul>
+                <li>El HMAC secret no coincide con el de Teams</li>
+                <li>Actualizar <code>TEAMS_HMAC_SECRET</code> con el token correcto</li>
+            </ul>
+        </div>
+
+        <footer>
+            <p>Valerie AI Agent - MS Teams Client | REEA Global LLC</p>
+            <p>Documentación generada: Enero 2026</p>
+        </footer>
+    </div>
+</body>
+</html>
