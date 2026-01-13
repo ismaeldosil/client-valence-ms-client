@@ -365,14 +365,15 @@ def get_teams_dashboard_html() -> str:
         .config-check { color: var(--teams-green); }
         .config-x { color: var(--teams-red); }
 
-        .test-section {
+        .section {
             background: var(--bg-secondary);
             border-radius: 8px;
             padding: 20px;
             border: 1px solid var(--border-color);
+            margin-bottom: 20px;
         }
 
-        .test-section h2 {
+        .section h2 {
             margin-bottom: 15px;
             font-size: 1.1rem;
             display: flex;
@@ -380,14 +381,14 @@ def get_teams_dashboard_html() -> str:
             gap: 8px;
         }
 
-        .test-controls {
+        .controls {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
             margin-bottom: 15px;
         }
 
-        .test-input {
+        .input-field {
             flex: 1;
             min-width: 200px;
             padding: 10px 12px;
@@ -398,10 +399,148 @@ def get_teams_dashboard_html() -> str:
             font-size: 0.9rem;
         }
 
-        .test-input:focus {
+        .input-field:focus {
             outline: none;
             border-color: var(--teams-blue);
         }
+
+        textarea.input-field {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            border-radius: 4px 4px 0 0;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            background: transparent;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: var(--text-primary);
+            background: var(--bg-card);
+        }
+
+        .tab.active {
+            background: var(--teams-purple);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .events-container {
+            background: var(--bg-card);
+            border-radius: 4px;
+            overflow: hidden;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .events-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .events-count {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .event-item {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+        }
+
+        .event-item:hover {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .event-item:last-child {
+            border-bottom: none;
+        }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .event-type {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 3px;
+            background: var(--teams-purple);
+        }
+
+        .event-type.webhook { background: var(--teams-blue); }
+        .event-type.workflow { background: var(--teams-green); }
+        .event-type.session { background: #0078d4; }
+
+        .event-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .event-user {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .event-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .event-meta {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .no-events {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .btn-danger {
+            background: var(--teams-red);
+            color: white;
+        }
+
+        .btn-danger:hover { background: #a50d1a; }
 
         .btn {
             padding: 10px 18px;
@@ -614,34 +753,87 @@ def get_teams_dashboard_html() -> str:
             </div>
         </div>
 
-        <!-- Test Section -->
-        <div class="test-section">
-            <h2>
-                <svg class="card-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
-                </svg>
-                Test Connections
-            </h2>
-            <div class="test-controls">
-                <input type="text" class="test-input" id="test-message"
-                       placeholder="Enter test message..."
-                       value="Hello, this is a test from Teams dashboard">
+        <!-- Tabs Section -->
+        <div class="section">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('sessions')">Sessions</button>
+                <button class="tab" onclick="switchTab('test')">Test Agent</button>
+                <button class="tab" onclick="switchTab('workflows')">Workflows</button>
+                <button class="tab" onclick="switchTab('endpoints')">Endpoints</button>
             </div>
-            <div class="test-controls">
-                <button class="btn btn-primary" onclick="testAgent()">Test Agent (Direct)</button>
-                <button class="btn btn-primary" onclick="testWebhook()" style="background: #0078d4;">Test Webhook</button>
-                <button class="btn btn-secondary" onclick="refreshStatus()">Refresh Status</button>
+
+            <!-- Sessions Tab -->
+            <div id="tab-sessions" class="tab-content active">
+                <div class="events-header">
+                    <span class="events-count"><span id="sessions-total">0</span> active sessions</span>
+                    <div>
+                        <button class="btn btn-sm btn-secondary" onclick="refreshSessions()">Refresh</button>
+                        <button class="btn btn-sm btn-danger" onclick="clearAllSessions()">Clear All</button>
+                    </div>
+                </div>
+                <div class="events-container" id="sessions-list">
+                    <div class="no-events">No active sessions. Sessions will appear here when users interact with the bot.</div>
+                </div>
             </div>
-            <div class="test-controls" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color);">
-                <span style="color: var(--text-secondary); font-size: 0.85rem; margin-right: 10px;">Test Workflows:</span>
-                <button class="btn btn-secondary" onclick="testWorkflow('alerts')" style="background: #c50f1f; color: white;">Alerts</button>
-                <button class="btn btn-secondary" onclick="testWorkflow('reports')" style="background: #0078d4; color: white;">Reports</button>
-                <button class="btn btn-secondary" onclick="testWorkflow('general')" style="background: #6264a7; color: white;">General</button>
+
+            <!-- Test Agent Tab -->
+            <div id="tab-test" class="tab-content">
+                <div class="controls">
+                    <input type="text" class="input-field" id="test-message"
+                           placeholder="Enter test message..."
+                           value="Hello, this is a test from Teams dashboard">
+                </div>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="testAgent()">Test Agent (Direct)</button>
+                    <button class="btn btn-primary" onclick="testWebhook()" style="background: #0078d4;">Test Webhook</button>
+                    <button class="btn btn-secondary" onclick="refreshStatus()">Refresh Status</button>
+                </div>
+                <div class="log" id="log">
+                    <div class="log-entry log-info">
+                        <span class="log-time">[--:--:--]</span>
+                        Dashboard initialized. Click "Refresh Status" to check connections.
+                    </div>
+                </div>
             </div>
-            <div class="log" id="log">
-                <div class="log-entry log-info">
-                    <span class="log-time">[--:--:--]</span>
-                    Dashboard initialized. Click "Refresh Status" to check connections.
+
+            <!-- Workflows Tab -->
+            <div id="tab-workflows" class="tab-content">
+                <div class="controls">
+                    <input type="text" class="input-field" id="workflow-title"
+                           placeholder="Message title..."
+                           value="Dashboard Test">
+                </div>
+                <div class="controls">
+                    <textarea class="input-field" id="workflow-message" placeholder="Enter message to send..." rows="3">Hello, this is a test message from the Teams dashboard.</textarea>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-danger" onclick="testWorkflow('alerts')">Send to Alerts</button>
+                    <button class="btn btn-primary" onclick="testWorkflow('reports')" style="background: #0078d4;">Send to Reports</button>
+                    <button class="btn btn-primary" onclick="testWorkflow('general')">Send to General</button>
+                </div>
+                <div class="log" id="workflow-log">
+                    <div class="log-entry log-info">
+                        <span class="log-time">[--:--:--]</span>
+                        Select a workflow and enter a message to send.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Endpoints Tab -->
+            <div id="tab-endpoints" class="tab-content">
+                <h3 style="margin-bottom: 15px; font-size: 1rem;">Test API Endpoints</h3>
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                    <button class="btn btn-secondary" onclick="testEndpoint('/health')">GET /health</button>
+                    <button class="btn btn-secondary" onclick="testEndpoint('/dashboard/api/status')">GET /api/status</button>
+                    <button class="btn btn-secondary" onclick="testEndpoint('/dashboard/api/config')">GET /api/config</button>
+                    <button class="btn btn-secondary" onclick="testEndpoint('/dashboard/api/sessions')">GET /api/sessions</button>
+                    <button class="btn btn-secondary" onclick="testEndpoint('/dashboard/api/sessions/list')">GET /api/sessions/list</button>
+                </div>
+                <div class="log" id="endpoint-log" style="margin-top: 15px;">
+                    <div class="log-entry log-info">
+                        <span class="log-time">[--:--:--]</span>
+                        Click an endpoint button to test it.
+                    </div>
                 </div>
             </div>
         </div>
@@ -658,8 +850,18 @@ def get_teams_dashboard_html() -> str:
     </button>
 
     <script>
-        function log(message, type = 'info') {
-            const logEl = document.getElementById('log');
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            if (tabName === 'sessions') refreshSessions();
+        }
+
+        function log(message, type = 'info', logId = 'log') {
+            const logEl = document.getElementById(logId);
             const time = new Date().toLocaleTimeString();
             const entry = document.createElement('div');
             entry.className = `log-entry log-${type}`;
@@ -669,6 +871,13 @@ def get_teams_dashboard_html() -> str:
             while (logEl.children.length > 50) {
                 logEl.removeChild(logEl.lastChild);
             }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         function updateStatusDot(dotId, statusId, status) {
@@ -804,35 +1013,120 @@ def get_teams_dashboard_html() -> str:
         }
 
         async function testWorkflow(workflowType) {
-            const message = document.getElementById('test-message').value;
+            const message = document.getElementById('workflow-message').value;
+            const title = document.getElementById('workflow-title').value;
             if (!message.trim()) {
-                log('Please enter a message', 'error');
+                log('Please enter a message', 'error', 'workflow-log');
                 return;
             }
 
-            log(`Sending to ${workflowType} workflow: "${message.substring(0, 40)}..."`, 'info');
+            log(`Sending to ${workflowType} workflow: "${message.substring(0, 40)}..."`, 'info', 'workflow-log');
 
             try {
-                const response = await fetch(`api/test/workflow/${workflowType}?message=${encodeURIComponent(message)}&title=Dashboard Test`, {
+                const response = await fetch(`api/test/workflow/${workflowType}?message=${encodeURIComponent(message)}&title=${encodeURIComponent(title)}`, {
                     method: 'POST'
                 });
                 const data = await response.json();
 
                 if (data.success) {
-                    log(`${workflowType} workflow: ${data.message}`, 'success');
+                    log(`${workflowType} workflow: ${data.message}`, 'success', 'workflow-log');
                     if (data.response_time_ms) {
-                        log(`Response time: ${data.response_time_ms}ms`, 'info');
+                        log(`Response time: ${data.response_time_ms}ms`, 'info', 'workflow-log');
                     }
                 } else {
-                    log(`${workflowType} workflow failed: ${data.message}`, 'error');
+                    log(`${workflowType} workflow failed: ${data.message}`, 'error', 'workflow-log');
                 }
             } catch (error) {
-                log(`Error: ${error.message}`, 'error');
+                log(`Error: ${error.message}`, 'error', 'workflow-log');
+            }
+        }
+
+        // Sessions functions
+        async function refreshSessions() {
+            try {
+                const response = await fetch('api/sessions/list');
+                const data = await response.json();
+
+                document.getElementById('sessions-total').textContent = data.total;
+
+                const container = document.getElementById('sessions-list');
+                if (data.sessions.length === 0) {
+                    container.innerHTML = '<div class="no-events">No active sessions. Sessions will appear here when users interact with the bot.</div>';
+                    return;
+                }
+
+                container.innerHTML = data.sessions.map(session => `
+                    <div class="event-item">
+                        <div class="event-header">
+                            <span class="event-type session">Session</span>
+                            <span class="event-time">${new Date(session.last_activity).toLocaleString()}</span>
+                        </div>
+                        <div class="event-user">User: ${escapeHtml(session.user_id)}</div>
+                        <div class="event-text">Conversation: ${escapeHtml(session.conversation_id.substring(0, 50))}...</div>
+                        <div class="event-meta">
+                            Messages: ${session.message_count} |
+                            Session ID: ${escapeHtml(session.session_id.substring(0, 20))}...
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <button class="btn btn-sm btn-danger" onclick="deleteSession('${escapeHtml(session.user_id)}', '${escapeHtml(session.conversation_id)}')">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error refreshing sessions:', error);
+            }
+        }
+
+        async function clearAllSessions() {
+            if (!confirm('Clear ALL sessions? This will end all active conversations.')) return;
+            try {
+                const response = await fetch('api/sessions', { method: 'DELETE' });
+                const data = await response.json();
+                alert(data.message || data.error);
+                refreshSessions();
+            } catch (error) {
+                console.error('Error clearing sessions:', error);
+            }
+        }
+
+        async function deleteSession(userId, conversationId) {
+            if (!confirm('Delete this session?')) return;
+            try {
+                const response = await fetch(`api/sessions/${encodeURIComponent(userId)}/${encodeURIComponent(conversationId)}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    refreshSessions();
+                }
+            } catch (error) {
+                console.error('Error deleting session:', error);
+            }
+        }
+
+        // Endpoint testing
+        async function testEndpoint(endpoint) {
+            const logId = 'endpoint-log';
+            log(`Testing ${endpoint}...`, 'info', logId);
+
+            try {
+                const start = Date.now();
+                const response = await fetch(endpoint);
+                const elapsed = Date.now() - start;
+                const data = await response.json();
+
+                log(`${endpoint} - ${response.status} (${elapsed}ms)`, response.ok ? 'success' : 'error', logId);
+                log(`Response: ${JSON.stringify(data).substring(0, 200)}${JSON.stringify(data).length > 200 ? '...' : ''}`, 'info', logId);
+            } catch (error) {
+                log(`${endpoint} - Error: ${error.message}`, 'error', logId);
             }
         }
 
         // Initial load
         refreshStatus();
+        refreshSessions();
 
         // Auto-refresh every 60 seconds
         setInterval(refreshStatus, 60000);

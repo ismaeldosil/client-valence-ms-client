@@ -403,6 +403,61 @@ async def dashboard_sessions():
     }
 
 
+@app.get("/dashboard/api/sessions/list")
+async def list_sessions():
+    """List all active sessions."""
+    if _session_store:
+        try:
+            sessions = await _session_store.list_sessions()
+            return {
+                "sessions": [
+                    {
+                        "session_id": s.session_id,
+                        "user_id": s.user_id,
+                        "conversation_id": s.conversation_id,
+                        "created_at": s.created_at,
+                        "last_activity": s.last_activity,
+                        "message_count": s.message_count,
+                    }
+                    for s in sessions
+                ],
+                "total": len(sessions),
+            }
+        except Exception as e:
+            return {"sessions": [], "total": 0, "error": str(e)}
+    else:
+        return {"sessions": [], "total": 0}
+
+
+@app.delete("/dashboard/api/sessions")
+async def clear_all_sessions():
+    """Clear all sessions."""
+    if _session_store:
+        try:
+            count = await _session_store.clear_all()
+            return {"message": f"Cleared {count} sessions", "count": count}
+        except Exception as e:
+            return {"error": str(e)}
+    else:
+        return {"error": "Session store not configured"}
+
+
+@app.delete("/dashboard/api/sessions/{user_id}/{conversation_id:path}")
+async def delete_session(user_id: str, conversation_id: str):
+    """Delete a specific session."""
+    if _session_store:
+        try:
+            deleted = await _session_store.delete(user_id, conversation_id)
+            if deleted:
+                return {"message": "Session deleted"}
+            else:
+                return {"error": "Session not found"}
+        except Exception as e:
+            return {"error": str(e)}
+    else:
+        return {"error": "Session store not configured"}
+
+
 @app.post("/dashboard/api/test/webhook", response_model=TestResult)
 async def dashboard_test_webhook(message: str = "Hello from dashboard webhook test"):
     """Test the webhook endpoint by simulating a Teams message."""

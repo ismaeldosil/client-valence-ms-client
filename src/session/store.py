@@ -45,6 +45,16 @@ class SessionStore(ABC):
         """Get session store statistics."""
         pass
 
+    @abstractmethod
+    async def list_sessions(self) -> list[SessionData]:
+        """List all active sessions."""
+        pass
+
+    @abstractmethod
+    async def clear_all(self) -> int:
+        """Clear all sessions. Returns count of deleted sessions."""
+        pass
+
 
 class MemorySessionStore(SessionStore):
     """In-memory session store (for development/fallback)."""
@@ -89,6 +99,14 @@ class MemorySessionStore(SessionStore):
             "type": "memory",
             "active_sessions": len(self._sessions),
         }
+
+    async def list_sessions(self) -> list[SessionData]:
+        return list(self._sessions.values())
+
+    async def clear_all(self) -> int:
+        count = len(self._sessions)
+        self._sessions.clear()
+        return count
 
 
 class RedisSessionStore(SessionStore):
@@ -171,6 +189,32 @@ class RedisSessionStore(SessionStore):
                 "connected": False,
                 "error": str(e),
             }
+
+    async def list_sessions(self) -> list[SessionData]:
+        try:
+            r = await self._get_redis()
+            keys = await r.keys(f"{self._key_prefix}:*")
+            sessions = []
+            for key in keys:
+                data = await r.get(key)
+                if data:
+                    session_dict = json.loads(data)
+                    sessions.append(SessionData(**session_dict))
+            return sorted(sessions, key=lambda s: s.last_activity, reverse=True)
+        except Exception as e:
+            logger.error("redis_list_error", error=str(e))
+            return []
+
+    async def clear_all(self) -> int:
+        try:
+            r = await self._get_redis()
+            keys = await r.keys(f"{self._key_prefix}:*")
+            if keys:
+                return await r.delete(*keys)
+            return 0
+        except Exception as e:
+            logger.error("redis_clear_all_error", error=str(e))
+            return 0
 
     async def close(self):
         if self._redis:
