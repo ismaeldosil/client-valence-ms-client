@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe de Estado - MS Teams Webhooks</title>
+    <style>
+        :root {
+            --teams-purple: #6264A7;
+            --teams-dark: #464775;
+            --teams-light: #E8E8F0;
+            --success: #92C353;
+            --warning: #FFB900;
+            --error: #C4314B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #E8E8F0;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--teams-purple);
+        }
+
+        .header h1 {
+            color: var(--teams-purple);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header .date {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin: 1rem 0;
+        }
+
+        .status-blocked {
+            background: var(--error);
+            color: white;
+        }
+
+        .status-waiting {
+            background: var(--warning);
+            color: #1a1a2e;
+        }
+
+        .card {
+            background: rgba(98, 100, 167, 0.1);
+            border: 1px solid rgba(98, 100, 167, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card h2 {
+            color: var(--teams-purple);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card h3 {
+            color: #aaa;
+            font-size: 1rem;
+            margin: 1rem 0 0.5rem 0;
+        }
+
+        .card p {
+            line-height: 1.6;
+            margin-bottom: 0.75rem;
+        }
+
+        .incident-box {
+            background: rgba(196, 49, 75, 0.2);
+            border: 1px solid var(--error);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .incident-box .incident-id {
+            font-family: monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            color: var(--warning);
+        }
+
+        .timeline {
+            border-left: 3px solid var(--teams-purple);
+            padding-left: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.75rem;
+            top: 0.25rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--teams-purple);
+        }
+
+        .timeline-item.error::before {
+            background: var(--error);
+        }
+
+        .timeline-item.warning::before {
+            background: var(--warning);
+        }
+
+        .timeline-item .time {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .solution-box {
+            background: rgba(146, 195, 83, 0.1);
+            border: 1px solid var(--success);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .solution-box h4 {
+            color: var(--success);
+            margin-bottom: 0.5rem;
+        }
+
+        ul {
+            margin-left: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(98, 100, 167, 0.3);
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        a {
+            color: var(--teams-purple);
+        }
+
+        code {
+            background: rgba(0,0,0,0.3);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Informe de Estado: MS Teams Webhooks</h1>
+            <p class="date">Fecha: 12 de Enero de 2026</p>
+            <span class="status-badge status-blocked">BLOQUEADO POR MICROSOFT</span>
+        </div>
+
+        <div class="card">
+            <h2>📋 Resumen Ejecutivo</h2>
+            <p>
+                La integración de <strong>Valerie AI</strong> con Microsoft Teams mediante <strong>Outgoing Webhooks</strong>
+                está actualmente bloqueada debido a un incidente activo en la infraestructura de Microsoft.
+                Nuestro servidor está correctamente configurado y funcionando, pero Microsoft Teams no puede
+                completar el proceso de creación del webhook.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>🔴 Problema Identificado</h2>
+
+            <h3>Síntoma</h3>
+            <p>
+                Al intentar crear un Outgoing Webhook en Microsoft Teams (Teams → Canal → Manage Channel →
+                Connectors → Outgoing Webhook), el proceso falla con el mensaje:
+            </p>
+            <div class="incident-box">
+                <strong>"Error submitting webhook!"</strong>
+            </div>
+
+            <h3>Diagnóstico Realizado</h3>
+            <ul>
+                <li>✅ Servidor desplegado correctamente en Railway</li>
+                <li>✅ Endpoint <code>/webhook</code> respondiendo HTTP 200</li>
+                <li>✅ HMAC verification configurado para aceptar requests de validación</li>
+                <li>✅ Dashboard funcionando en <code>/dashboard</code></li>
+                <li>✅ Test con webhook.site también falla → <strong>problema es de Teams, no del servidor</strong></li>
+                <li>❌ Teams no puede completar la validación del webhook (ningún request llega al servidor)</li>
+            </ul>
+
+            <h3>Causa Raíz</h3>
+            <div class="incident-box">
+                <p><strong>Incidente Microsoft:</strong> <span class="incident-id">MO1176905</span></p>
+                <p style="margin-top: 0.5rem;">
+                    Microsoft confirmó un problema que afecta la creación y gestión de grupos en Microsoft 365,
+                    incluyendo funcionalidades de Teams que dependen de grupos como los Outgoing Webhooks.
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📅 Cronología del Problema</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="time">12 Enero 2026 - 18:00</div>
+                    <p>Servidor MS Teams Client desplegado exitosamente en Railway</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="time">12 Enero 2026 - 19:00</div>
+                    <p>Primer intento de crear Outgoing Webhook - Falla con "Error submitting webhook!"</p>
+                </div>
+                <div class="timeline-item error">
+                    <div class="time">12 Enero 2026 - 19:30</div>
+                    <p>Modificación de endpoint para aceptar requests sin HMAC - Sigue fallando</p>
+                </div>
+                <div class="timeline-item error">
+                    <div class="time">12 Enero 2026 - 20:00</div>
+                    <p>Prueba con webhook.site - También falla → Confirmado problema de Teams</p>
+                </div>
+                <div class="timeline-item warning">
+                    <div class="time">12 Enero 2026 - 20:30</div>
+                    <p>Identificado Incidente Microsoft MO1176905 en Service Health Dashboard</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="time">12 Enero 2026 - 21:00</div>
+                    <p>Intento alternativo con Power Automate - Falla por bug conocido del trigger "When keywords are mentioned"</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>⏳ Solución y Fecha Estimada</h2>
+
+            <div class="solution-box">
+                <h4>Acción Requerida: Esperar resolución de Microsoft</h4>
+                <p>
+                    Según el Service Health Dashboard de Microsoft, el incidente MO1176905 está siendo
+                    trabajado activamente. La resolución estimada es para <strong>finales de Enero 2026</strong>.
+                </p>
+            </div>
+
+            <h3>Pasos a Seguir Cuando se Resuelva</h3>
+            <ol style="margin-left: 1.5rem; line-height: 2;">
+                <li>Verificar que el incidente MO1176905 esté marcado como "Resolved" en
+                    <a href="https://admin.microsoft.com/Adminportal/Home#/servicehealth" target="_blank">Service Health</a></li>
+                <li>Ir a Teams → Canal deseado → Manage Channel → Connectors</li>
+                <li>Crear Outgoing Webhook con URL: <code>https://web-production-d82d.up.railway.app/webhook</code></li>
+                <li>Copiar el Security Token generado</li>
+                <li>Actualizar variable <code>TEAMS_HMAC_SECRET</code> en Railway con el token</li>
+                <li>Reiniciar el servicio en Railway</li>
+                <li>Probar enviando un mensaje mencionando al bot en el canal</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h2>🔄 Alternativas Evaluadas</h2>
+
+            <h3>Power Automate (No viable actualmente)</h3>
+            <p>
+                Se intentó usar Power Automate con el trigger "When keywords are mentioned" como alternativa.
+                Sin embargo, este trigger tiene un bug conocido que causa el error:
+            </p>
+            <div class="incident-box">
+                <code>Subscription Id(s) are not found or do not have valid status</code>
+            </div>
+            <p>
+                Este es un problema conocido de la plataforma Power Automate y no tiene solución confiable.
+            </p>
+
+            <h3>Bot Framework (Alternativa compleja)</h3>
+            <p>
+                Registrar la aplicación como un Bot en Azure Bot Service permitiría mayor funcionalidad,
+                pero requiere:
+            </p>
+            <ul>
+                <li>Registro en Azure Active Directory</li>
+                <li>Configuración de Bot Framework</li>
+                <li>Cambios significativos en la arquitectura del cliente</li>
+            </ul>
+            <p style="margin-top: 0.5rem;">
+                <strong>Recomendación:</strong> Esperar resolución de Outgoing Webhooks antes de considerar esta alternativa.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>✅ Estado Actual del Sistema</h2>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr style="border-bottom: 1px solid rgba(98,100,167,0.3);">
+                    <td style="padding: 0.5rem;">Servidor Railway</td>
+                    <td style="padding: 0.5rem; color: var(--success);">✅ Operativo</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(98,100,167,0.3);">
+                    <td style="padding: 0.5rem;">Endpoint /webhook</td>
+                    <td style="padding: 0.5rem; color: var(--success);">✅ Respondiendo</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(98,100,167,0.3);">
+                    <td style="padding: 0.5rem;">Dashboard /dashboard</td>
+                    <td style="padding: 0.5rem; color: var(--success);">✅ Funcionando</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(98,100,167,0.3);">
+                    <td style="padding: 0.5rem;">Conexión con Valerie Agent</td>
+                    <td style="padding: 0.5rem; color: var(--success);">✅ Verificada</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(98,100,167,0.3);">
+                    <td style="padding: 0.5rem;">Test desde Dashboard</td>
+                    <td style="padding: 0.5rem; color: var(--success);">✅ Funcionando</td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.5rem;">Teams Outgoing Webhook</td>
+                    <td style="padding: 0.5rem; color: var(--error);">❌ Bloqueado (MS Incident)</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>📞 Referencias</h2>
+            <ul>
+                <li><a href="https://admin.microsoft.com/Adminportal/Home#/servicehealth" target="_blank">Microsoft 365 Service Health Dashboard</a></li>
+                <li><a href="https://web-production-d82d.up.railway.app/dashboard" target="_blank">Dashboard de Valerie MS Teams Client</a></li>
+                <li><a href="https://learn.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-outgoing-webhook" target="_blank">Documentación: Teams Outgoing Webhooks</a></li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>Informe generado el 12 de Enero de 2026</p>
+            <p>Próxima revisión: Cuando Microsoft resuelva el incidente MO1176905</p>
+        </div>
+    </div>
+</body>
+</html>

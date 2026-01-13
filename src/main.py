@@ -491,6 +491,47 @@ async def dashboard_test_workflow(
 
 
 # ===========================================
+# Documentation Endpoints
+# ===========================================
+
+
+@app.get("/docs", response_class=type(RedirectResponse))
+async def docs_redirect():
+    """Redirect /docs to /docs/."""
+    return RedirectResponse(url="/docs/")
+
+
+@app.get("/docs/")
+async def docs_home():
+    """Serve the documentation HTML page."""
+    from pathlib import Path
+
+    docs_path = Path(__file__).parent.parent / "docs" / "index.html"
+    if docs_path.exists():
+        return HTMLResponse(content=docs_path.read_text())
+    else:
+        return HTMLResponse(
+            content="<h1>Documentation not found</h1><p>docs/index.html is missing.</p>",
+            status_code=404,
+        )
+
+
+@app.get("/docs/webhook-status")
+async def docs_webhook_status():
+    """Serve the webhook status report."""
+    from pathlib import Path
+
+    docs_path = Path(__file__).parent.parent / "docs" / "webhook-status-report.html"
+    if docs_path.exists():
+        return HTMLResponse(content=docs_path.read_text())
+    else:
+        return HTMLResponse(
+            content="<h1>Report not found</h1><p>docs/webhook-status-report.html is missing.</p>",
+            status_code=404,
+        )
+
+
+# ===========================================
 # Main Entry Point
 # ===========================================
 
