@@ -5,6 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MS Teams Client - Valerie Chat Clients</title>
     <link rel="stylesheet" href="common/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            mermaid.initialize({
+                startOnLoad: true,
+                theme: 'base',
+                themeVariables: {
+                    primaryColor: '#fb511f',
+                    primaryTextColor: '#fff',
+                    primaryBorderColor: '#e95d34',
+                    lineColor: '#353637',
+                    secondaryColor: '#f4f4f4',
+                    tertiaryColor: '#ffffff',
+                    fontFamily: 'Roboto, sans-serif'
+                },
+                flowchart: {
+                    useMaxWidth: true,
+                    htmlLabels: true,
+                    curve: 'basis'
+                }
+            });
+        });
+    </script>
 </head>
 <body>
     <!-- Navigation -->
@@ -71,61 +94,49 @@
         <!-- Architecture -->
         <section>
             <h2>Architecture</h2>
-            <div class="flowchart">
-                <pre>
-+-------------------+
-|   MS Teams        |
-|   Channel         |
-+--------+----------+
-         |
-         | @BotName message
-         v
-+--------+----------+
-|   Outgoing        |
-|   Webhook         |
-|   (HTTPS POST)    |
-+--------+----------+
-         |
-         | POST /webhook
-         | Authorization: HMAC <signature>
-         | Body: { type, text, from, conversation... }
-         v
-+--------+----------+
-|   Teams Client    |
-|   (Railway)       |
-|                   |
-|   1. Verify HMAC  |
-|   2. Parse msg    |
-|   3. Get session  |
-|   4. Call agent   |
-|   5. Save session |
-+--------+----------+
-         |
-         | POST /api/v1/chat
-         | { session_id, message, history }
-         v
-+--------+----------+
-|   Valerie Agent   |
-|                   |
-|   Process query   |
-|   Generate resp   |
-+--------+----------+
-         |
-         | { message: "response" }
-         v
-+--------+----------+
-|   Teams Client    |
-|                   |
-|   Format response |
-|   Return JSON     |
-+--------+----------+
-         |
-         | { type: "message", text: "..." }
-         v
-+--------+----------+
-|   MS Teams        |
-|   (displays msg)  |
-+-------------------+
+            <div class="mermaid-container">
+                <pre class="mermaid">
+flowchart TD
+    subgraph teams["MS Teams"]
+        A[("User Message<br/>@BotName")]
+    end
+
+    subgraph webhook["Outgoing Webhook"]
+        B["HTTPS POST<br/>HMAC Signature"]
+    end
+
+    subgraph client["Teams Client (Railway)"]
+        C["Webhook Handler"]
+        C1["1. Verify HMAC"]
+        C2["2. Parse Message"]
+        C3["3. Get Session"]
+        C4["4. Call Agent"]
+        C5["5. Save Session"]
+        C --> C1 --> C2 --> C3 --> C4 --> C5
+    end
+
+    subgraph session["Session Layer"]
+        D[("Redis Session Store")]
+    end
+
+    subgraph agent["Valerie Agent"]
+        E["POST /api/v1/chat<br/>{session_id, message, history}"]
+    end
+
+    A -->|"@BotName message"| webhook
+    B -->|"POST /webhook<br/>Authorization: HMAC"| C
+    C3 -->|"Get/Create"| D
+    C4 -->|"Chat Request"| E
+    E -->|"AI Response"| C5
+    C5 -->|"Save"| D
+    C5 -->|"JSON Response"| webhook
+    webhook -->|"Display Message"| teams
+
+    style teams fill:#5558AF,stroke:#5558AF,color:#fff
+    style webhook fill:#7B83EB,stroke:#7B83EB,color:#fff
+    style client fill:#fb511f,stroke:#e95d34,color:#fff
+    style session fill:#2EB67D,stroke:#2EB67D,color:#fff
+    style agent fill:#36C5F0,stroke:#36C5F0,color:#fff
                 </pre>
             </div>
         </section>
