@@ -1,538 +1,619 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valerie MS Teams Client - Documentación</title>
-    <style>
-        :root {
-            --bg-primary: #1b1a19;
-            --bg-secondary: #252423;
-            --bg-card: #323130;
-            --text-primary: #f3f2f1;
-            --text-secondary: #a19f9d;
-            --teams-purple: #6264a7;
-            --teams-green: #6bb700;
-            --teams-yellow: #ffb900;
-            --teams-red: #c50f1f;
-            --teams-blue: #0078d4;
-            --border-color: #484644;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            padding: 20px;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 30px;
-            background: linear-gradient(135deg, var(--teams-purple) 0%, #464775 100%);
-            border-radius: 12px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 10px;
-        }
-
-        .logo svg {
-            width: 50px;
-            height: 50px;
-        }
-
-        h1 {
-            font-size: 2rem;
-            font-weight: 600;
-        }
-
-        .subtitle {
-            color: rgba(255,255,255,0.85);
-            font-size: 1rem;
-        }
-
-        .section {
-            background: var(--bg-secondary);
-            border-radius: 10px;
-            padding: 25px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-        }
-
-        h2 {
-            color: var(--teams-purple);
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--teams-purple);
-            font-size: 1.4rem;
-        }
-
-        h3 {
-            color: var(--teams-blue);
-            margin: 20px 0 10px 0;
-            font-size: 1.1rem;
-        }
-
-        p {
-            margin-bottom: 12px;
-            color: var(--text-secondary);
-        }
-
-        ul, ol {
-            margin-left: 20px;
-            margin-bottom: 15px;
-        }
-
-        li {
-            margin-bottom: 8px;
-            color: var(--text-secondary);
-        }
-
-        code {
-            background: var(--bg-card);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 0.9rem;
-            color: var(--teams-green);
-        }
-
-        pre {
-            background: var(--bg-card);
-            padding: 15px;
-            border-radius: 8px;
-            overflow-x: auto;
-            margin: 15px 0;
-            border: 1px solid var(--border-color);
-        }
-
-        pre code {
-            background: none;
-            padding: 0;
-            color: var(--text-primary);
-        }
-
-        .env-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-        }
-
-        .env-table th, .env-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .env-table th {
-            background: var(--bg-card);
-            color: var(--teams-purple);
-            font-weight: 600;
-        }
-
-        .env-table td:first-child {
-            font-family: 'Consolas', monospace;
-            color: var(--teams-green);
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .status-ok { background: var(--teams-green); color: white; }
-        .status-warning { background: var(--teams-yellow); color: #1b1a19; }
-        .status-error { background: var(--teams-red); color: white; }
-
-        .endpoint {
-            background: var(--bg-card);
-            padding: 15px;
-            border-radius: 8px;
-            margin: 10px 0;
-            border-left: 4px solid var(--teams-blue);
-        }
-
-        .endpoint-method {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            margin-right: 10px;
-        }
-
-        .method-get { background: var(--teams-green); color: white; }
-        .method-post { background: var(--teams-blue); color: white; }
-
-        .endpoint-path {
-            font-family: 'Consolas', monospace;
-            color: var(--text-primary);
-        }
-
-        .endpoint-desc {
-            margin-top: 8px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .architecture {
-            background: var(--bg-card);
-            padding: 20px;
-            border-radius: 8px;
-            font-family: 'Consolas', monospace;
-            font-size: 0.85rem;
-            white-space: pre;
-            overflow-x: auto;
-            line-height: 1.4;
-        }
-
-        .note {
-            background: rgba(98, 100, 167, 0.2);
-            border-left: 4px solid var(--teams-purple);
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 0 8px 8px 0;
-        }
-
-        .warning {
-            background: rgba(255, 185, 0, 0.2);
-            border-left: 4px solid var(--teams-yellow);
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 0 8px 8px 0;
-        }
-
-        a {
-            color: var(--teams-blue);
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
-            color: var(--text-secondary);
-        }
-    </style>
+    <title>MS Teams Client - Valerie Chat Clients</title>
+    <link rel="stylesheet" href="common/styles.css">
 </head>
 <body>
+    <!-- Navigation -->
+    <nav class="version-nav">
+        <div class="nav-container">
+            <div class="nav-brand">REEA Global <span>Valerie</span></div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="index.html" class="nav-link active">MS Teams</a>
+                <a href="#" class="nav-link">Slack</a>
+                <a href="#" class="nav-link">Architecture</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <h1>MS Teams Client</h1>
+            <p class="subtitle">Microsoft Teams Integration for Valerie AI Agent</p>
+            <div class="meta-info">
+                <span class="meta-item">Outgoing Webhook</span>
+                <span class="meta-item">HMAC-SHA256</span>
+                <span class="meta-item">Redis Sessions</span>
+                <span class="meta-item">Railway Deployed</span>
+            </div>
+        </div>
+    </header>
+
     <div class="container">
-        <header>
-            <div class="logo">
-                <svg viewBox="0 0 24 24" fill="white">
-                    <path d="M19.2 6.4H16V3.2c0-.88-.72-1.6-1.6-1.6h-4.8c-.88 0-1.6.72-1.6 1.6v3.2H4.8c-.88 0-1.6.72-1.6 1.6v12.8c0 .88.72 1.6 1.6 1.6h14.4c.88 0 1.6-.72 1.6-1.6V8c0-.88-.72-1.6-1.6-1.6zM9.6 3.2h4.8v3.2H9.6V3.2zm9.6 17.6H4.8V8h14.4v12.8z"/>
-                    <circle cx="12" cy="12" r="2.5"/>
-                    <path d="M12 16.5c-2.33 0-4.5 1.17-4.5 2.5h9c0-1.33-2.17-2.5-4.5-2.5z"/>
-                </svg>
-                <h1>Valerie MS Teams Client</h1>
+        <!-- Status Alert -->
+        <section>
+            <div class="alert alert-warning">
+                <strong>Microsoft Incident MO1176905 - Webhook Creation Blocked</strong>
+                Microsoft is currently experiencing issues with Outgoing Webhooks. The webhook creation and configuration process is blocked. The client is deployed and ready, but cannot receive messages from Teams until Microsoft resolves this incident.
             </div>
-            <p class="subtitle">Documentación Técnica - Cliente de Microsoft Teams para Valerie AI Agent</p>
-        </header>
+        </section>
 
-        <!-- Banner de Estado Webhook -->
-        <div class="section" style="background: linear-gradient(135deg, #c50f1f22 0%, #ffb90022 100%); border: 1px solid #c50f1f;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                <div>
-                    <h3 style="color: #ffb900; margin: 0 0 5px 0;">Estado de Webhooks: Bloqueado por Microsoft</h3>
-                    <p style="margin: 0; color: var(--text-secondary);">Incidente MO1176905 - Resolución estimada: Finales de Enero 2026</p>
+        <!-- Overview -->
+        <section>
+            <h2>Overview</h2>
+            <p>The MS Teams Client provides integration between Microsoft Teams and the Valerie AI Agent. It uses Teams Outgoing Webhooks to receive messages when users @mention the bot in channels, processes them through the Valerie Agent, and returns responses.</p>
+
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="value">Webhook</div>
+                    <div class="label">Connection Type</div>
                 </div>
-                <a href="webhook-status-report.html" style="background: var(--teams-purple); color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 500;">Ver Informe Completo</a>
+                <div class="metric-card">
+                    <div class="value">5s</div>
+                    <div class="label">Response Limit</div>
+                </div>
+                <div class="metric-card">
+                    <div class="value">24h</div>
+                    <div class="label">Session TTL</div>
+                </div>
+                <div class="metric-card">
+                    <div class="value">HMAC</div>
+                    <div class="label">Authentication</div>
+                </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Resumen -->
-        <div class="section">
-            <h2>Resumen</h2>
-            <p>El MS Teams Client es un servicio que permite a los usuarios interactuar con Valerie AI Agent directamente desde Microsoft Teams. Recibe mensajes a través de Outgoing Webhooks o Power Automate, los procesa enviándolos al agente de IA, y devuelve las respuestas al canal de Teams.</p>
+        <!-- Architecture -->
+        <section>
+            <h2>Architecture</h2>
+            <div class="flowchart">
+                <pre>
++-------------------+
+|   MS Teams        |
+|   Channel         |
++--------+----------+
+         |
+         | @BotName message
+         v
++--------+----------+
+|   Outgoing        |
+|   Webhook         |
+|   (HTTPS POST)    |
++--------+----------+
+         |
+         | POST /webhook
+         | Authorization: HMAC <signature>
+         | Body: { type, text, from, conversation... }
+         v
++--------+----------+
+|   Teams Client    |
+|   (Railway)       |
+|                   |
+|   1. Verify HMAC  |
+|   2. Parse msg    |
+|   3. Get session  |
+|   4. Call agent   |
+|   5. Save session |
++--------+----------+
+         |
+         | POST /api/v1/chat
+         | { session_id, message, history }
+         v
++--------+----------+
+|   Valerie Agent   |
+|                   |
+|   Process query   |
+|   Generate resp   |
++--------+----------+
+         |
+         | { message: "response" }
+         v
++--------+----------+
+|   Teams Client    |
+|                   |
+|   Format response |
+|   Return JSON     |
++--------+----------+
+         |
+         | { type: "message", text: "..." }
+         v
++--------+----------+
+|   MS Teams        |
+|   (displays msg)  |
++-------------------+
+                </pre>
+            </div>
+        </section>
 
-            <h3>Estado Actual</h3>
-            <p>
-                <span class="status-badge status-ok">Desplegado</span>
-                <span class="status-badge status-warning">Webhook pendiente</span>
+        <!-- Production URL -->
+        <section>
+            <h2>Production Deployment</h2>
+            <div class="winner-card">
+                <h3>Teams Client</h3>
+                <div class="winner-metrics">
+                    <div class="winner-metric">
+                        <div class="value">Railway</div>
+                        <div class="label">Platform</div>
+                    </div>
+                    <div class="winner-metric">
+                        <div class="value">Redis</div>
+                        <div class="label">Sessions</div>
+                    </div>
+                    <div class="winner-metric">
+                        <div class="value">HTTPS</div>
+                        <div class="label">Protocol</div>
+                    </div>
+                    <div class="winner-metric">
+                        <div class="value">Auto</div>
+                        <div class="label">Deploy</div>
+                    </div>
+                </div>
+            </div>
+            <p style="text-align: center; margin-top: 1rem;">
+                <a href="https://teams-client-production.up.railway.app" target="_blank">https://teams-client-production.up.railway.app</a>
             </p>
-            <p>El servicio está desplegado en Railway. Los Outgoing Webhooks de Teams están temporalmente afectados por un incidente de Microsoft (MO1176905) que se espera resolver a fin de Enero 2026.</p>
-
-            <h3>URLs de Producción</h3>
-            <ul>
-                <li><strong>Dashboard:</strong> <a href="https://teams-client-production.up.railway.app/dashboard/" target="_blank">https://teams-client-production.up.railway.app/dashboard/</a></li>
-                <li><strong>Webhook:</strong> <code>https://teams-client-production.up.railway.app/webhook</code></li>
-                <li><strong>Health:</strong> <a href="https://teams-client-production.up.railway.app/health" target="_blank">https://teams-client-production.up.railway.app/health</a></li>
-            </ul>
-        </div>
-
-        <!-- Arquitectura -->
-        <div class="section">
-            <h2>Arquitectura</h2>
-            <div class="architecture">
-┌─────────────────────┐     ┌─────────────────────┐     ┌─────────────────────┐
-│   Microsoft Teams   │     │   MS Teams Client   │     │   Valerie Agent     │
-│                     │     │     (Railway)       │     │     (Railway)       │
-│  ┌───────────────┐  │     │                     │     │                     │
-│  │ User @mention │──┼────▶│  POST /webhook      │     │                     │
-│  │   Valerie     │  │     │       │             │     │                     │
-│  └───────────────┘  │     │       ▼             │     │                     │
-│                     │     │  TeamsMessage       │     │                     │
-│                     │     │  Handler            │────▶│  POST /api/v1/chat  │
-│                     │     │       │             │     │       │             │
-│  ┌───────────────┐  │     │       │             │     │       ▼             │
-│  │   Response    │◀─┼─────│◀──────┘             │◀────│  AI Response        │
-│  │   in channel  │  │     │                     │     │                     │
-│  └───────────────┘  │     │                     │     │                     │
-└─────────────────────┘     └─────────────────────┘     └─────────────────────┘
-
-                    Flujo alternativo: Power Automate Workflows
-
-┌─────────────────────┐     ┌─────────────────────┐
-│   MS Teams Client   │     │   Microsoft Teams   │
-│                     │     │                     │
-│  Sistema genera     │     │  ┌───────────────┐  │
-│  alerta/reporte     │────▶│  │ Adaptive Card │  │
-│       │             │     │  │ en canal      │  │
-│       ▼             │     │  └───────────────┘  │
-│  POST to Workflow   │     │                     │
-│  (Power Automate)   │     │                     │
-└─────────────────────┘     └─────────────────────┘
-            </div>
-        </div>
+        </section>
 
         <!-- Endpoints -->
-        <div class="section">
-            <h2>Endpoints API</h2>
-
-            <h3>Webhook (Recepción de mensajes)</h3>
-            <div class="endpoint">
-                <span class="endpoint-method method-get">GET</span>
-                <span class="endpoint-path">/webhook</span>
-                <p class="endpoint-desc">Validación de URL para Teams. Retorna status OK.</p>
-            </div>
-            <div class="endpoint">
-                <span class="endpoint-method method-post">POST</span>
-                <span class="endpoint-path">/webhook</span>
-                <p class="endpoint-desc">Recibe mensajes de Teams Outgoing Webhook. Valida HMAC si está configurado, procesa el mensaje y retorna respuesta.</p>
-            </div>
-
-            <h3>Dashboard</h3>
-            <div class="endpoint">
-                <span class="endpoint-method method-get">GET</span>
-                <span class="endpoint-path">/dashboard/</span>
-                <p class="endpoint-desc">Interfaz web para monitoreo y testing.</p>
-            </div>
-            <div class="endpoint">
-                <span class="endpoint-method method-get">GET</span>
-                <span class="endpoint-path">/dashboard/api/status</span>
-                <p class="endpoint-desc">Estado completo del cliente y conexión con el agente.</p>
-            </div>
-            <div class="endpoint">
-                <span class="endpoint-method method-post">POST</span>
-                <span class="endpoint-path">/dashboard/api/test/agent</span>
-                <p class="endpoint-desc">Prueba conexión directa con el agente (sin pasar por webhook).</p>
-            </div>
-            <div class="endpoint">
-                <span class="endpoint-method method-post">POST</span>
-                <span class="endpoint-path">/dashboard/api/test/webhook</span>
-                <p class="endpoint-desc">Simula un mensaje de Teams pasando por el handler completo.</p>
-            </div>
-            <div class="endpoint">
-                <span class="endpoint-method method-post">POST</span>
-                <span class="endpoint-path">/dashboard/api/test/workflow/{type}</span>
-                <p class="endpoint-desc">Prueba envío a workflows de Power Automate (alerts, reports, general).</p>
-            </div>
-
-            <h3>Health</h3>
-            <div class="endpoint">
-                <span class="endpoint-method method-get">GET</span>
-                <span class="endpoint-path">/health</span>
-                <p class="endpoint-desc">Health check para Railway y monitoreo.</p>
-            </div>
-        </div>
-
-        <!-- Configuración -->
-        <div class="section">
-            <h2>Variables de Entorno</h2>
-            <table class="env-table">
+        <section>
+            <h2>API Endpoints</h2>
+            <table>
                 <thead>
                     <tr>
-                        <th>Variable</th>
-                        <th>Descripción</th>
-                        <th>Requerida</th>
+                        <th>Method</th>
+                        <th>Endpoint</th>
+                        <th>Description</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>AGENT_BASE_URL</td>
-                        <td>URL base del Valerie Agent (ej: https://web-production-d82d.up.railway.app)</td>
-                        <td>Sí</td>
+                        <td><span class="badge badge-info">GET</span></td>
+                        <td><code>/</code></td>
+                        <td>Redirects to dashboard</td>
                     </tr>
                     <tr>
-                        <td>AGENT_API_KEY</td>
-                        <td>API Key para autenticación con el agente</td>
-                        <td>No</td>
+                        <td><span class="badge badge-info">GET</span></td>
+                        <td><code>/health</code></td>
+                        <td>Health check endpoint for Railway</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td><span class="badge badge-success">POST</span></td>
+                        <td><code>/webhook</code></td>
+                        <td>Teams Outgoing Webhook receiver</td>
                     </tr>
                     <tr>
-                        <td>TEAMS_HMAC_SECRET</td>
-                        <td>Secret para validación HMAC de webhooks (se obtiene al crear el Outgoing Webhook en Teams). Usar "DISABLED" para deshabilitar.</td>
-                        <td>No*</td>
+                        <td><span class="badge badge-info">GET</span></td>
+                        <td><code>/webhook</code></td>
+                        <td>Webhook validation endpoint</td>
                     </tr>
                     <tr>
-                        <td>TEAMS_WORKFLOW_ALERTS</td>
-                        <td>URL del workflow de Power Automate para alertas</td>
-                        <td>No</td>
+                        <td><span class="badge badge-info">GET</span></td>
+                        <td><code>/dashboard</code></td>
+                        <td>Web dashboard interface</td>
                     </tr>
                     <tr>
-                        <td>TEAMS_WORKFLOW_REPORTS</td>
-                        <td>URL del workflow de Power Automate para reportes</td>
-                        <td>No</td>
+                        <td><span class="badge badge-info">GET</span></td>
+                        <td><code>/dashboard/api/status</code></td>
+                        <td>Client and agent status</td>
                     </tr>
                     <tr>
-                        <td>TEAMS_WORKFLOW_GENERAL</td>
-                        <td>URL del workflow de Power Automate para mensajes generales</td>
-                        <td>No</td>
+                        <td><span class="badge badge-info">GET</span></td>
+                        <td><code>/dashboard/api/sessions</code></td>
+                        <td>Session store statistics</td>
                     </tr>
                     <tr>
-                        <td>ENVIRONMENT</td>
-                        <td>Entorno de ejecución (development, production)</td>
-                        <td>No</td>
+                        <td><span class="badge badge-info">GET</span></td>
+                        <td><code>/dashboard/api/config</code></td>
+                        <td>Non-sensitive configuration</td>
                     </tr>
                     <tr>
-                        <td>PORT</td>
-                        <td>Puerto del servidor (Railway lo inyecta automáticamente)</td>
-                        <td>No</td>
+                        <td><span class="badge badge-success">POST</span></td>
+                        <td><code>/dashboard/api/test/agent</code></td>
+                        <td>Test agent connection</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-success">POST</span></td>
+                        <td><code>/dashboard/api/test/webhook</code></td>
+                        <td>Simulate webhook message</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-info">GET</span></td>
+                        <td><code>/docs</code></td>
+                        <td>Documentation page</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-info">GET</span></td>
+                        <td><code>/docs/webhook-status</code></td>
+                        <td>Webhook status report</td>
                     </tr>
                 </tbody>
             </table>
-            <p class="note">* TEAMS_HMAC_SECRET es recomendado para producción para validar que los requests vienen de Teams.</p>
-        </div>
+        </section>
 
-        <!-- Configuración de Teams -->
-        <div class="section">
-            <h2>Configuración en Microsoft Teams</h2>
+        <!-- Environment Variables -->
+        <section>
+            <h2>Environment Variables</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Description</th>
+                        <th>Required</th>
+                        <th>Default</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>ENVIRONMENT</code></td>
+                        <td>Environment name</td>
+                        <td><span class="badge badge-info">No</span></td>
+                        <td>development</td>
+                    </tr>
+                    <tr>
+                        <td><code>LOG_LEVEL</code></td>
+                        <td>Logging level</td>
+                        <td><span class="badge badge-info">No</span></td>
+                        <td>DEBUG</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td><code>TEAMS_HMAC_SECRET</code></td>
+                        <td>Base64 encoded HMAC secret from Teams webhook</td>
+                        <td><span class="badge badge-warning">Yes*</span></td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><code>RECEIVER_PORT</code></td>
+                        <td>Webhook receiver port</td>
+                        <td><span class="badge badge-info">No</span></td>
+                        <td>3001</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td><code>AGENT_BASE_URL</code></td>
+                        <td>Valerie Agent API URL</td>
+                        <td><span class="badge badge-danger">Yes</span></td>
+                        <td>http://localhost:8000</td>
+                    </tr>
+                    <tr>
+                        <td><code>AGENT_API_KEY</code></td>
+                        <td>Agent API key (optional)</td>
+                        <td><span class="badge badge-info">No</span></td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><code>AGENT_TIMEOUT</code></td>
+                        <td>Request timeout (must be &lt;5s for Teams)</td>
+                        <td><span class="badge badge-info">No</span></td>
+                        <td>4.5</td>
+                    </tr>
+                    <tr>
+                        <td><code>AGENT_MAX_RETRIES</code></td>
+                        <td>Max retry attempts</td>
+                        <td><span class="badge badge-info">No</span></td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td><code>SESSION_STORE</code></td>
+                        <td>Session store type (memory/redis)</td>
+                        <td><span class="badge badge-info">No</span></td>
+                        <td>memory</td>
+                    </tr>
+                    <tr>
+                        <td><code>SESSION_TTL_HOURS</code></td>
+                        <td>Session time-to-live in hours</td>
+                        <td><span class="badge badge-info">No</span></td>
+                        <td>24</td>
+                    </tr>
+                    <tr>
+                        <td><code>REDIS_URL</code></td>
+                        <td>Redis connection URL</td>
+                        <td><span class="badge badge-warning">Yes*</span></td>
+                        <td>redis://localhost:6379/0</td>
+                    </tr>
+                    <tr>
+                        <td><code>TEAMS_WORKFLOW_ALERTS</code></td>
+                        <td>Power Automate URL for alerts</td>
+                        <td><span class="badge badge-info">No</span></td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><code>TEAMS_WORKFLOW_REPORTS</code></td>
+                        <td>Power Automate URL for reports</td>
+                        <td><span class="badge badge-info">No</span></td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p><small>* Required for production deployment with full functionality</small></p>
+        </section>
 
-            <h3>Opción 1: Outgoing Webhook (Recomendado)</h3>
-            <ol>
-                <li>En Microsoft Teams, ir al equipo deseado</li>
-                <li>Click en <code>...</code> → <strong>Manage team</strong> → pestaña <strong>Apps</strong></li>
-                <li>Click en <strong>Create an outgoing webhook</strong></li>
-                <li>Configurar:
-                    <ul>
-                        <li><strong>Name:</strong> Valerie</li>
-                        <li><strong>Callback URL:</strong> <code>https://teams-client-production.up.railway.app/webhook</code></li>
-                        <li><strong>Description:</strong> Valerie AI Assistant</li>
-                    </ul>
-                </li>
-                <li>Click <strong>Create</strong></li>
-                <li>Copiar el <strong>Security Token</strong> que Teams genera</li>
-                <li>Configurar <code>TEAMS_HMAC_SECRET</code> en Railway con ese token</li>
-                <li>Redesplegar el servicio</li>
-            </ol>
+        <!-- Redis Sessions -->
+        <section>
+            <h2>Redis Session Management</h2>
+            <p>The Teams client uses Redis to maintain conversation history across messages. Each conversation gets a unique session that stores message history.</p>
 
-            <div class="warning">
-                <strong>Nota:</strong> Actualmente hay un incidente de Microsoft (MO1176905) que puede afectar la creación de Outgoing Webhooks. Se espera resolución a fin de Enero 2026.
+            <h3>Session Key Format</h3>
+            <div class="code-block">
+session:teams:{conversation_id}
             </div>
 
-            <h3>Opción 2: Power Automate (Alternativa)</h3>
-            <p>Si los Outgoing Webhooks no funcionan, se puede usar Power Automate con el trigger "When keywords are mentioned", aunque este trigger también puede tener problemas de estabilidad.</p>
-        </div>
+            <h3>Session Data Structure</h3>
+            <div class="code-block">
+{
+    "session_id": "teams-conversation-123",
+    "user_id": "user-aad-object-id",
+    "platform": "teams",
+    "messages": [
+        {"role": "user", "content": "Hello"},
+        {"role": "assistant", "content": "Hi there!"}
+    ],
+    "created_at": "2025-01-12T10:00:00Z",
+    "updated_at": "2025-01-12T10:05:00Z",
+    "ttl_hours": 24
+}
+            </div>
 
-        <!-- Bitácora -->
-        <div class="section">
-            <h2>Bitácora de Desarrollo</h2>
-
-            <h3>Enero 2026</h3>
-            <ul>
-                <li><strong>12 Ene:</strong> Creación inicial del cliente unificado (webhook + dashboard en un solo servicio)</li>
-                <li><strong>12 Ene:</strong> Despliegue en Railway con dominio <code>teams-client-production.up.railway.app</code></li>
-                <li><strong>12 Ene:</strong> Corrección de URL del agente (de URL incorrecta a <code>web-production-d82d.up.railway.app</code>)</li>
-                <li><strong>12 Ene:</strong> Configuración de workflows de Power Automate (alerts, reports, general)</li>
-                <li><strong>12 Ene:</strong> Agregado de endpoints de testing: <code>/dashboard/api/test/webhook</code> y <code>/dashboard/api/test/workflow/{type}</code></li>
-                <li><strong>12 Ene:</strong> Fix del webhook para aceptar requests de validación de Teams (sin HMAC)</li>
-                <li><strong>12 Ene:</strong> Soporte para deshabilitar HMAC con valor "DISABLED"</li>
-                <li><strong>12 Ene:</strong> Documentación de incidente Microsoft MO1176905 afectando webhooks</li>
+            <h3>Features</h3>
+            <ul class="feature-list">
+                <li><strong>Automatic TTL</strong> - Sessions expire after 24 hours of inactivity</li>
+                <li><strong>Message History</strong> - Conversation context is maintained for follow-up questions</li>
+                <li><strong>Platform Isolation</strong> - Teams sessions are separate from Slack sessions</li>
+                <li><strong>Graceful Fallback</strong> - Falls back to memory store if Redis is unavailable</li>
             </ul>
-        </div>
+        </section>
 
-        <!-- Estructura de archivos -->
-        <div class="section">
-            <h2>Estructura del Proyecto</h2>
-            <pre><code>client-valence-ms-client/
+        <!-- HMAC Verification -->
+        <section>
+            <h2>HMAC Signature Verification</h2>
+            <p>Teams Outgoing Webhooks include an HMAC-SHA256 signature in the Authorization header. The client verifies this signature to ensure messages are authentic.</p>
+
+            <h3>Verification Process</h3>
+            <div class="code-block">
+# Request from Teams
+Authorization: HMAC &lt;base64-signature&gt;
+
+# Verification steps:
+1. Extract signature from Authorization header
+2. Base64 decode the TEAMS_HMAC_SECRET
+3. Compute HMAC-SHA256 of request body using secret
+4. Base64 encode the computed hash
+5. Compare with provided signature
+            </div>
+
+            <h3>Configuration</h3>
+            <div class="alert alert-info">
+                <strong>Getting the HMAC Secret</strong>
+                When you create an Outgoing Webhook in Teams, Microsoft provides a security token (Base64 encoded). Copy this token and set it as the <code>TEAMS_HMAC_SECRET</code> environment variable.
+            </div>
+
+            <h3>Verification Logic</h3>
+            <ul class="feature-list">
+                <li><strong>No Auth Header</strong> - Accept request (validation from Teams during webhook creation)</li>
+                <li><strong>Auth Header + Secret Configured</strong> - Validate signature, reject if invalid</li>
+                <li><strong>Auth Header + No Secret</strong> - Accept with warning (setup not complete)</li>
+            </ul>
+        </section>
+
+        <!-- Dashboard -->
+        <section>
+            <h2>Dashboard Features</h2>
+            <p>The web dashboard provides monitoring and testing capabilities for the Teams client.</p>
+
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h4>Status Monitoring</h4>
+                    <ul>
+                        <li><span>Client Health</span><span class="badge badge-success">Live</span></li>
+                        <li><span>Agent Connection</span><span class="badge badge-success">Live</span></li>
+                        <li><span>Redis Sessions</span><span class="badge badge-success">Live</span></li>
+                        <li><span>HMAC Status</span><span class="badge badge-info">Config</span></li>
+                    </ul>
+                </div>
+                <div class="comparison-card">
+                    <h4>Testing Tools</h4>
+                    <ul>
+                        <li><span>Test Agent</span><span>Send message to agent</span></li>
+                        <li><span>Test Webhook</span><span>Simulate Teams message</span></li>
+                        <li><span>Test Workflow</span><span>Send to Power Automate</span></li>
+                        <li><span>View Sessions</span><span>Session statistics</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <p style="margin-top: 1rem;">
+                Access the dashboard at: <a href="https://teams-client-production.up.railway.app/dashboard" target="_blank">https://teams-client-production.up.railway.app/dashboard</a>
+            </p>
+        </section>
+
+        <!-- Known Limitations -->
+        <section>
+            <h2>Known Limitations</h2>
+            <div class="alert alert-warning">
+                <strong>Microsoft Teams Outgoing Webhook Limitations</strong>
+                These are inherent limitations of the Teams Outgoing Webhook platform.
+            </div>
+
+            <ul class="feature-list">
+                <li><strong>5-second timeout</strong> - Teams requires responses within 5 seconds. Complex queries may timeout.</li>
+                <li><strong>Standard Channels Only</strong> - Outgoing Webhooks do not work in Shared Channels.</li>
+                <li><strong>@mention Required</strong> - Users must @mention the bot name to trigger the webhook.</li>
+                <li><strong>No Adaptive Cards in Response</strong> - Outgoing Webhooks only support plain text responses.</li>
+                <li><strong>Public URL Required</strong> - The webhook endpoint must be accessible from the internet.</li>
+                <li><strong>Single Team</strong> - Each webhook is configured for a single team.</li>
+            </ul>
+        </section>
+
+        <!-- Commands -->
+        <section>
+            <h2>Available Commands</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Command</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>/help</code></td>
+                        <td>Show available commands and usage instructions</td>
+                    </tr>
+                    <tr>
+                        <td><code>/status</code></td>
+                        <td>Check connection status to the Valerie Agent</td>
+                    </tr>
+                    <tr>
+                        <td><code>/clear</code></td>
+                        <td>Clear conversation history and start fresh</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Usage Example</h3>
+            <div class="code-block">
+# In MS Teams channel:
+@Valerie /help
+@Valerie What is machine learning?
+@Valerie /clear
+            </div>
+        </section>
+
+        <!-- Development Timeline -->
+        <section>
+            <h2>Development Timeline (Bitacora)</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="date">December 26, 2024</div>
+                    <div class="title">Phase 0: Testing & Mocks</div>
+                    <div class="description">Created mock servers for Agent and Webhook testing. Established project structure and base infrastructure.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="date">December 27, 2024</div>
+                    <div class="title">Phase 1: Notifications</div>
+                    <div class="description">Implemented Power Automate Workflow integration for Agent-to-Teams notifications. Created Adaptive Cards builder.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="date">December 27, 2024</div>
+                    <div class="title">Phase 2: Queries Stateless</div>
+                    <div class="description">Built webhook receiver with HMAC verification. Integrated with Valerie Agent for query processing.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="date">January 8, 2025</div>
+                    <div class="title">Phase 3: Session Management</div>
+                    <div class="description">Added Redis session store for conversation memory. Implemented 24-hour TTL.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="date">January 12, 2025</div>
+                    <div class="title">Railway Deployment</div>
+                    <div class="description">Deployed to Railway with Redis. Dashboard and documentation added.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="date">January 12, 2025</div>
+                    <div class="title">Webhook Creation Blocked</div>
+                    <div class="description">Discovered Microsoft incident MO1176905 preventing Outgoing Webhook creation/configuration.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Start -->
+        <section>
+            <h2>Quick Start</h2>
+
+            <h3>Local Development</h3>
+            <div class="code-block">
+# Clone repository
+git clone https://github.com/REEA-Global-LLC/client-valence-ms-client.git
+cd client-valence-ms-client
+
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements/base.txt
+
+# Copy environment configuration
+cp .env.example .env
+
+# Edit .env with your configuration
+# - Set AGENT_BASE_URL to your Valerie Agent
+# - Set SESSION_STORE=redis and REDIS_URL for production
+
+# Run the application
+python -m src.main
+
+# Or using make
+make run
+            </div>
+
+            <h3>Docker Deployment</h3>
+            <div class="code-block">
+# Build the image
+docker build -t teams-client .
+
+# Run with environment file
+docker run -p 3001:3001 --env-file .env teams-client
+
+# Or using docker-compose
+docker-compose up -d
+            </div>
+
+            <h3>Railway Deployment</h3>
+            <div class="code-block">
+# Push to GitHub (Railway auto-deploys from main branch)
+git push origin main
+
+# Or deploy manually via Railway CLI
+railway up
+            </div>
+        </section>
+
+        <!-- Project Structure -->
+        <section>
+            <h2>Project Structure</h2>
+            <div class="code-block">
+client-valence-ms-client/
 ├── src/
-│   ├── main.py                 # Entry point unificado (webhook + dashboard)
-│   ├── agent/                  # Cliente para Valerie Agent
-│   │   ├── __init__.py
-│   │   └── client.py
-│   ├── core/                   # Configuración y utilidades
-│   │   ├── __init__.py
-│   │   └── config.py
-│   ├── dashboard/              # Dashboard web
-│   │   ├── __init__.py
-│   │   └── api.py              # HTML embebido y endpoints
-│   └── teams/                  # Lógica específica de Teams
-│       └── receiver/
-│           ├── __init__.py
-│           ├── handler.py      # TeamsMessageHandler
-│           ├── hmac.py         # Verificación HMAC
-│           └── models.py       # TeamsMessage, TeamsResponse
-├── docs/
-│   └── index.html              # Esta documentación
-├── requirements/
-│   └── base.txt
+│   ├── main.py              # Application entry point
+│   ├── core/                # Core modules
+│   │   ├── config.py        # Configuration (Pydantic settings)
+│   │   ├── logging.py       # Structured logging setup
+│   │   └── exceptions.py    # Custom exceptions
+│   ├── teams/
+│   │   ├── receiver/        # Webhook receiver
+│   │   │   ├── models.py    # TeamsMessage, TeamsResponse
+│   │   │   ├── hmac.py      # HMAC verification
+│   │   │   └── handler.py   # Message handler
+│   │   └── sender/          # Notifications (Power Automate)
+│   ├── agent/               # Agent client
+│   │   ├── client.py        # HTTP client for Valerie Agent
+│   │   └── models.py        # Request/Response models
+│   ├── session/             # Session management
+│   │   ├── store.py         # SessionStore interface
+│   │   ├── memory.py        # In-memory store
+│   │   └── redis.py         # Redis store
+│   ├── dashboard/           # Web dashboard
+│   │   └── api.py           # Dashboard endpoints
+│   └── notifier/            # Notification service
+├── tests/                   # Test suite
+├── requirements/            # Dependencies
+│   ├── base.txt
+│   └── dev.txt
 ├── Dockerfile
 ├── railway.toml
-└── README.md</code></pre>
-        </div>
-
-        <!-- Troubleshooting -->
-        <div class="section">
-            <h2>Troubleshooting</h2>
-
-            <h3>Error "Error submitting webhook!" al crear Outgoing Webhook</h3>
-            <p>Puede ser causado por:</p>
-            <ul>
-                <li>Incidente activo de Microsoft - verificar <a href="https://admin.microsoft.com" target="_blank">Service Health</a></li>
-                <li>HMAC secret configurado incorrectamente - temporalmente usar <code>TEAMS_HMAC_SECRET=DISABLED</code></li>
-                <li>URL no accesible - verificar con <code>curl -X POST https://teams-client-production.up.railway.app/webhook</code></li>
-            </ul>
-
-            <h3>El bot no responde en Teams</h3>
-            <ul>
-                <li>Verificar que el HMAC secret coincida con el token de Teams</li>
-                <li>Revisar logs en Railway: <code>railway logs</code></li>
-                <li>Probar el webhook desde el dashboard</li>
-            </ul>
-
-            <h3>Error 401 Invalid signature</h3>
-            <ul>
-                <li>El HMAC secret no coincide con el de Teams</li>
-                <li>Actualizar <code>TEAMS_HMAC_SECRET</code> con el token correcto</li>
-            </ul>
-        </div>
-
-        <footer>
-            <p>Valerie AI Agent - MS Teams Client | REEA Global LLC</p>
-            <p>Documentación generada: Enero 2026</p>
-        </footer>
+└── .env.example
+            </div>
+        </section>
     </div>
+
+    <!-- Footer -->
+    <footer>
+        <p><strong>REEA Global</strong> - Valerie MS Teams Client Documentation</p>
+        <p>Version 1.0.0 | January 2025</p>
+    </footer>
 </body>
 </html>
