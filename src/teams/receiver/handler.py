@@ -1,8 +1,11 @@
 """Handler for processing Teams messages and routing to the agent."""
 
+from typing import Optional
+
 import structlog
 
 from src.agent import AgentClient, AgentClientError, AgentTimeoutError
+from src.session import SessionStore
 
 from .models import TeamsMessage, TeamsResponse
 
@@ -36,6 +39,7 @@ class TeamsMessageHandler:
     def __init__(
         self,
         agent_client: AgentClient,
+        session_store: Optional[SessionStore] = None,
         timeout_message: str = "The request took too long. Please try again.",
         error_message: str = "Sorry, I encountered an error. Please try again later.",
     ):
@@ -43,10 +47,12 @@ class TeamsMessageHandler:
 
         Args:
             agent_client: Client for communicating with the agent
+            session_store: Optional session store for conversation continuity
             timeout_message: Message to show when agent times out
             error_message: Message to show on errors
         """
         self.agent_client = agent_client
+        self.session_store = session_store
         self.timeout_message = timeout_message
         self.error_message = error_message
 
@@ -129,18 +135,35 @@ class TeamsMessageHandler:
         Returns:
             TeamsResponse with agent's answer
         """
+        user_id = message.get_user_identifier()
+        conversation_id = message.conversation.id
+
         log = logger.bind(
-            user_id=message.get_user_identifier(),
-            conversation_id=message.conversation.id,
+            user_id=user_id,
+            conversation_id=conversation_id,
         )
 
+        # Look up existing session
+        session_id = None
+        if self.session_store:
+            try:
+                session_data = await self.session_store.get(user_id, conversation_id)
+                if session_data:
+                    session_id = session_data.session_id
+                    log.debug(
+                        "session_found",
+                        session_id=session_id,
+                        message_count=session_data.message_count,
+                    )
+            except Exception as e:
+                log.warning("session_lookup_error", error=str(e))
+
         try:
-            # Send to agent
+            # Send to agent with session_id if available
             response = await self.agent_client.chat(
                 message=query,
-                user_id=message.get_user_identifier(),
-                # Note: For stateless, we don't pass session_id
-                # Phase 3 will add session management
+                user_id=user_id,
+                session_id=session_id,
             )
 
             log.info(
@@ -149,6 +172,16 @@ class TeamsMessageHandler:
                 intent=response.intent,
                 confidence=response.confidence,
             )
+
+            # Store the session_id from response for future messages
+            if self.session_store and response.session_id:
+                try:
+                    # Only store if we don't have a session or the session_id changed
+                    if not session_id or session_id != response.session_id:
+                        await self.session_store.set(user_id, conversation_id, response.session_id)
+                        log.debug("session_stored", session_id=response.session_id)
+                except Exception as e:
+                    log.warning("session_store_error", error=str(e))
 
             # Format response for Teams
             return self._format_agent_response(response.message, response.intent)
@@ -190,8 +223,7 @@ class TeamsMessageHandler:
     async def _handle_clear(self, message: TeamsMessage) -> TeamsResponse:
         """Handle the /clear command.
 
-        In stateless mode, this is a no-op since there's no session.
-        Phase 3 will implement actual session clearing.
+        Deletes the session for the user/conversation pair if session store is configured.
 
         Args:
             message: The original message
@@ -199,8 +231,21 @@ class TeamsMessageHandler:
         Returns:
             Confirmation response
         """
-        # In stateless mode, just acknowledge
-        # Phase 3 will actually clear the session
+        user_id = message.get_user_identifier()
+        conversation_id = message.conversation.id
+
+        if self.session_store:
+            try:
+                deleted = await self.session_store.delete(user_id, conversation_id)
+                if deleted:
+                    logger.info(
+                        "session_cleared",
+                        user_id=user_id,
+                        conversation_id=conversation_id,
+                    )
+            except Exception as e:
+                logger.warning("session_clear_error", error=str(e))
+
         return TeamsResponse(text="Conversation cleared. Starting fresh!")
 
     async def _handle_status(self) -> TeamsResponse:

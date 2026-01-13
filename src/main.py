@@ -22,6 +22,7 @@ from src.dashboard.api import (
     check_agent_health,
     get_teams_dashboard_html,
 )
+from src.session import SessionStore, create_session_store
 from src.teams.receiver import (
     HMACVerificationError,
     HMACVerifier,
@@ -36,18 +37,27 @@ logger = structlog.get_logger(__name__)
 _agent_client: AgentClient | None = None
 _message_handler: TeamsMessageHandler | None = None
 _hmac_verifier: HMACVerifier | None = None
+_session_store: SessionStore | None = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan manager."""
-    global _agent_client, _message_handler, _hmac_verifier
+    global _agent_client, _message_handler, _hmac_verifier, _session_store
 
     logger.info(
         "app_starting",
         environment=settings.environment,
         agent_url=settings.agent_base_url,
         hmac_configured=bool(settings.teams_hmac_secret),
+        session_store=settings.session_store,
+    )
+
+    # Initialize session store
+    _session_store = create_session_store(
+        store_type=settings.session_store,
+        redis_url=settings.redis_url,
+        ttl_hours=settings.session_ttl_hours,
     )
 
     # Initialize agent client
@@ -58,9 +68,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         max_retries=settings.agent_max_retries,
     )
 
-    # Initialize message handler
+    # Initialize message handler with session store
     _message_handler = TeamsMessageHandler(
         agent_client=_agent_client,
+        session_store=_session_store,
         timeout_message="The request is taking longer than expected. Teams has a 5-second limit for responses. Please try a simpler question.",
         error_message="I'm having trouble connecting to my knowledge base. Please try again in a moment.",
     )
@@ -76,6 +87,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     yield
 
     # Cleanup
+    if _session_store and hasattr(_session_store, 'close'):
+        await _session_store.close()
     if _agent_client:
         await _agent_client.close()
     logger.info("app_stopped")
@@ -276,6 +289,14 @@ async def dashboard_status():
     """Get complete status of Teams client and agent."""
     agent_status = await check_agent_health()
 
+    # Get session store stats
+    session_stats = {}
+    if _session_store:
+        try:
+            session_stats = await _session_store.get_stats()
+        except Exception:
+            session_stats = {"type": settings.session_store, "error": "Failed to get stats"}
+
     client_status = ServiceStatus(
         name="MS Teams Client",
         status="healthy",
@@ -286,6 +307,9 @@ async def dashboard_status():
             "hmac_secret_configured": bool(settings.teams_hmac_secret),
             "workflow_alerts_configured": bool(settings.teams_workflow_alerts),
             "workflow_reports_configured": bool(settings.teams_workflow_reports),
+            "session_store": settings.session_store,
+            "session_ttl_hours": settings.session_ttl_hours,
+            "session_stats": session_stats,
         },
     )
 
@@ -352,6 +376,30 @@ async def dashboard_config():
         "hmac_configured": bool(settings.teams_hmac_secret),
         "workflow_alerts_configured": bool(settings.teams_workflow_alerts),
         "workflow_reports_configured": bool(settings.teams_workflow_reports),
+        "session_store": settings.session_store,
+        "session_ttl_hours": settings.session_ttl_hours,
+    }
+
+
+@app.get("/dashboard/api/sessions")
+async def dashboard_sessions():
+    """Get session store statistics."""
+    if _session_store:
+        try:
+            stats = await _session_store.get_stats()
+            return {
+                "enabled": True,
+                **stats,
+            }
+        except Exception as e:
+            return {
+                "enabled": True,
+                "error": str(e),
+            }
+    return {
+        "enabled": False,
+        "type": "none",
+        "active_sessions": 0,
     }
 
 
