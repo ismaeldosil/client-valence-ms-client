@@ -337,12 +337,12 @@
             <p>The Teams client uses Redis to maintain conversation history across messages. Each conversation gets a unique session that stores message history.</p>
 
             <h3>Session Key Format</h3>
-            <div class="code-block">
+            <div class="code-block"><pre>
 session:teams:{conversation_id}
-            </div>
+            </pre></div>
 
             <h3>Session Data Structure</h3>
-            <div class="code-block">
+            <div class="code-block"><pre>
 {
     "session_id": "teams-conversation-123",
     "user_id": "user-aad-object-id",
@@ -355,7 +355,7 @@ session:teams:{conversation_id}
     "updated_at": "2025-01-12T10:05:00Z",
     "ttl_hours": 24
 }
-            </div>
+            </pre></div>
 
             <h3>Features</h3>
             <ul class="feature-list">
@@ -372,7 +372,7 @@ session:teams:{conversation_id}
             <p>Teams Outgoing Webhooks include an HMAC-SHA256 signature in the Authorization header. The client verifies this signature to ensure messages are authentic.</p>
 
             <h3>Verification Process</h3>
-            <div class="code-block">
+            <div class="code-block"><pre>
 # Request from Teams
 Authorization: HMAC &lt;base64-signature&gt;
 
@@ -382,7 +382,7 @@ Authorization: HMAC &lt;base64-signature&gt;
 3. Compute HMAC-SHA256 of request body using secret
 4. Base64 encode the computed hash
 5. Compare with provided signature
-            </div>
+            </pre></div>
 
             <h3>Configuration</h3>
             <div class="alert alert-info">
@@ -474,12 +474,12 @@ Authorization: HMAC &lt;base64-signature&gt;
             </table>
 
             <h3>Usage Example</h3>
-            <div class="code-block">
+            <div class="code-block"><pre>
 # In MS Teams channel:
 @Valerie /help
 @Valerie What is machine learning?
 @Valerie /clear
-            </div>
+            </pre></div>
         </section>
 
         <!-- Development Timeline -->
@@ -524,7 +524,7 @@ Authorization: HMAC &lt;base64-signature&gt;
             <h2>Quick Start</h2>
 
             <h3>Local Development</h3>
-            <div class="code-block">
+            <div class="code-block"><pre>
 # Clone repository
 git clone https://github.com/REEA-Global-LLC/client-valence-ms-client.git
 cd client-valence-ms-client
@@ -548,10 +548,10 @@ python -m src.main
 
 # Or using make
 make run
-            </div>
+            </pre></div>
 
             <h3>Docker Deployment</h3>
-            <div class="code-block">
+            <div class="code-block"><pre>
 # Build the image
 docker build -t teams-client .
 
@@ -560,22 +560,22 @@ docker run -p 3001:3001 --env-file .env teams-client
 
 # Or using docker-compose
 docker-compose up -d
-            </div>
+            </pre></div>
 
             <h3>Railway Deployment</h3>
-            <div class="code-block">
+            <div class="code-block"><pre>
 # Push to GitHub (Railway auto-deploys from main branch)
 git push origin main
 
 # Or deploy manually via Railway CLI
 railway up
-            </div>
+            </pre></div>
         </section>
 
         <!-- Project Structure -->
         <section>
             <h2>Project Structure</h2>
-            <div class="code-block">
+            <div class="code-block"><pre>
 client-valence-ms-client/
 ├── src/
 │   ├── main.py              # Application entry point
@@ -606,7 +606,7 @@ client-valence-ms-client/
 ├── Dockerfile
 ├── railway.toml
 └── .env.example
-            </div>
+            </pre></div>
         </section>
     </div>
 

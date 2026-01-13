@@ -592,6 +592,30 @@ tr:hover td {
     font-size: 0.875rem;
     margin: 1.5rem 0;
     line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.code-block pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+}
+
+.tree-structure {
+    background: var(--black);
+    color: var(--light-gray);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+    font-size: 0.875rem;
+    margin: 1.5rem 0;
+    line-height: 1.8;
+    white-space: pre;
 }
 
 code {
