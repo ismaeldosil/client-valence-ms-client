@@ -8,11 +8,12 @@ This guide explains how to set up and use the Microsoft Teams integration client
 2. [Installation](#installation)
 3. [Configuration](#configuration)
 4. [Running the Services](#running-the-services)
-5. [Sending Notifications (Agent → Teams)](#sending-notifications-agent--teams)
-6. [Receiving Queries (Teams → Agent)](#receiving-queries-teams--agent)
-7. [Development Workflow](#development-workflow)
-8. [Testing](#testing)
-9. [Troubleshooting](#troubleshooting)
+5. [Dashboard](#dashboard)
+6. [Sending Notifications (Agent → Teams)](#sending-notifications-agent--teams)
+7. [Receiving Queries (Teams → Agent)](#receiving-queries-teams--agent)
+8. [Development Workflow](#development-workflow)
+9. [Testing](#testing)
+10. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -121,6 +122,43 @@ cloudflared tunnel --url http://localhost:3001
 ```
 
 For production, deploy behind a reverse proxy with SSL (nginx, AWS ALB, etc.)
+
+---
+
+## Dashboard
+
+Access the web dashboard at `http://localhost:3001/dashboard` or your deployed URL.
+
+### Dashboard Tabs
+
+| Tab | Description |
+|-----|-------------|
+| Sessions | View, delete individual sessions, clear all |
+| Test Agent | Send test messages, simulate webhook |
+| Workflows | Test Power Automate workflow integrations |
+| Endpoints | Test API endpoints |
+
+### Session Management
+
+```bash
+# List all sessions
+curl http://localhost:3001/dashboard/api/sessions/list
+
+# Clear all sessions
+curl -X DELETE http://localhost:3001/dashboard/api/sessions
+
+# Delete specific session
+curl -X DELETE http://localhost:3001/dashboard/api/sessions/{user_id}/{conversation_id}
+```
+
+### Redis Configuration
+
+```bash
+# Enable Redis sessions
+SESSION_STORE=redis
+SESSION_TTL_HOURS=24
+REDIS_URL=redis://localhost:6379/0
+```
 
 ---
 

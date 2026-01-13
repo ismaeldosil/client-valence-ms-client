@@ -219,6 +219,21 @@ flowchart TD
                     </tr>
                     <tr>
                         <td><span class="badge badge-info">GET</span></td>
+                        <td><code>/dashboard/api/sessions/list</code></td>
+                        <td>List all active sessions</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-warning">DELETE</span></td>
+                        <td><code>/dashboard/api/sessions</code></td>
+                        <td>Clear all sessions</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-warning">DELETE</span></td>
+                        <td><code>/dashboard/api/sessions/{user_id}/{conversation_id}</code></td>
+                        <td>Delete individual session</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-info">GET</span></td>
                         <td><code>/dashboard/api/config</code></td>
                         <td>Non-sensitive configuration</td>
                     </tr>
@@ -412,25 +427,44 @@ Authorization: HMAC &lt;base64-signature&gt;
         <!-- Dashboard -->
         <section>
             <h2>Dashboard Features</h2>
-            <p>The web dashboard provides monitoring and testing capabilities for the Teams client.</p>
+            <p>The web dashboard provides monitoring and testing capabilities for the Teams client. The dashboard is organized into tabs for easy navigation.</p>
 
+            <h3>Dashboard Tabs</h3>
             <div class="comparison-grid">
                 <div class="comparison-card">
-                    <h4>Status Monitoring</h4>
+                    <h4>Sessions Tab</h4>
                     <ul>
-                        <li><span>Client Health</span><span class="badge badge-success">Live</span></li>
-                        <li><span>Agent Connection</span><span class="badge badge-success">Live</span></li>
-                        <li><span>Redis Sessions</span><span class="badge badge-success">Live</span></li>
-                        <li><span>HMAC Status</span><span class="badge badge-info">Config</span></li>
+                        <li><span>View All Sessions</span><span>List active sessions</span></li>
+                        <li><span>Session Details</span><span>User, conversation, timestamps</span></li>
+                        <li><span>Clear All</span><span>Delete all sessions</span></li>
+                        <li><span>Delete Individual</span><span>Remove specific session</span></li>
                     </ul>
                 </div>
                 <div class="comparison-card">
-                    <h4>Testing Tools</h4>
+                    <h4>Test Agent Tab</h4>
                     <ul>
-                        <li><span>Test Agent</span><span>Send message to agent</span></li>
+                        <li><span>Test Message</span><span>Send to agent</span></li>
                         <li><span>Test Webhook</span><span>Simulate Teams message</span></li>
-                        <li><span>Test Workflow</span><span>Send to Power Automate</span></li>
-                        <li><span>View Sessions</span><span>Session statistics</span></li>
+                        <li><span>Response Preview</span><span>View results</span></li>
+                        <li><span>Agent Health</span><span>Connection status</span></li>
+                    </ul>
+                </div>
+                <div class="comparison-card">
+                    <h4>Workflows Tab</h4>
+                    <ul>
+                        <li><span>Test Alerts</span><span>Send to alerts workflow</span></li>
+                        <li><span>Test Reports</span><span>Send to reports workflow</span></li>
+                        <li><span>Custom Message</span><span>Custom workflow test</span></li>
+                        <li><span>Workflow Status</span><span>Configuration check</span></li>
+                    </ul>
+                </div>
+                <div class="comparison-card">
+                    <h4>Endpoints Tab</h4>
+                    <ul>
+                        <li><span>Health Check</span><span>Test /health</span></li>
+                        <li><span>Status API</span><span>Test /dashboard/api/status</span></li>
+                        <li><span>Sessions API</span><span>Test /dashboard/api/sessions</span></li>
+                        <li><span>Config API</span><span>Test /dashboard/api/config</span></li>
                     </ul>
                 </div>
             </div>

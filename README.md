@@ -23,6 +23,12 @@ Microsoft Teams integration client for AI Agent communication.
 - Commands: `/help`, `/status`, `/clear`
 - Full Spanish language support
 
+### Phase 3 - Session Management
+- Redis session store for conversation memory
+- 24-hour TTL with automatic expiration
+- Dashboard with tabbed interface (Sessions, Test Agent, Workflows, Endpoints)
+- Session listing, deletion, and bulk clear
+
 ## Project Structure
 
 ```
@@ -297,7 +303,7 @@ See [AWS Deployment Guide](docs/aws-deployment.md) for full setup instructions.
 | 0 | Testing & Mocks | Complete |
 | 1 | Notifications (Agent → Teams) | Complete |
 | 2 | Queries Stateless (Teams → Agent) | Complete |
-| 3 | Queries with Memory | Pending |
+| 3 | Session Management (Redis) | Complete |
 
 ## Known Limitations
 
