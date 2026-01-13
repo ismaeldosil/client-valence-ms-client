@@ -564,6 +564,19 @@ async def docs_home():
         )
 
 
+@app.get("/docs/common/styles.css")
+async def docs_css():
+    """Serve the documentation CSS."""
+    from pathlib import Path
+    from fastapi.responses import Response
+
+    css_path = Path(__file__).parent.parent / "docs" / "common" / "styles.css"
+    if css_path.exists():
+        return Response(content=css_path.read_text(), media_type="text/css")
+    else:
+        return Response(content="", status_code=404)
+
+
 @app.get("/docs/webhook-status")
 async def docs_webhook_status():
     """Serve the webhook status report."""
