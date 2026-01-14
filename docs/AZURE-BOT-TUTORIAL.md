@@ -262,6 +262,29 @@ Respuesta esperada:
 
 ---
 
+### Error: "You do not have permission to use this app here"
+
+**Causa**: El administrador de Teams ha restringido la instalación de apps/bots personalizados.
+
+**Solución**:
+1. Contacta al administrador de IT para que permita la app
+2. Pide que habiliten "sideloading" de apps
+3. O usa el Microsoft 365 Developer Program (ver abajo)
+
+---
+
+### Teams Free no permite instalar bots
+
+**Causa**: Teams Free tiene restricciones y no permite instalar bots personalizados.
+
+**Solución**: Usa el Microsoft 365 Developer Program:
+1. Ve a [developer.microsoft.com/microsoft-365/dev-program](https://developer.microsoft.com/en-us/microsoft-365/dev-program)
+2. Regístrate (es gratis)
+3. Obtienes un tenant con Teams completo (E5) por 90 días renovables
+4. Tienes control total como administrador
+
+---
+
 ## Resumen de Credenciales
 
 | Credencial | Dónde encontrarla | Formato |
