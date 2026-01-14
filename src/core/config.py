@@ -5,9 +5,23 @@ Centralized configuration using pydantic-settings.
 All settings are loaded from environment variables or .env file.
 """
 
+from enum import Enum
 from typing import Optional
 
 from pydantic_settings import BaseSettings
+
+
+class IntegrationMode(str, Enum):
+    """Teams integration mode selection.
+
+    - WEBHOOK: Outgoing Webhooks only (requires @mention each time)
+    - BOT: Bot Framework only (automatic thread replies, proactive messaging)
+    - DUAL: Both modes active simultaneously
+    """
+
+    WEBHOOK = "webhook"
+    BOT = "bot"
+    DUAL = "dual"
 
 
 class Settings(BaseSettings):
@@ -38,6 +52,14 @@ class Settings(BaseSettings):
     agent_api_key: Optional[str] = None
     agent_timeout: float = 4.5  # Must be < 5s for Teams Outgoing Webhooks
     agent_max_retries: int = 1  # Limited retries due to Teams timeout
+
+    # Integration Mode Selection
+    teams_integration_mode: IntegrationMode = IntegrationMode.WEBHOOK
+
+    # Bot Framework (Azure Bot Service)
+    microsoft_app_id: Optional[str] = None
+    microsoft_app_password: Optional[str] = None
+    bot_service_url: str = "https://smba.trafficmanager.net/amer/"
 
     # Phase 3: Memory
     session_store: str = "memory"

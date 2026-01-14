@@ -85,6 +85,7 @@ class TestTeamsMessageHandler:
         mock_agent_client.chat.assert_called_once_with(
             message="What is the vacation policy?",
             user_id="aad-789",
+            session_id=None,
         )
 
     async def test_handle_help_command(self, handler, command_message):

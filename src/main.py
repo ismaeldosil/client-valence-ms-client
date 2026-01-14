@@ -1,12 +1,14 @@
 """Main entry point for Valerie MS Teams Client.
 
 Runs the Teams webhook receiver and the Dashboard/API server on a single port.
+Supports dual mode: Outgoing Webhooks and/or Bot Framework.
 """
 
 import os
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 import structlog
 import uvicorn
@@ -14,7 +16,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 from src.agent import AgentClient
-from src.core.config import settings
+from src.core.config import IntegrationMode, settings
 from src.dashboard.api import (
     DashboardStatus,
     ServiceStatus,
@@ -30,37 +32,54 @@ from src.teams.receiver import (
     TeamsMessageHandler,
     create_verifier,
 )
+from src.teams.common import UnifiedMessageProcessor
+
+if TYPE_CHECKING:
+    from botbuilder.core import BotFrameworkAdapter
+    from src.teams.bot_framework import ValerieBot, ProactiveMessenger
 
 logger = structlog.get_logger(__name__)
 
-# Global instances
+# Global instances - Shared
 _agent_client: AgentClient | None = None
+_session_store: SessionStore | None = None
+_unified_processor: UnifiedMessageProcessor | None = None
+
+# Global instances - Webhook mode
 _message_handler: TeamsMessageHandler | None = None
 _hmac_verifier: HMACVerifier | None = None
-_session_store: SessionStore | None = None
+
+# Global instances - Bot Framework mode
+_bot_adapter: "BotFrameworkAdapter | None" = None
+_bot_instance: "ValerieBot | None" = None
+_proactive_messenger: "ProactiveMessenger | None" = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan manager."""
     global _agent_client, _message_handler, _hmac_verifier, _session_store
+    global _unified_processor, _bot_adapter, _bot_instance, _proactive_messenger
+
+    integration_mode = settings.teams_integration_mode
 
     logger.info(
         "app_starting",
         environment=settings.environment,
         agent_url=settings.agent_base_url,
+        integration_mode=integration_mode.value,
         hmac_configured=bool(settings.teams_hmac_secret),
+        bot_credentials_configured=bool(settings.microsoft_app_id),
         session_store=settings.session_store,
     )
 
-    # Initialize session store
+    # Initialize shared components
     _session_store = create_session_store(
         store_type=settings.session_store,
         redis_url=settings.redis_url,
         ttl_hours=settings.session_ttl_hours,
     )
 
-    # Initialize agent client
     _agent_client = AgentClient(
         base_url=settings.agent_base_url,
         api_key=settings.agent_api_key,
@@ -68,21 +87,71 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         max_retries=settings.agent_max_retries,
     )
 
-    # Initialize message handler with session store
-    _message_handler = TeamsMessageHandler(
+    _unified_processor = UnifiedMessageProcessor(
         agent_client=_agent_client,
         session_store=_session_store,
-        timeout_message="The request is taking longer than expected. Teams has a 5-second limit for responses. Please try a simpler question.",
+        timeout_message="The request is taking longer than expected. Please try a simpler question.",
         error_message="I'm having trouble connecting to my knowledge base. Please try again in a moment.",
     )
 
-    # Initialize HMAC verifier (optional)
-    _hmac_verifier = create_verifier(settings.teams_hmac_secret)
-    if not _hmac_verifier:
-        logger.warning(
-            "hmac_verification_disabled",
-            reason="TEAMS_HMAC_SECRET not configured",
+    # Initialize Webhook mode components
+    if integration_mode in (IntegrationMode.WEBHOOK, IntegrationMode.DUAL):
+        logger.info("initializing_webhook_mode")
+
+        _message_handler = TeamsMessageHandler(
+            agent_client=_agent_client,
+            session_store=_session_store,
+            timeout_message="The request is taking longer than expected. Teams has a 5-second limit for responses. Please try a simpler question.",
+            error_message="I'm having trouble connecting to my knowledge base. Please try again in a moment.",
         )
+
+        _hmac_verifier = create_verifier(settings.teams_hmac_secret)
+        if not _hmac_verifier:
+            logger.warning(
+                "hmac_verification_disabled",
+                reason="TEAMS_HMAC_SECRET not configured",
+            )
+
+    # Initialize Bot Framework mode components
+    if integration_mode in (IntegrationMode.BOT, IntegrationMode.DUAL):
+        logger.info("initializing_bot_framework_mode")
+
+        try:
+            from src.teams.bot_framework import (
+                ValerieBot,
+                ProactiveMessenger,
+                create_bot_adapter,
+            )
+            from src.api.bot_api import set_bot_components
+
+            _bot_adapter = create_bot_adapter(
+                app_id=settings.microsoft_app_id,
+                app_password=settings.microsoft_app_password,
+            )
+
+            _proactive_messenger = ProactiveMessenger(_bot_adapter)
+
+            _bot_instance = ValerieBot(
+                processor=_unified_processor,
+                proactive_messenger=_proactive_messenger,
+            )
+
+            # Inject bot components into API module
+            set_bot_components(_bot_adapter, _bot_instance)
+
+            logger.info(
+                "bot_framework_initialized",
+                has_credentials=bool(settings.microsoft_app_id),
+            )
+
+        except ImportError as e:
+            logger.error(
+                "bot_framework_import_error",
+                error=str(e),
+                hint="Install botbuilder packages: pip install botbuilder-core botbuilder-schema",
+            )
+        except Exception as e:
+            logger.error("bot_framework_init_error", error=str(e))
 
     yield
 
@@ -97,10 +166,19 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 # Create main FastAPI app
 app = FastAPI(
     title="Valerie MS Teams Client",
-    description="MS Teams integration for Valerie AI Agent",
+    description="MS Teams integration for Valerie AI Agent - Webhook and Bot Framework",
     version="1.0.0",
     lifespan=lifespan,
 )
+
+# Include Bot Framework router if enabled
+if settings.teams_integration_mode in (IntegrationMode.BOT, IntegrationMode.DUAL):
+    try:
+        from src.api.bot_api import router as bot_router
+        app.include_router(bot_router)
+        logger.info("bot_api_router_included")
+    except ImportError:
+        logger.warning("bot_api_router_not_available")
 
 
 # ===========================================
@@ -133,6 +211,9 @@ async def health():
         "service": "valerie-teams-client",
         "version": "1.0.0",
         "environment": settings.environment,
+        "integration_mode": settings.teams_integration_mode.value,
+        "webhook_enabled": _message_handler is not None,
+        "bot_framework_enabled": _bot_instance is not None,
         "hmac_enabled": _hmac_verifier is not None,
         "agent": {
             "url": settings.agent_base_url,
@@ -656,17 +737,24 @@ def main():
     """Run the application."""
     # Railway injects PORT env var - use it if available
     port = int(os.environ.get("PORT", settings.receiver_port))
+    mode = settings.teams_integration_mode.value
 
     print()
     print("=" * 60)
     print("  Valerie MS Teams Client")
     print("=" * 60)
-    print(f"  Environment: {settings.environment}")
-    print(f"  Agent URL:   {settings.agent_base_url}")
-    print(f"  Port:        {port}")
-    print(f"  Webhook:     http://0.0.0.0:{port}/webhook")
-    print(f"  Dashboard:   http://0.0.0.0:{port}/dashboard")
-    print(f"  Health:      http://0.0.0.0:{port}/health")
+    print(f"  Environment:      {settings.environment}")
+    print(f"  Integration Mode: {mode}")
+    print(f"  Agent URL:        {settings.agent_base_url}")
+    print(f"  Port:             {port}")
+    print()
+    print("  Endpoints:")
+    if mode in ("webhook", "dual"):
+        print(f"    Webhook:    http://0.0.0.0:{port}/webhook")
+    if mode in ("bot", "dual"):
+        print(f"    Bot API:    http://0.0.0.0:{port}/api/messages")
+    print(f"    Dashboard:  http://0.0.0.0:{port}/dashboard")
+    print(f"    Health:     http://0.0.0.0:{port}/health")
     print("=" * 60)
     print()
 
