@@ -110,9 +110,15 @@ async def bot_messages(request: Request) -> Response:
         return Response(status_code=200)
 
     except Exception as e:
-        log.error("bot_activity_processing_error", error=str(e))
+        import traceback
+        log.error(
+            "bot_activity_processing_error",
+            error=str(e),
+            error_type=type(e).__name__,
+            traceback=traceback.format_exc(),
+        )
         return Response(
-            content='{"error": "Processing failed"}',
+            content=f'{{"error": "Processing failed", "detail": "{type(e).__name__}: {str(e)[:200]}"}}',
             status_code=500,
             media_type="application/json",
         )
