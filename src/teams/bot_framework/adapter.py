@@ -18,6 +18,7 @@ logger = structlog.get_logger(__name__)
 def create_bot_adapter(
     app_id: Optional[str] = None,
     app_password: Optional[str] = None,
+    tenant_id: Optional[str] = None,
 ) -> BotFrameworkAdapter:
     """Create and configure a Bot Framework adapter.
 
@@ -27,6 +28,7 @@ def create_bot_adapter(
     Args:
         app_id: Microsoft App ID from Azure Bot registration
         app_password: Microsoft App Password (client secret)
+        tenant_id: Azure AD Tenant ID (required for Single Tenant bots)
 
     Returns:
         Configured BotFrameworkAdapter
@@ -39,6 +41,7 @@ def create_bot_adapter(
     settings = BotFrameworkAdapterSettings(
         app_id=app_id or "",
         app_password=app_password or "",
+        channel_auth_tenant=tenant_id,
     )
 
     adapter = BotFrameworkAdapter(settings)

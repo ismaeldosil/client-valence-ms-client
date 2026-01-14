@@ -59,6 +59,7 @@ class Settings(BaseSettings):
     # Bot Framework (Azure Bot Service)
     microsoft_app_id: Optional[str] = None
     microsoft_app_password: Optional[str] = None
+    microsoft_app_tenant_id: Optional[str] = None  # Required for Single Tenant bots
     bot_service_url: str = "https://smba.trafficmanager.net/amer/"
 
     # Phase 3: Memory

@@ -127,6 +127,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             _bot_adapter = create_bot_adapter(
                 app_id=settings.microsoft_app_id,
                 app_password=settings.microsoft_app_password,
+                tenant_id=settings.microsoft_app_tenant_id,
             )
 
             _proactive_messenger = ProactiveMessenger(_bot_adapter)
