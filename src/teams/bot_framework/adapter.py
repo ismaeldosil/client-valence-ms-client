@@ -38,10 +38,16 @@ def create_bot_adapter(
         will work in "no auth" mode (useful for local testing
         with Bot Framework Emulator).
     """
+    # For Single Tenant bots, configure tenant-specific OAuth
+    oauth_endpoint = None
+    if tenant_id:
+        oauth_endpoint = f"https://login.microsoftonline.com/{tenant_id}"
+
     settings = BotFrameworkAdapterSettings(
         app_id=app_id or "",
         app_password=app_password or "",
         channel_auth_tenant=tenant_id,
+        oauth_endpoint=oauth_endpoint,
     )
 
     adapter = BotFrameworkAdapter(settings)
@@ -64,6 +70,8 @@ def create_bot_adapter(
     logger.info(
         "bot_adapter_created",
         has_credentials=bool(app_id and app_password),
+        single_tenant=bool(tenant_id),
+        tenant_id=tenant_id[:8] + "..." if tenant_id else None,
     )
 
     return adapter
