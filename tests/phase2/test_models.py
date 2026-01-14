@@ -308,6 +308,69 @@ class TestTeamsMessage:
 
         assert msg.get_session_key() == "aad-789:conv-abc"
 
+    def test_get_session_key_with_reply(self):
+        """Test session key includes reply_to_id for thread context."""
+        data = {
+            "id": "msg-1",
+            "text": "hello",
+            "from": {"id": "user-123", "name": "User"},
+            "conversation": {"id": "conv-1"},
+            "replyToId": "parent-msg-456",
+        }
+        msg = TeamsMessage.from_dict(data)
+
+        assert msg.get_session_key() == "user-123:conv-1:parent-msg-456"
+
+    def test_reply_to_id_parsed(self):
+        """Test that replyToId is parsed from payload."""
+        data = {
+            "id": "msg-1",
+            "text": "hello",
+            "from": {"id": "user-123"},
+            "conversation": {"id": "conv-1"},
+            "replyToId": "parent-msg-456",
+        }
+        msg = TeamsMessage.from_dict(data)
+
+        assert msg.reply_to_id == "parent-msg-456"
+
+    def test_reply_to_id_none_when_missing(self):
+        """Test that reply_to_id is None when not in payload."""
+        data = {
+            "id": "msg-1",
+            "text": "hello",
+            "from": {"id": "user-123"},
+            "conversation": {"id": "conv-1"},
+        }
+        msg = TeamsMessage.from_dict(data)
+
+        assert msg.reply_to_id is None
+
+    def test_is_thread_reply_true(self):
+        """Test is_thread_reply returns True when replyToId present."""
+        data = {
+            "id": "msg-1",
+            "text": "hello",
+            "from": {"id": "user-123"},
+            "conversation": {"id": "conv-1"},
+            "replyToId": "parent-msg-456",
+        }
+        msg = TeamsMessage.from_dict(data)
+
+        assert msg.is_thread_reply() is True
+
+    def test_is_thread_reply_false(self):
+        """Test is_thread_reply returns False when no replyToId."""
+        data = {
+            "id": "msg-1",
+            "text": "hello",
+            "from": {"id": "user-123"},
+            "conversation": {"id": "conv-1"},
+        }
+        msg = TeamsMessage.from_dict(data)
+
+        assert msg.is_thread_reply() is False
+
 
 class TestTeamsResponse:
     """Tests for TeamsResponse dataclass."""

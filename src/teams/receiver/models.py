@@ -101,6 +101,7 @@ class TeamsMessage:
         service_url: Teams service URL for replies
         channel_id: Channel identifier (usually "msteams")
         mentions: List of mentions in the message
+        reply_to_id: ID of the message being replied to (for thread context)
     """
 
     id: str
@@ -113,6 +114,7 @@ class TeamsMessage:
     service_url: str | None = None
     channel_id: str = "msteams"
     mentions: list[TeamsMention] = field(default_factory=list)
+    reply_to_id: str | None = None
 
     # Pattern to match @mentions like <at>Bot Name</at>
     MENTION_PATTERN = re.compile(r"<at>[^<]+</at>\s*")
@@ -151,6 +153,7 @@ class TeamsMessage:
             service_url=data.get("serviceUrl"),
             channel_id=data.get("channelId", "msteams"),
             mentions=mentions,
+            reply_to_id=data.get("replyToId"),
         )
 
     def get_clean_text(self) -> str:
@@ -199,11 +202,24 @@ class TeamsMessage:
         """Get a unique key for session tracking.
 
         Combines user ID and conversation ID for unique sessions.
+        If this is a reply to a message, includes the thread root ID
+        to maintain separate sessions per thread.
 
         Returns:
             Session key string
         """
-        return f"{self.get_user_identifier()}:{self.conversation.id}"
+        base_key = f"{self.get_user_identifier()}:{self.conversation.id}"
+        if self.reply_to_id:
+            return f"{base_key}:{self.reply_to_id}"
+        return base_key
+
+    def is_thread_reply(self) -> bool:
+        """Check if this message is a reply within a thread.
+
+        Returns:
+            True if this is a reply to another message
+        """
+        return self.reply_to_id is not None
 
 
 @dataclass

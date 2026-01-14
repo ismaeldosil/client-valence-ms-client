@@ -73,6 +73,8 @@ class TeamsMessageHandler:
             user_id=message.get_user_identifier(),
             user_name=message.from_user.name,
             conversation_id=message.conversation.id,
+            is_thread_reply=message.is_thread_reply(),
+            reply_to_id=message.reply_to_id,
         )
 
         # Check if it's a command
